@@ -1,0 +1,237 @@
+// ==============================================================================
+// AAPKA ASTRO - ENTERPRISE POSTGRESQL PRISMA SCHEMA
+// ==============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ASTROLOGER
+  ADMIN
+}
+
+enum AstrologerPresenceStatus {
+  AVAILABLE
+  BUSY
+  BREAK
+  OFFLINE
+}
+
+enum ConsultationType {
+  CHAT
+  CALL
+}
+
+enum SessionStatus {
+  WAITING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum TransactionType {
+  CREDIT
+  DEBIT
+}
+
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+// ------------------------------------------------------------------------------
+// User & Authentication
+// ------------------------------------------------------------------------------
+model User {
+  id            String   @id @default(cuid())
+  phone         String   @unique
+  name          String?
+  email         String?  @unique
+  role          Role     @default(USER)
+  walletBalance Float    @default(0.0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relationships
+  astrologerProfile    AstrologerProfile?
+  consultations        ConsultationSession[] @relation("UserConsultations")
+  walletTransactions   WalletTransaction[]
+  kundlis              KundliProfile[]
+  appointments         Appointment[]
+  vastuBookings        VastuBooking[]
+  gemstoneOrders       GemstoneOrder[]
+
+  @@index([phone])
+}
+
+model OtpSession {
+  id         String    @id @default(cuid())
+  phone      String
+  otpHash    String
+  expiresAt  DateTime
+  verifiedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([phone])
+}
+
+// ------------------------------------------------------------------------------
+// Single Astrologer Profile & Master Controls
+// ------------------------------------------------------------------------------
+model AstrologerProfile {
+  id                   String                   @id @default(cuid())
+  userId               String                   @unique
+  user                 User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name                 String
+  title                String
+  degree               String
+  experienceYears      Int                      @default(18)
+  bio                  String
+  rating               Float                    @default(4.98)
+  reviewsCount         Int                      @default(12850)
+  ratePerMin           Float                    @default(35.0)
+  discountedRatePerMin Float                    @default(19.0)
+  status               AstrologerPresenceStatus @default(AVAILABLE)
+  statusMessage        String?
+  nextAvailableAt      DateTime?
+  createdAt            DateTime                 @default(now())
+  updatedAt            DateTime                 @updatedAt
+
+  consultations ConsultationSession[] @relation("AstrologerConsultations")
+  appointments  Appointment[]
+}
+
+// ------------------------------------------------------------------------------
+// Live Consultation Sessions & Chat Messages
+// ------------------------------------------------------------------------------
+model ConsultationSession {
+  id           String           @id @default(cuid())
+  userId       String
+  user         User             @relation("UserConsultations", fields: [userId], references: [id])
+  astrologerId String
+  astrologer   AstrologerProfile @relation("AstrologerConsultations", fields: [astrologerId], references: [id])
+  type         ConsultationType
+  status       SessionStatus    @default(ACTIVE)
+  startedAt    DateTime         @default(now())
+  endedAt      DateTime?
+  durationSec  Int              @default(0)
+  ratePerMin   Float
+  totalAmount  Float            @default(0.0)
+  concern      String
+  notes        String?
+  remedies     Json? // Array of official remedy prescriptions
+  birthDetails Json // Snapshot of chart inputs during session
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  messages ConsultationMessage[]
+
+  @@index([userId])
+  @@index([astrologerId])
+}
+
+model ConsultationMessage {
+  id            String              @id @default(cuid())
+  sessionId     String
+  session       ConsultationSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  senderId      String
+  senderRole    Role
+  text          String
+  attachmentUrl String?
+  attachmentType String? // "kundli" | "remedy" | "image"
+  createdAt     DateTime            @default(now())
+
+  @@index([sessionId])
+}
+
+// ------------------------------------------------------------------------------
+// Indian Payments & Wallet Ledger
+// ------------------------------------------------------------------------------
+model WalletTransaction {
+  id          String            @id @default(cuid())
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount      Float
+  type        TransactionType
+  status      TransactionStatus @default(SUCCESS)
+  description String
+  provider    String            @default("razorpay") // "razorpay" | "wallet" | "mock"
+  orderId     String? // Razorpay Order ID
+  paymentId   String? // Razorpay Payment ID
+  createdAt   DateTime          @default(now())
+
+  @@index([userId])
+}
+
+// ------------------------------------------------------------------------------
+// Kundli Profiles, Appointments & Special Services
+// ------------------------------------------------------------------------------
+model KundliProfile {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name       String
+  gender     String
+  birthDate  String // YYYY-MM-DD
+  birthTime  String // HH:MM
+  birthPlace String
+  latitude   Float
+  longitude  Float
+  timezone   Float    @default(5.5)
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Appointment {
+  id           String            @id @default(cuid())
+  userId       String
+  user         User              @relation(fields: [userId], references: [id])
+  astrologerId String
+  astrologer   AstrologerProfile @relation(fields: [astrologerId], references: [id])
+  scheduledFor DateTime
+  durationMins Int               @default(30)
+  amount       Float             @default(999.0)
+  status       SessionStatus     @default(WAITING)
+  createdAt    DateTime          @default(now())
+
+  @@index([userId])
+}
+
+model VastuBooking {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  propertyType String // "residential" | "commercial" | "industrial"
+  areaSqFt     Int
+  city         String
+  concerns     String
+  floorPlanUrl String?
+  amount       Float
+  status       String   @default("SUBMITTED")
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+}
+
+model GemstoneOrder {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  gemstoneName    String
+  ratti           String
+  price           Float
+  shippingAddress String
+  status          String   @default("PROCESSING")
+  createdAt       DateTime @default(now())
+
+  @@index([userId])
+}
