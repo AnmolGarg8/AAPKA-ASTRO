@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { ChevronDown, HelpCircle } from "lucide-react";
+import { MandalaDivider } from "@/components/ui/MandalaDivider";
 
 export const FAQSection: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -20,7 +21,7 @@ export const FAQSection: React.FC = () => {
       a: "Live consultations are billed strictly on a per-minute basis (Introductory offer: ₹19/min; standard ₹35/min). You recharge your Aapka Astro wallet using UPI (Google Pay, PhonePe, Paytm), RuPay, or Cards. The live consultation screen has an active transparent timer displaying second-by-second deductions. Unused wallet balance never expires.",
     },
     {
-      q: "How accurate is the free Kundli calculator on this website?",
+      q: "How accurate is the free Janam Kundli calculator on this website?",
       a: "Our calculator is built on the rigorous Swiss Ephemeris astronomical model and Lahiri (Chitra Paksha) Ayanamsa — the gold standard recognized by Indian Vedic universities. It calculates planetary longitudes, Bhavas, Navamsha, and Vimshottari Mahadasha down to exact degrees and minutes.",
     },
     {
@@ -34,43 +35,44 @@ export const FAQSection: React.FC = () => {
   ];
 
   return (
-    <section className="border-t border-slate-800 bg-[#0B0F19] py-16 lg:py-24">
+    <section className="border-t border-[#E8D8C3] bg-[#FBF3E7] py-16 lg:py-24">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-300 mb-3">
-            <HelpCircle className="h-3.5 w-3.5" />
-            <span>CLARITY &amp; TRANSPARENCY</span>
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-[#E8D8C3] bg-[#FFFDF9] px-3.5 py-1 text-xs font-bold text-[#7B2D26] mb-3">
+            <HelpCircle className="h-3.5 w-3.5 text-[#E8A33D]" />
+            <span>TRANSPARENCY &amp; INTEGRITY</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          <h2 className="font-temple text-3xl sm:text-4xl font-bold text-[#7B2D26] tracking-tight">
             Frequently Asked Questions
           </h2>
-          <p className="mt-2 text-slate-400 text-sm">
-            Everything you need to know about our consultation model, queue, and services.
+          <MandalaDivider className="my-4" />
+          <p className="text-[#6E5545] text-sm">
+            Everything you need to know regarding our single-astrologer consultation model, queue, and remedies.
           </p>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-3.5">
           {faqs.map((faq, idx) => {
             const isOpen = openIndex === idx;
             return (
               <div
                 key={idx}
-                className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/60 backdrop-blur-md transition-all"
+                className="overflow-hidden rounded-xl border border-[#E8D8C3] bg-[#FFFDF9] shadow-sm transition-all"
               >
                 <button
                   type="button"
                   onClick={() => setOpenIndex(isOpen ? null : idx)}
-                  className="flex w-full items-center justify-between p-5 text-left text-sm font-bold text-white hover:text-amber-300 transition-colors"
+                  className="flex w-full items-center justify-between p-5 text-left text-sm font-bold text-[#3B2A1E] hover:text-[#7B2D26] transition-colors"
                 >
-                  <span>{faq.q}</span>
+                  <span className="pr-4">{faq.q}</span>
                   <ChevronDown
-                    className={`h-4 w-4 shrink-0 text-amber-400 transition-transform duration-200 ${
+                    className={`h-4 w-4 shrink-0 text-[#C1662F] transition-transform duration-200 ${
                       isOpen ? "rotate-180" : ""
                     }`}
                   />
                 </button>
                 {isOpen && (
-                  <div className="border-t border-slate-800/80 px-5 pb-5 pt-3 text-xs sm:text-sm text-slate-300 leading-relaxed">
+                  <div className="border-t border-[#E8D8C3] bg-[#FBF3E7]/40 px-5 pb-5 pt-3 text-xs sm:text-sm text-[#6E5545] leading-relaxed">
                     {faq.a}
                   </div>
                 )}

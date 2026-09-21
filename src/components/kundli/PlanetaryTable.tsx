@@ -12,15 +12,15 @@ export const PlanetaryTable: React.FC<PlanetaryTableProps> = ({ kundli, classNam
   const list = [kundli.ascendant, ...kundli.planets];
 
   return (
-    <div className={`overflow-hidden rounded-xl border border-slate-800 bg-slate-900/60 backdrop-blur-md ${className}`}>
-      <div className="border-b border-slate-800 bg-slate-900/90 px-4 py-3">
-        <h4 className="text-sm font-bold text-amber-400 uppercase tracking-wider">
-          Planetary Positions & Dignities (ग्रह स्थिति)
+    <div className={`overflow-hidden rounded-2xl border-2 border-[#E8D8C3] bg-[#FFFDF9] shadow-sm ${className}`}>
+      <div className="border-b border-[#E8D8C3] bg-[#FBF3E7] px-4 py-3">
+        <h4 className="font-temple text-sm font-bold text-[#7B2D26] uppercase tracking-wider">
+          Planetary Positions &amp; Dignities (ग्रह स्थिति)
         </h4>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
-          <thead className="border-b border-slate-800 bg-slate-950/40 text-slate-400 font-semibold uppercase">
+          <thead className="border-b border-[#E8D8C3] bg-[#FBF3E7]/60 text-[#6E5545] font-bold uppercase">
             <tr>
               <th className="px-3.5 py-2.5">Planet</th>
               <th className="px-3.5 py-2.5">Sign (Rashi)</th>
@@ -31,37 +31,37 @@ export const PlanetaryTable: React.FC<PlanetaryTableProps> = ({ kundli, classNam
               <th className="px-3.5 py-2.5">Dignity</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60 text-slate-200">
+          <tbody className="divide-y divide-[#E8D8C3] text-[#3B2A1E]">
             {list.map((p) => {
               const isExalted = p.dignity === "Exalted";
               const isDebilitated = p.dignity === "Debilitated";
               const isOwn = p.dignity === "Own Sign" || p.dignity === "Mooltrikona";
 
               return (
-                <tr key={p.name} className="hover:bg-slate-800/30 transition-colors">
-                  <td className="px-3.5 py-2.5 font-semibold text-white flex items-center gap-1.5">
-                    <span className="text-amber-400 font-mono text-[11px]">{p.symbol}</span>
+                <tr key={p.name} className="hover:bg-[#FBF3E7]/50 transition-colors">
+                  <td className="px-3.5 py-2.5 font-bold text-[#7B2D26] flex items-center gap-1.5">
+                    <span className="font-mono text-[11px] font-black">{p.symbol}</span>
                     <span>{p.name}</span>
-                    <span className="text-[10px] text-slate-400 font-normal">({p.hindiName})</span>
+                    <span className="text-[10px] text-[#6E5545] font-normal">({p.hindiName})</span>
                   </td>
-                  <td className="px-3.5 py-2.5 font-medium">{p.rashiName}</td>
-                  <td className="px-3.5 py-2.5 font-mono text-amber-300/90">{p.degreeFormatted}</td>
+                  <td className="px-3.5 py-2.5 font-semibold">{p.rashiName}</td>
+                  <td className="px-3.5 py-2.5 font-mono font-bold text-[#C1662F]">{p.degreeFormatted}</td>
                   <td className="px-3.5 py-2.5">
                     {p.nakshatra}
-                    <span className="text-[10px] text-slate-400 block">{p.nakshatraLord}</span>
+                    <span className="text-[10px] text-[#6E5545] block">{p.nakshatraLord}</span>
                   </td>
-                  <td className="px-3.5 py-2.5 text-center font-mono">{p.pada}</td>
-                  <td className="px-3.5 py-2.5 text-center font-bold text-amber-400">H{p.house}</td>
+                  <td className="px-3.5 py-2.5 text-center font-mono font-bold">{p.pada}</td>
+                  <td className="px-3.5 py-2.5 text-center font-bold text-[#7B2D26]">H{p.house}</td>
                   <td className="px-3.5 py-2.5">
                     <span
-                      className={`inline-block rounded px-2 py-0.5 text-[10px] font-semibold ${
+                      className={`inline-block rounded px-2 py-0.5 text-[10px] font-bold ${
                         isExalted
-                          ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                          ? "bg-[#6B8E5A]/20 text-[#2E7D32] border border-[#6B8E5A]/40"
                           : isDebilitated
-                          ? "bg-rose-500/20 text-rose-300 border border-rose-500/30"
+                          ? "bg-[#991B1B]/15 text-[#991B1B] border border-[#991B1B]/30"
                           : isOwn
-                          ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                          : "bg-slate-800 text-slate-300"
+                          ? "bg-[#E8A33D]/25 text-[#7B2D26] border border-[#E8A33D]/40"
+                          : "bg-[#FBF3E7] text-[#6E5545] border border-[#E8D8C3]"
                       }`}
                     >
                       {p.dignity}

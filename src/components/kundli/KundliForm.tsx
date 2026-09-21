@@ -4,7 +4,8 @@ import React, { useState } from "react";
 import { INDIAN_CITIES, CityLocation } from "@/lib/astrology/indianCities";
 import { KundliData } from "@/lib/astrology/types";
 import { calculateKundli } from "@/lib/astrology/chartCalculations";
-import { Calendar, Clock, MapPin, User, Sparkles } from "lucide-react";
+import { Calendar, Clock, MapPin, User } from "lucide-react";
+import { DiyaIcon } from "@/components/ui/DiyaIcon";
 
 interface KundliFormProps {
   onCalculated: (data: KundliData) => void;
@@ -21,9 +22,10 @@ export const KundliForm: React.FC<KundliFormProps> = ({ onCalculated, className 
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const [isCalculating, setIsCalculating] = useState(false);
 
-  const filteredCities = INDIAN_CITIES.filter((c) =>
-    c.name.toLowerCase().includes(citySearch.toLowerCase()) ||
-    c.state.toLowerCase().includes(citySearch.toLowerCase())
+  const filteredCities = INDIAN_CITIES.filter(
+    (c) =>
+      c.name.toLowerCase().includes(citySearch.toLowerCase()) ||
+      c.state.toLowerCase().includes(citySearch.toLowerCase())
   );
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -44,36 +46,36 @@ export const KundliForm: React.FC<KundliFormProps> = ({ onCalculated, className 
 
       onCalculated(kundli);
       setIsCalculating(false);
-    }, 400);
+    }, 350);
   };
 
   return (
     <div
-      className={`rounded-2xl border border-amber-500/30 bg-gradient-to-br from-slate-900/90 via-slate-900/70 to-indigo-950/80 p-6 md:p-8 backdrop-blur-xl shadow-2xl ${className}`}
+      className={`rounded-2xl border-2 border-[#E8D8C3] bg-[#FFFDF9] p-6 md:p-8 shadow-sm ${className}`}
     >
-      <div className="flex items-center gap-3 mb-6">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-600 to-amber-400 text-slate-950 shadow-lg shadow-amber-500/20">
-          <Sparkles className="h-5 w-5 fill-current" />
+      <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[#E8D8C3]">
+        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#7B2D26] text-[#E8A33D] shadow-sm">
+          <DiyaIcon size={22} />
         </div>
         <div>
-          <h3 className="text-xl font-bold text-white tracking-tight">
-            Free Vedic Janam Kundli
+          <h3 className="font-temple text-xl font-bold text-[#7B2D26] tracking-tight">
+            Free Janam Kundli
           </h3>
-          <p className="text-xs text-amber-200/70">
-            Precise planetary calculations using authentic Lahiri Ephemeris
+          <p className="text-xs text-[#6E5545]">
+            Authentic Lahiri Ephemeris &bull; Precise Lagna &amp; Planetary Degrees
           </p>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 text-xs">
         {/* Name & Gender */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="md:col-span-2">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+            <label className="block text-xs font-bold uppercase tracking-wider text-[#3B2A1E] mb-1.5">
               Full Name
             </label>
             <div className="relative">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[#6E5545]">
                 <User className="h-4 w-4" />
               </div>
               <input
@@ -81,24 +83,24 @@ export const KundliForm: React.FC<KundliFormProps> = ({ onCalculated, className 
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Enter your name"
-                className="w-full rounded-xl border border-slate-700 bg-slate-800/80 pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+                placeholder="Enter full name"
+                className="w-full rounded-xl border border-[#E8D8C3] bg-[#FBF3E7] pl-10 pr-4 py-2.5 text-xs text-[#3B2A1E] focus:border-[#7B2D26] focus:outline-none transition-all font-medium"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+            <label className="block text-xs font-bold uppercase tracking-wider text-[#3B2A1E] mb-1.5">
               Gender
             </label>
-            <div className="grid grid-cols-2 gap-1 rounded-xl border border-slate-700 bg-slate-800/80 p-1">
+            <div className="grid grid-cols-2 gap-1 rounded-xl border border-[#E8D8C3] bg-[#FBF3E7] p-1">
               <button
                 type="button"
                 onClick={() => setGender("male")}
-                className={`rounded-lg py-1.5 text-xs font-semibold transition-all ${
+                className={`rounded-lg py-1.5 text-xs font-bold transition-all ${
                   gender === "male"
-                    ? "bg-amber-500 text-slate-950 shadow"
-                    : "text-slate-400 hover:text-white"
+                    ? "bg-[#7B2D26] text-[#FBF3E7] shadow-sm"
+                    : "text-[#6E5545] hover:text-[#3B2A1E]"
                 }`}
               >
                 Male
@@ -106,10 +108,10 @@ export const KundliForm: React.FC<KundliFormProps> = ({ onCalculated, className 
               <button
                 type="button"
                 onClick={() => setGender("female")}
-                className={`rounded-lg py-1.5 text-xs font-semibold transition-all ${
+                className={`rounded-lg py-1.5 text-xs font-bold transition-all ${
                   gender === "female"
-                    ? "bg-amber-500 text-slate-950 shadow"
-                    : "text-slate-400 hover:text-white"
+                    ? "bg-[#7B2D26] text-[#FBF3E7] shadow-sm"
+                    : "text-[#6E5545] hover:text-[#3B2A1E]"
                 }`}
               >
                 Female
@@ -121,11 +123,11 @@ export const KundliForm: React.FC<KundliFormProps> = ({ onCalculated, className 
         {/* Date & Time */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+            <label className="block text-xs font-bold uppercase tracking-wider text-[#3B2A1E] mb-1.5">
               Date of Birth
             </label>
             <div className="relative">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[#6E5545]">
                 <Calendar className="h-4 w-4" />
               </div>
               <input
@@ -133,17 +135,17 @@ export const KundliForm: React.FC<KundliFormProps> = ({ onCalculated, className 
                 required
                 value={birthDate}
                 onChange={(e) => setBirthDate(e.target.value)}
-                className="w-full rounded-xl border border-slate-700 bg-slate-800/80 pl-10 pr-4 py-2.5 text-sm text-white focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+                className="w-full rounded-xl border border-[#E8D8C3] bg-[#FBF3E7] pl-10 pr-4 py-2.5 text-xs text-[#3B2A1E] focus:border-[#7B2D26] focus:outline-none transition-all font-medium"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+            <label className="block text-xs font-bold uppercase tracking-wider text-[#3B2A1E] mb-1.5">
               Time of Birth
             </label>
             <div className="relative">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[#6E5545]">
                 <Clock className="h-4 w-4" />
               </div>
               <input
@@ -151,19 +153,19 @@ export const KundliForm: React.FC<KundliFormProps> = ({ onCalculated, className 
                 required
                 value={birthTime}
                 onChange={(e) => setBirthTime(e.target.value)}
-                className="w-full rounded-xl border border-slate-700 bg-slate-800/80 pl-10 pr-4 py-2.5 text-sm text-white focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+                className="w-full rounded-xl border border-[#E8D8C3] bg-[#FBF3E7] pl-10 pr-4 py-2.5 text-xs text-[#3B2A1E] focus:border-[#7B2D26] focus:outline-none transition-all font-medium"
               />
             </div>
           </div>
         </div>
 
-        {/* Birth Place with Autocomplete */}
+        {/* Birth Place */}
         <div className="relative">
-          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+          <label className="block text-xs font-bold uppercase tracking-wider text-[#3B2A1E] mb-1.5">
             Place of Birth
           </label>
           <div className="relative">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[#6E5545]">
               <MapPin className="h-4 w-4" />
             </div>
             <input
@@ -176,12 +178,12 @@ export const KundliForm: React.FC<KundliFormProps> = ({ onCalculated, className 
               }}
               onFocus={() => setShowCityDropdown(true)}
               placeholder="Search Indian or World city..."
-              className="w-full rounded-xl border border-slate-700 bg-slate-800/80 pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+              className="w-full rounded-xl border border-[#E8D8C3] bg-[#FBF3E7] pl-10 pr-4 py-2.5 text-xs text-[#3B2A1E] focus:border-[#7B2D26] focus:outline-none transition-all font-medium"
             />
           </div>
 
           {showCityDropdown && (
-            <div className="absolute z-30 mt-1 max-h-48 w-full overflow-auto rounded-xl border border-slate-700 bg-slate-900/95 p-1 shadow-2xl backdrop-blur-md">
+            <div className="absolute z-30 mt-1 max-h-48 w-full overflow-auto rounded-xl border border-[#E8D8C3] bg-[#FFFDF9] p-1 shadow-lg">
               {filteredCities.length > 0 ? (
                 filteredCities.map((city) => (
                   <button
@@ -192,40 +194,29 @@ export const KundliForm: React.FC<KundliFormProps> = ({ onCalculated, className 
                       setCitySearch(`${city.name}, ${city.state}`);
                       setShowCityDropdown(false);
                     }}
-                    className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs text-slate-200 hover:bg-amber-500/20 hover:text-amber-300 transition-all"
+                    className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs text-[#3B2A1E] hover:bg-[#FBF3E7] hover:text-[#7B2D26] transition-all"
                   >
-                    <span>{city.name}</span>
-                    <span className="text-[10px] text-slate-500">{city.state}</span>
+                    <span className="font-bold">{city.name}</span>
+                    <span className="text-[11px] text-[#6E5545]">{city.state}</span>
                   </button>
                 ))
               ) : (
-                <div className="p-3 text-center text-xs text-slate-400">
-                  No matching city found. Please select nearest major city.
+                <div className="p-3 text-center text-xs text-[#6E5545]">
+                  Select nearest major Indian city.
                 </div>
               )}
             </div>
           )}
         </div>
 
-        {/* Submit Button */}
+        {/* Submit */}
         <button
           type="submit"
           disabled={isCalculating}
-          className="group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 py-3.5 px-6 font-bold text-slate-950 shadow-xl shadow-amber-500/20 transition-all hover:brightness-110 hover:shadow-amber-500/30 active:scale-[0.99] disabled:opacity-50"
+          className="w-full rounded-xl bg-[#7B2D26] py-3.5 px-6 font-bold text-[#FBF3E7] shadow-sm hover:bg-[#64221C] transition-all active:scale-[0.99] text-xs flex items-center justify-center gap-2"
         >
-          <div className="flex items-center justify-center gap-2">
-            {isCalculating ? (
-              <>
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-950 border-t-transparent" />
-                <span>Computing Vedic Ephemeris...</span>
-              </>
-            ) : (
-              <>
-                <Sparkles className="h-4 w-4 fill-current transition-transform group-hover:rotate-12" />
-                <span>Generate Free Janam Kundli</span>
-              </>
-            )}
-          </div>
+          <DiyaIcon size={16} />
+          <span>{isCalculating ? "Computing Vedic Ephemeris..." : "Generate Free Janam Kundli"}</span>
         </button>
       </form>
     </div>

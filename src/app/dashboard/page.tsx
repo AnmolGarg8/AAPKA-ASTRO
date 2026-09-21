@@ -5,15 +5,9 @@ import Link from "next/link";
 import { AstrologerStateStore } from "@/lib/store/astrologerStore";
 import {
   User,
-  Wallet,
   PhoneCall,
-  Clock,
   Sparkles,
   FileText,
-  Calendar,
-  ShieldCheck,
-  CheckCircle2,
-  ArrowRight,
   PlusCircle,
   Gem,
 } from "lucide-react";
@@ -73,23 +67,23 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="bg-[#0B0F19] py-8 lg:py-16 min-h-screen text-slate-100">
+    <div className="bg-[#FBF3E7] py-8 lg:py-16 min-h-screen text-[#3B2A1E]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* User Top Profile Ribbon */}
-        <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-6 md:p-8 backdrop-blur-2xl shadow-2xl mb-10">
+        <div className="rounded-3xl border border-[#E8D8C3] bg-[#FFFDF9] p-6 md:p-8 shadow-sm mb-10">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30 text-2xl">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#FAF1E4] text-[#7B2D26] font-bold border border-[#E8D8C3] font-temple text-2xl">
                 AS
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-2xl font-bold text-white">Aarav Sharma</h1>
-                  <span className="rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-bold text-emerald-400 border border-emerald-500/30">
+                  <h1 className="text-2xl font-bold font-temple text-[#7B2D26]">Aarav Sharma</h1>
+                  <span className="rounded-full bg-[#6B8E5A]/20 px-2.5 py-0.5 text-[10px] font-bold text-[#6B8E5A] border border-[#6B8E5A]/30">
                     VERIFIED CLIENT
                   </span>
                 </div>
-                <div className="text-xs text-slate-400 mt-1">
+                <div className="text-xs text-[#7D6B5D] mt-1 font-body">
                   +91 98765 43210 &bull; Member since March 2025
                 </div>
               </div>
@@ -97,18 +91,18 @@ export default function DashboardPage() {
 
             {/* Wallet & Quick Action */}
             <div className="flex items-center gap-4">
-              <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-right">
-                <span className="text-[10px] uppercase font-bold text-slate-400 block">
+              <div className="rounded-2xl border border-[#E8D8C3] bg-[#FAF5EE] p-4 text-right">
+                <span className="text-[10px] uppercase font-bold text-[#7D6B5D] block font-temple">
                   Wallet Balance
                 </span>
-                <span className="text-2xl font-black text-amber-400 font-mono">
+                <span className="text-2xl font-bold font-temple text-[#7B2D26]">
                   ₹{wallet}
                 </span>
               </div>
 
               <Link
                 href="/wallet"
-                className="rounded-xl bg-amber-500 px-5 py-3 text-xs font-bold text-slate-950 hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/20"
+                className="rounded-xl bg-[#7B2D26] px-5 py-3 text-xs font-bold text-white hover:bg-[#64231D] transition-all shadow-sm"
               >
                 + Add Money
               </Link>
@@ -119,15 +113,15 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Left Column: Saved Birth Profiles */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 backdrop-blur-xl">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
-                  <User className="h-4 w-4" />
+            <div className="rounded-2xl border border-[#E8D8C3] bg-[#FFFDF9] p-6 shadow-sm">
+              <div className="flex items-center justify-between border-b border-[#E8D8C3] pb-4 mb-4">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-[#7B2D26] font-temple flex items-center gap-2">
+                  <User className="h-4 w-4 text-[#E8A33D]" />
                   <span>Saved Janam Kundlis</span>
                 </h3>
                 <Link
                   href="/kundli"
-                  className="flex items-center gap-1 text-xs font-semibold text-amber-300 hover:text-white"
+                  className="flex items-center gap-1 text-xs font-semibold text-[#C1662F] hover:text-[#7B2D26]"
                 >
                   <PlusCircle className="h-3.5 w-3.5" />
                   <span>New Chart</span>
@@ -138,24 +132,24 @@ export default function DashboardPage() {
                 {savedProfiles.map((p, idx) => (
                   <div
                     key={idx}
-                    className="rounded-xl border border-slate-800 bg-slate-950/60 p-4 hover:border-slate-700 transition-all"
+                    className="rounded-xl border border-[#E8D8C3] bg-[#FAF5EE] p-4 hover:border-[#D4C3B3] transition-all"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="font-bold text-white text-sm">{p.name}</span>
+                      <span className="font-bold font-temple text-[#3B2A1E] text-sm">{p.name}</span>
                       <Link
                         href="/kundli"
-                        className="text-[11px] font-bold text-amber-400 hover:underline"
+                        className="text-[11px] font-bold text-[#7B2D26] hover:underline"
                       >
                         Open Chart &rarr;
                       </Link>
                     </div>
-                    <div className="text-[11px] text-slate-400">
+                    <div className="text-[11px] text-[#7D6B5D] font-body">
                       Born: {p.birthDate} at {p.birthTime} ({p.birthPlace})
                     </div>
-                    <div className="mt-2 flex gap-2 text-[10px] font-mono text-slate-300">
-                      <span className="rounded bg-slate-800 px-2 py-0.5">Lagna: {p.lagna}</span>
-                      <span className="rounded bg-slate-800 px-2 py-0.5">Moon: {p.rashi}</span>
-                      <span className="rounded bg-slate-800 px-2 py-0.5">Nakshatra: {p.nakshatra}</span>
+                    <div className="mt-2 flex gap-2 text-[10px] font-mono text-[#6B5A4E]">
+                      <span className="rounded bg-[#FFFDF9] border border-[#E8D8C3] px-2 py-0.5">Lagna: {p.lagna}</span>
+                      <span className="rounded bg-[#FFFDF9] border border-[#E8D8C3] px-2 py-0.5">Moon: {p.rashi}</span>
+                      <span className="rounded bg-[#FFFDF9] border border-[#E8D8C3] px-2 py-0.5">Nakshatra: {p.nakshatra}</span>
                     </div>
                   </div>
                 ))}
@@ -163,16 +157,16 @@ export default function DashboardPage() {
             </div>
 
             {/* Quick Live Consult Prompt */}
-            <div className="rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-[#1E1B4B]/30 to-slate-900 p-6">
-              <h4 className="text-sm font-bold text-white mb-1">Speak with Acharya Rajesh Sharma</h4>
-              <p className="text-xs text-slate-300 leading-relaxed mb-4">
+            <div className="rounded-2xl border border-[#E8D8C3] bg-[#FAF1E4] p-6 shadow-sm">
+              <h4 className="text-sm font-bold font-temple text-[#7B2D26] mb-1">Speak with Acharya Rajesh Sharma</h4>
+              <p className="text-xs text-[#6B5A4E] leading-relaxed mb-4 font-body">
                 Acharya Ji is currently available. Have questions about an upcoming decision?
               </p>
               <Link
                 href="/consult"
-                className="flex items-center justify-center gap-2 rounded-xl bg-amber-500 py-3 text-xs font-bold text-slate-950 hover:bg-amber-400"
+                className="flex items-center justify-center gap-2 rounded-xl bg-[#7B2D26] py-3 text-xs font-bold text-white hover:bg-[#64231D] shadow-sm transition-all"
               >
-                <PhoneCall className="h-4 w-4" />
+                <PhoneCall className="h-4 w-4 text-[#E8A33D]" />
                 <span>Join Live Consultation Queue</span>
               </Link>
             </div>
@@ -181,10 +175,10 @@ export default function DashboardPage() {
           {/* Right Column: Past Consultations & Prescribed Remedies */}
           <div className="lg:col-span-7 space-y-6">
             {/* Consultation History */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 backdrop-blur-xl">
-              <div className="border-b border-slate-800 pb-4 mb-5">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
+            <div className="rounded-2xl border border-[#E8D8C3] bg-[#FFFDF9] p-6 shadow-sm">
+              <div className="border-b border-[#E8D8C3] pb-4 mb-5">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-[#7B2D26] font-temple flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-[#E8A33D]" />
                   <span>Consultation History &amp; Official Remedies</span>
                 </h3>
               </div>
@@ -193,39 +187,39 @@ export default function DashboardPage() {
                 {pastConsultations.map((c) => (
                   <div
                     key={c.id}
-                    className="rounded-2xl border border-slate-800 bg-slate-950/70 p-5 space-y-3"
+                    className="rounded-2xl border border-[#E8D8C3] bg-[#FAF5EE] p-5 space-y-3"
                   >
-                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E8D8C3] pb-3">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-white text-sm">{c.topic}</span>
-                          <span className="rounded bg-slate-800 px-2 py-0.5 text-[10px] font-mono text-slate-300">
+                          <span className="font-bold font-temple text-[#3B2A1E] text-sm">{c.topic}</span>
+                          <span className="rounded bg-[#FFFDF9] border border-[#E8D8C3] px-2 py-0.5 text-[10px] font-mono text-[#7D6B5D]">
                             {c.mode}
                           </span>
                         </div>
-                        <div className="text-[11px] text-slate-400 mt-0.5">
+                        <div className="text-[11px] text-[#7D6B5D] mt-0.5 font-body">
                           {c.date} &bull; {c.duration} &bull; Billed: {c.amount}
                         </div>
                       </div>
-                      <span className="rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-bold text-emerald-400 border border-emerald-500/30">
+                      <span className="rounded-full bg-[#6B8E5A]/20 px-2.5 py-0.5 text-[10px] font-bold text-[#6B8E5A] border border-[#6B8E5A]/30">
                         COMPLETED
                       </span>
                     </div>
 
                     {/* Prescribed Remedy Card */}
-                    <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3.5">
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-amber-300 mb-1">
-                        <Sparkles className="h-3.5 w-3.5" />
+                    <div className="rounded-xl border border-[#E8A33D]/50 bg-[#FFFDF9] p-3.5 shadow-sm">
+                      <div className="flex items-center gap-1.5 text-xs font-bold font-temple text-[#7B2D26] mb-1">
+                        <Sparkles className="h-3.5 w-3.5 text-[#E8A33D]" />
                         <span>Acharya Ji&apos;s Prescribed Remedy:</span>
                       </div>
-                      <p className="text-xs text-slate-300 leading-relaxed italic">
+                      <p className="text-xs text-[#6B5A4E] leading-relaxed italic font-body">
                         &ldquo;{c.remedy}&rdquo;
                       </p>
-                      <div className="mt-3 flex items-center justify-between pt-2 border-t border-amber-500/20 text-[11px]">
-                        <span className="text-slate-400">Prescribed by {c.astrologer}</span>
+                      <div className="mt-3 flex items-center justify-between pt-2 border-t border-[#E8D8C3] text-[11px]">
+                        <span className="text-[#7D6B5D] font-body">Prescribed by {c.astrologer}</span>
                         <Link
                           href="/gemstones"
-                          className="font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1"
+                          className="font-bold text-[#7B2D26] hover:text-[#C1662F] flex items-center gap-1 font-body"
                         >
                           <Gem className="h-3 w-3" />
                           <span>View Prescribed Gemstone</span>

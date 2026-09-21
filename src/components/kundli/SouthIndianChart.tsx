@@ -12,18 +12,12 @@ interface SouthIndianChartProps {
 
 export const SouthIndianChart: React.FC<SouthIndianChartProps> = ({
   kundli,
-  size = 420,
+  size = 400,
   className = "",
-  chartTitle = "South Indian Chart",
+  chartTitle = "South Indian Kundli",
 }) => {
   const S = size;
-  const cellSize = S / 4;
 
-  // South Indian box indices for Rashis (1: Aries to 12: Pisces)
-  // Grid layout (row, col) 0-indexed:
-  // (0,1): 1 Aries, (0,2): 2 Taurus, (0,3): 3 Gemini, (1,3): 4 Cancer,
-  // (2,3): 5 Leo, (3,3): 6 Virgo, (3,2): 7 Libra, (3,1): 8 Scorpio,
-  // (3,0): 9 Sagittarius, (2,0): 10 Capricorn, (1,0): 11 Aquarius, (0,0): 12 Pisces
   const rashiGridPos: Record<number, { r: number; c: number; name: string }> = {
     12: { r: 0, c: 0, name: "Pisces" },
     1: { r: 0, c: 1, name: "Aries" },
@@ -50,18 +44,17 @@ export const SouthIndianChart: React.FC<SouthIndianChartProps> = ({
   return (
     <div className={`relative flex flex-col items-center select-none ${className}`}>
       {chartTitle && (
-        <div className="text-xs font-semibold uppercase tracking-widest text-amber-500 mb-2">
+        <div className="font-temple text-xs font-bold uppercase tracking-wider text-[#7B2D26] mb-2">
           {chartTitle}
         </div>
       )}
 
       <div
         style={{ width: S, height: S }}
-        className="grid grid-cols-4 grid-rows-4 rounded-xl border-2 border-amber-500/40 bg-[#0B0F19] overflow-hidden shadow-2xl"
+        className="grid grid-cols-4 grid-rows-4 rounded-2xl border-2 border-[#7B2D26] bg-[#FFFDF7] overflow-hidden shadow-md"
       >
         {[0, 1, 2, 3].map((row) =>
           [0, 1, 2, 3].map((col) => {
-            // Check if center (1,1), (1,2), (2,1), (2,2)
             const isCenter = (row === 1 || row === 2) && (col === 1 || col === 2);
 
             if (isCenter) {
@@ -69,24 +62,23 @@ export const SouthIndianChart: React.FC<SouthIndianChartProps> = ({
                 return (
                   <div
                     key={`${row}-${col}`}
-                    className="col-span-2 row-span-2 flex flex-col items-center justify-center border border-amber-500/20 bg-gradient-to-br from-[#111827] to-[#1E1B4B] p-2 text-center"
+                    className="col-span-2 row-span-2 flex flex-col items-center justify-center border border-[#E8D8C3] bg-[#FBF3E7] p-2 text-center"
                   >
-                    <div className="text-amber-400 font-bold text-sm tracking-wider">
+                    <div className="font-temple text-[#7B2D26] font-bold text-sm tracking-wide">
                       {kundli.name}
                     </div>
-                    <div className="text-[10px] text-slate-400 mt-0.5">
+                    <div className="text-[10px] text-[#6E5545] font-semibold mt-0.5">
                       Lagna: {kundli.ascendant.rashiName}
                     </div>
-                    <div className="text-[10px] text-slate-400">
-                      Moon: {kundli.moonSign} • {kundli.nakshatra}
+                    <div className="text-[10px] text-[#6E5545]">
+                      Moon: {kundli.moonSign} &bull; {kundli.nakshatra}
                     </div>
                   </div>
                 );
               }
-              return null; // Handled by col-span-2 row-span-2
+              return null;
             }
 
-            // Find which Rashi this grid cell belongs to
             const rashiEntry = Object.entries(rashiGridPos).find(
               ([, pos]) => pos.r === row && pos.c === col
             );
@@ -99,14 +91,14 @@ export const SouthIndianChart: React.FC<SouthIndianChartProps> = ({
             return (
               <div
                 key={`${row}-${col}`}
-                className={`relative flex flex-col justify-between p-1.5 border border-amber-500/30 ${
-                  isLagnaHouse ? "bg-amber-500/10" : "bg-[#0F172A]/70"
+                className={`relative flex flex-col justify-between p-1.5 border border-[#E8D8C3] ${
+                  isLagnaHouse ? "bg-[#E8A33D]/15" : "bg-[#FFFDF7]"
                 }`}
               >
-                <div className="flex items-center justify-between text-[10px] text-slate-400">
-                  <span className="font-semibold text-amber-300">{rashiEntry[1].name.slice(0, 3)}</span>
+                <div className="flex items-center justify-between text-[10px] text-[#6E5545]">
+                  <span className="font-bold text-[#C1662F]">{rashiEntry[1].name.slice(0, 3)}</span>
                   {isLagnaHouse && (
-                    <span className="text-[9px] px-1 py-0.2 bg-amber-500/30 text-amber-300 rounded font-bold">
+                    <span className="text-[9px] px-1 py-0.2 bg-[#7B2D26] text-[#FBF3E7] rounded font-bold">
                       ASC
                     </span>
                   )}
@@ -116,14 +108,14 @@ export const SouthIndianChart: React.FC<SouthIndianChartProps> = ({
                   {planets.map((p) => (
                     <span
                       key={p.name}
-                      className={`text-[10px] font-semibold ${
+                      className={`text-[10px] font-bold ${
                         p.name === "Ascendant"
-                          ? "text-amber-400"
+                          ? "text-[#7B2D26]"
                           : p.dignity === "Exalted"
-                          ? "text-emerald-400"
+                          ? "text-[#2E7D32]"
                           : p.dignity === "Debilitated"
-                          ? "text-rose-400"
-                          : "text-slate-200"
+                          ? "text-[#C62828]"
+                          : "text-[#3B2A1E]"
                       }`}
                     >
                       {p.symbol}

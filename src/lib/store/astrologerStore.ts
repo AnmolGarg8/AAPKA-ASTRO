@@ -27,7 +27,7 @@ export interface QueueItem {
 export interface ConsultationMessage {
   id: string;
   sessionId: string;
-  sender: "astrologer" | "user";
+  sender: "astrologer" | "user" | "client";
   text: string;
   timestamp: string;
   attachmentType?: "kundli" | "remedy" | "image";
@@ -170,11 +170,12 @@ export class AstrologerStateStore {
     ]);
   }
 
-  static addToQueue(item: Omit<QueueItem, "id" | "joinedAt" | "estimatedWaitMins">): QueueItem {
+  static addToQueue(item: Omit<QueueItem, "id" | "joinedAt" | "estimatedWaitMins" | "userId"> & { userId?: string }): QueueItem {
     const queue = this.getQueue();
     const waitMins = (queue.length + 1) * 8;
     const newItem: QueueItem = {
       ...item,
+      userId: item.userId || `user-${Date.now()}`,
       id: `q-${Date.now()}`,
       joinedAt: new Date().toISOString(),
       estimatedWaitMins: waitMins
@@ -221,6 +222,41 @@ export class AstrologerStateStore {
     return newSession;
   }
 
+  static acceptNextInQueue(queueId: string): ActiveSession | null {
+    return this.startSessionFromQueue(queueId);
+  }
+
+  static startDirectSession(item: {
+    userName: string;
+    userPhone: string;
+    type: "chat" | "call";
+    birthDetails: QueueItem["birthDetails"];
+    concern: string;
+  }): ActiveSession {
+    const newSession: ActiveSession = {
+      id: `sess-${Date.now()}`,
+      userId: `user-${Date.now()}`,
+      userName: item.userName,
+      userPhone: item.userPhone,
+      type: item.type,
+      startedAt: new Date().toISOString(),
+      ratePerMin: 19,
+      elapsedSeconds: 0,
+      status: "active",
+      birthDetails: item.birthDetails,
+      concern: item.concern,
+      notes: "",
+      remedies: []
+    };
+    this.setStorage(STORAGE_KEYS.ACTIVE_SESSION, newSession);
+    this.setStatus("BUSY");
+    return newSession;
+  }
+
+  static joinQueue(item: Omit<QueueItem, "id" | "joinedAt" | "estimatedWaitMins" | "userId"> & { userId?: string }): QueueItem {
+    return this.addToQueue(item);
+  }
+
   static endSession(): void {
     this.setStorage(STORAGE_KEYS.ACTIVE_SESSION, null);
     const queue = this.getQueue();
@@ -240,7 +276,7 @@ export class AstrologerStateStore {
     return all.filter(m => m.sessionId === sessionId || m.sessionId === "default");
   }
 
-  static sendMessage(sessionId: string, sender: "astrologer" | "user", text: string, attachmentType?: "kundli" | "remedy", attachmentData?: any): ConsultationMessage {
+  static sendMessage(sessionId: string, sender: "astrologer" | "user" | "client", text: string, attachmentType?: "kundli" | "remedy", attachmentData?: any): ConsultationMessage {
     const all = this.getStorage<ConsultationMessage[]>(STORAGE_KEYS.MESSAGES, []);
     const newMsg: ConsultationMessage = {
       id: `msg-${Date.now()}`,
@@ -273,5 +309,9 @@ export class AstrologerStateStore {
     const updated = Math.max(0, current - amount);
     this.setStorage(STORAGE_KEYS.WALLET, updated);
     return updated;
+  }
+
+  static deductWallet(amount: number): number {
+    return this.deductWalletBalance(amount);
   }
 }

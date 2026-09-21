@@ -5,12 +5,7 @@ import Link from "next/link";
 import {
   Gem,
   ShieldCheck,
-  Award,
-  Sparkles,
   PhoneCall,
-  CheckCircle2,
-  Filter,
-  ArrowRight,
 } from "lucide-react";
 
 export const GemstonesPage: React.FC = () => {
@@ -114,18 +109,18 @@ export const GemstonesPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#0B0F19] py-8 lg:py-16 min-h-screen text-slate-100">
+    <div className="bg-[#FBF3E7] py-8 lg:py-16 min-h-screen text-[#3B2A1E]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-300 mb-3">
-            <Gem className="h-3.5 w-3.5" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#E8D8C3] bg-[#FFFDF9] px-3.5 py-1 text-xs font-semibold text-[#7B2D26] shadow-sm mb-3 font-temple">
+            <Gem className="h-3.5 w-3.5 text-[#C1662F]" />
             <span>100% UNHEATED &amp; UNTREATED</span>
           </div>
-          <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+          <h1 className="text-3xl sm:text-5xl font-bold font-temple text-[#7B2D26] tracking-tight">
             Govt.-Certified Vedic Gemstones
           </h1>
-          <p className="mt-3 text-slate-400 text-sm sm:text-base leading-relaxed">
+          <p className="mt-3 text-[#7D6B5D] text-sm sm:text-base leading-relaxed font-body">
             Every gemstone recommended by Acharya Rajesh Sharma is hand-selected, lab-certified for natural origin, and consecrated with individualized Vedic mantras before delivery.
           </p>
         </div>
@@ -147,8 +142,8 @@ export const GemstonesPage: React.FC = () => {
               onClick={() => setSelectedPlanet(item.key)}
               className={`rounded-xl px-4 py-2 transition-all ${
                 selectedPlanet === item.key
-                  ? "bg-amber-500 text-slate-950 font-bold shadow-lg shadow-amber-500/20"
-                  : "border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-white"
+                  ? "bg-[#7B2D26] text-white font-bold shadow-sm"
+                  : "border border-[#D4C3B3] bg-[#FAF5EE] text-[#3B2A1E] hover:bg-[#F3E7D3]"
               }`}
             >
               {item.label}
@@ -161,21 +156,21 @@ export const GemstonesPage: React.FC = () => {
           {filtered.map((gem) => (
             <div
               key={gem.id}
-              className="group rounded-3xl border border-slate-800 bg-slate-900/60 overflow-hidden backdrop-blur-xl hover:border-amber-500/40 hover:shadow-2xl hover:shadow-amber-500/10 transition-all flex flex-col justify-between"
+              className="group rounded-3xl border border-[#E8D8C3] bg-[#FFFDF9] overflow-hidden shadow-sm hover:border-[#D4C3B3] hover:shadow-md transition-all flex flex-col justify-between"
             >
               <div>
                 {/* Image & Lab Badge */}
-                <div className="relative h-52 w-full overflow-hidden bg-slate-950">
+                <div className="relative h-52 w-full overflow-hidden bg-[#FAF5EE]">
                   <img
                     src={gem.image}
                     alt={gem.name}
                     className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute top-3 left-3 rounded-lg bg-slate-950/80 px-2.5 py-1 text-[10px] font-bold text-amber-300 backdrop-blur-md border border-amber-500/30 flex items-center gap-1">
-                    <ShieldCheck className="h-3 w-3 text-emerald-400" />
+                  <div className="absolute top-3 left-3 rounded-lg bg-[#FAF5EE]/90 px-2.5 py-1 text-[10px] font-bold text-[#7B2D26] backdrop-blur-md border border-[#E8D8C3] flex items-center gap-1 shadow-sm font-temple">
+                    <ShieldCheck className="h-3 w-3 text-[#6B8E5A]" />
                     <span>{gem.lab}</span>
                   </div>
-                  <div className="absolute bottom-3 right-3 rounded-lg bg-slate-950/80 px-2.5 py-1 text-[11px] font-mono font-bold text-white backdrop-blur-md">
+                  <div className="absolute bottom-3 right-3 rounded-lg bg-[#3B2A1E]/80 px-2.5 py-1 text-[11px] font-mono font-bold text-white backdrop-blur-md">
                     {gem.origin}
                   </div>
                 </div>
@@ -183,32 +178,32 @@ export const GemstonesPage: React.FC = () => {
                 {/* Details */}
                 <div className="p-6 space-y-3">
                   <div>
-                    <h3 className="text-base font-bold text-white group-hover:text-amber-300 transition-colors">
+                    <h3 className="text-base font-bold font-temple text-[#3B2A1E] group-hover:text-[#7B2D26] transition-colors">
                       {gem.name}
                     </h3>
-                    <div className="text-xs text-amber-400/90 font-medium">{gem.hindi}</div>
+                    <div className="text-xs text-[#C1662F] font-semibold">{gem.hindi}</div>
                   </div>
 
-                  <div className="text-xs text-slate-300">
-                    <strong className="text-slate-400">Ruler:</strong> {gem.planet}
+                  <div className="text-xs text-[#6B5A4E] font-body">
+                    <strong className="text-[#3B2A1E]">Ruler:</strong> {gem.planet}
                   </div>
 
-                  <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">
+                  <p className="text-xs text-[#7D6B5D] leading-relaxed line-clamp-2 font-body">
                     {gem.benefits}
                   </p>
 
-                  <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-2.5 text-[11px] flex justify-between text-slate-300">
+                  <div className="rounded-xl border border-[#E8D8C3] bg-[#FAF5EE] p-2.5 text-[11px] flex justify-between text-[#6B5A4E]">
                     <span>Weight Range:</span>
-                    <strong className="text-white font-mono">{gem.ratti}</strong>
+                    <strong className="text-[#3B2A1E] font-mono">{gem.ratti}</strong>
                   </div>
                 </div>
               </div>
 
               {/* Price & Action */}
-              <div className="border-t border-slate-800 p-6 pt-4 flex items-center justify-between">
+              <div className="border-t border-[#E8D8C3] p-6 pt-4 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] text-slate-500 uppercase block font-semibold">Starting From</span>
-                  <span className="text-lg font-black text-amber-400 font-mono">
+                  <span className="text-[10px] text-[#7D6B5D] uppercase block font-semibold font-temple">Starting From</span>
+                  <span className="text-xl font-bold font-temple text-[#7B2D26]">
                     ₹{gem.price.toLocaleString("en-IN")}
                   </span>
                 </div>
@@ -216,7 +211,7 @@ export const GemstonesPage: React.FC = () => {
                 <div className="flex gap-2">
                   <Link
                     href="/consult"
-                    className="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-semibold text-slate-300 hover:text-white"
+                    className="rounded-xl border border-[#D4C3B3] bg-[#FAF5EE] px-3 py-2 text-xs font-semibold text-[#3B2A1E] hover:bg-[#F3E7D3] transition-all"
                     title="Ask Acharya Ji if this stone is suitable for your Lagna"
                   >
                     Check Suitability
@@ -225,7 +220,7 @@ export const GemstonesPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => handleAddToCart(gem.name)}
-                    className="rounded-xl bg-amber-500 px-3.5 py-2 text-xs font-bold text-slate-950 hover:bg-amber-400 transition-all"
+                    className="rounded-xl bg-[#7B2D26] px-3.5 py-2 text-xs font-bold text-white hover:bg-[#64231D] shadow-sm transition-all"
                   >
                     Order
                   </button>
@@ -236,19 +231,19 @@ export const GemstonesPage: React.FC = () => {
         </div>
 
         {/* Consult Banner for Gemstone Suitability */}
-        <div className="mt-16 rounded-3xl border border-amber-500/40 bg-gradient-to-r from-amber-500/15 via-[#1E1B4B] to-slate-900 p-8 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="mt-16 rounded-3xl border border-[#E8A33D]/60 bg-gradient-to-r from-[#7B2D26] via-[#64231D] to-[#3B2A1E] text-white p-8 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md">
           <div>
-            <h3 className="text-xl font-bold text-white">
+            <h3 className="text-xl font-bold font-temple">
               WARNING: Never wear a gemstone without Kundli verification
             </h3>
-            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-amber-100/80 mt-1 max-w-2xl leading-relaxed font-body">
               Wearing an incompatible gemstone for an enemy planet (such as Neelam or Moonga without proper house alignment) can trigger severe financial and health reversals. Let Acharya Rajesh Sharma calculate your Shadbala before ordering.
             </p>
           </div>
 
           <Link
             href="/consult"
-            className="shrink-0 rounded-xl bg-amber-500 px-6 py-3.5 text-xs font-black text-slate-950 hover:bg-amber-400 shadow-xl shadow-amber-500/20 flex items-center gap-2"
+            className="shrink-0 rounded-xl bg-[#E8A33D] px-6 py-3.5 text-xs font-bold text-[#3B2A1E] hover:bg-[#d69330] shadow-md flex items-center gap-2 transition-all"
           >
             <PhoneCall className="h-4 w-4" />
             <span>Consult Acharya Ji First (₹19/min)</span>

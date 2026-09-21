@@ -1,24 +1,26 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Cinzel, Mukta } from "next/font/google";
 import "./globals.css";
 import { AstrologerStatusHeader } from "@/components/layout/AstrologerStatusHeader";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const cinzel = Cinzel({
+  variable: "--font-cinzel",
   subsets: ["latin"],
+  weight: ["400", "600", "700", "800", "900"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const mukta = Mukta({
+  variable: "--font-mukta",
+  subsets: ["latin", "devanagari"],
+  weight: ["300", "400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
   title: "Aapka Astro | Premier Vedic Astrology, Kundli & Vastu Consultations",
   description:
-    "Direct 1-on-1 consultations with Acharya Rajesh Sharma (18+ Years Exp, BHU Gold Medalist). Accurate Janam Kundli, Gun Milan, Vastu audits, and certified gemstone recommendations.",
+    "Direct 1-on-1 consultations with Acharya Rajesh Sharma (18+ Years Exp, BHU Gold Medalist). Authentic Janam Kundli reading, 36 Gun Milan, Vastu audits, and certified gemstone recommendations.",
   keywords: [
     "Vedic Astrology",
     "Aapka Astro",
@@ -36,9 +38,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
+      className={`${cinzel.variable} ${mukta.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#0B0F19] text-slate-100 selection:bg-amber-500 selection:text-slate-950 font-sans">
+      <body className="min-h-full flex flex-col bg-[#FBF3E7] text-[#3B2A1E] font-body selection:bg-[#E8A33D] selection:text-[#3B2A1E]">
         <AstrologerStatusHeader />
         <Navbar />
         <main className="flex-1">{children}</main>

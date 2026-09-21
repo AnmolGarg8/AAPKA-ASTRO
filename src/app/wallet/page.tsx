@@ -5,15 +5,10 @@ import Link from "next/link";
 import { AstrologerStateStore } from "@/lib/store/astrologerStore";
 import {
   Wallet,
-  Sparkles,
   ShieldCheck,
-  CheckCircle2,
   PhoneCall,
   Clock,
-  ArrowRight,
-  CreditCard,
   QrCode,
-  Tag,
 } from "lucide-react";
 
 export const WalletPage: React.FC = () => {
@@ -21,7 +16,6 @@ export const WalletPage: React.FC = () => {
   const [selectedPack, setSelectedPack] = useState<number>(499);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
-  const [promoApplied, setPromoApplied] = useState(true);
 
   const packs = [
     {
@@ -79,34 +73,34 @@ export const WalletPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#0B0F19] py-8 lg:py-16 min-h-screen text-slate-100">
+    <div className="bg-[#FBF3E7] py-8 lg:py-16 min-h-screen text-[#3B2A1E]">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3.5 py-1 text-xs font-semibold text-amber-300 mb-3">
-            <Wallet className="h-3.5 w-3.5" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#E8D8C3] bg-[#FFFDF9] px-3.5 py-1 text-xs font-semibold text-[#7B2D26] shadow-sm mb-3 font-temple">
+            <Wallet className="h-3.5 w-3.5 text-[#C1662F]" />
             <span>SECURE VEDIC CONSULTATION WALLET</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          <h1 className="text-3xl sm:text-4xl font-bold font-temple text-[#7B2D26] tracking-tight">
             Consultation Balance &amp; Recharge
           </h1>
-          <p className="mt-2 text-slate-400 text-xs sm:text-sm">
+          <p className="mt-2 text-[#7D6B5D] text-xs sm:text-sm font-body">
             Top up your balance using UPI or Cards. Deductions occur second-by-second only during active consultations.
           </p>
         </div>
 
         {/* Current Balance Card */}
-        <div className="rounded-3xl border border-amber-500/40 bg-gradient-to-r from-slate-900/90 via-[#1E1B4B]/80 to-slate-900/90 p-8 shadow-2xl backdrop-blur-2xl mb-12">
+        <div className="rounded-3xl border border-[#E8D8C3] bg-[#FFFDF9] p-8 shadow-sm mb-12">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#7D6B5D] block font-temple">
                 Available Wallet Balance
               </span>
-              <div className="text-4xl sm:text-5xl font-black text-amber-400 font-mono mt-1">
+              <div className="text-4xl sm:text-5xl font-bold font-temple text-[#7B2D26] mt-1">
                 ₹{balance.toLocaleString("en-IN")}
               </div>
-              <div className="text-xs text-slate-300 mt-2 flex items-center gap-2">
-                <Clock className="h-4 w-4 text-emerald-400" />
+              <div className="text-xs text-[#6B5A4E] mt-2 flex items-center gap-2 font-body">
+                <Clock className="h-4 w-4 text-[#6B8E5A]" />
                 <span>
                   Valid for ~<strong>{Math.floor(balance / 19)} Minutes</strong> of Live Consultation with Acharya Ji (@ ₹19/min)
                 </span>
@@ -115,9 +109,9 @@ export const WalletPage: React.FC = () => {
 
             <Link
               href="/consult"
-              className="shrink-0 rounded-2xl bg-amber-500 px-6 py-3.5 text-xs font-extrabold text-slate-950 hover:bg-amber-400 shadow-xl shadow-amber-500/20 flex items-center gap-2"
+              className="shrink-0 rounded-2xl bg-[#7B2D26] px-6 py-3.5 text-xs font-bold text-white hover:bg-[#64231D] shadow-md flex items-center gap-2 transition-all"
             >
-              <PhoneCall className="h-4 w-4" />
+              <PhoneCall className="h-4 w-4 text-[#E8A33D]" />
               <span>Use Balance &amp; Consult Now</span>
             </Link>
           </div>
@@ -126,8 +120,8 @@ export const WalletPage: React.FC = () => {
         {/* Recharge Packs */}
         <div className="mb-12">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-bold text-white">Select Recharge Pack</h3>
-            <span className="rounded-full bg-emerald-500/20 px-3 py-0.5 text-xs font-bold text-emerald-400 border border-emerald-500/30">
+            <h3 className="text-lg font-bold font-temple text-[#7B2D26]">Select Recharge Pack</h3>
+            <span className="rounded-full bg-[#6B8E5A]/15 px-3 py-0.5 text-xs font-bold text-[#6B8E5A] border border-[#6B8E5A]/30">
               Special Intro Offer: Up to ₹600 Free Talktime
             </span>
           </div>
@@ -139,32 +133,32 @@ export const WalletPage: React.FC = () => {
                 <div
                   key={pack.amount}
                   onClick={() => setSelectedPack(pack.amount)}
-                  className={`cursor-pointer rounded-2xl border p-6 flex flex-col justify-between transition-all backdrop-blur-xl relative overflow-hidden ${
+                  className={`cursor-pointer rounded-2xl border p-6 flex flex-col justify-between transition-all relative overflow-hidden ${
                     isSelected
-                      ? "border-amber-500 bg-slate-900/95 shadow-2xl shadow-amber-500/20 ring-2 ring-amber-500/40"
-                      : "border-slate-800 bg-slate-900/60 hover:border-slate-700"
+                      ? "border-2 border-[#7B2D26] bg-[#FFFDF9] shadow-md ring-2 ring-[#7B2D26]/10"
+                      : "border-[#E8D8C3] bg-[#FFFDF9] hover:border-[#D4C3B3] shadow-sm"
                   }`}
                 >
                   {pack.popular && (
-                    <div className="absolute top-0 right-0 bg-amber-500 px-3 py-0.5 text-[10px] font-extrabold text-slate-950 rounded-bl-lg">
+                    <div className="absolute top-0 right-0 bg-[#E8A33D] px-3 py-0.5 text-[10px] font-bold text-[#3B2A1E] rounded-bl-lg font-temple">
                       MOST POPULAR
                     </div>
                   )}
 
                   <div>
-                    <span className="rounded bg-slate-800 px-2 py-0.5 text-[10px] font-bold text-slate-300">
+                    <span className="rounded bg-[#FAF1E4] px-2 py-0.5 text-[10px] font-bold text-[#7B2D26] border border-[#E8D8C3]">
                       {pack.tag}
                     </span>
 
-                    <div className="text-3xl font-black text-white font-mono mt-3">
+                    <div className="text-3xl font-bold font-temple text-[#3B2A1E] mt-3">
                       ₹{pack.amount}
                     </div>
 
-                    <div className="text-xs text-amber-300 font-semibold mt-1">
+                    <div className="text-xs text-[#C1662F] font-bold mt-1">
                       Get ₹{pack.totalCredits} Balance
                     </div>
 
-                    <div className="text-[11px] text-slate-400 mt-0.5">
+                    <div className="text-[11px] text-[#7D6B5D] mt-0.5 font-body">
                       Talktime: {pack.talktime}
                     </div>
                   </div>
@@ -177,8 +171,8 @@ export const WalletPage: React.FC = () => {
                     }}
                     className={`mt-6 w-full rounded-xl py-2.5 text-xs font-bold transition-all ${
                       isSelected
-                        ? "bg-amber-500 text-slate-950 hover:bg-amber-400"
-                        : "bg-slate-800 text-slate-200 hover:text-white"
+                        ? "bg-[#7B2D26] text-white hover:bg-[#64231D] shadow-sm"
+                        : "border border-[#D4C3B3] bg-[#FAF5EE] text-[#3B2A1E] hover:bg-[#F3E7D3]"
                     }`}
                   >
                     Recharge ₹{pack.amount}
@@ -191,32 +185,32 @@ export const WalletPage: React.FC = () => {
 
         {/* UPI Payment Flow Simulation Modal */}
         {showQRModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md">
-            <div className="w-full max-w-sm rounded-3xl border border-amber-500/40 bg-slate-900 p-6 text-center shadow-2xl">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-                <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#3B2A1E]/60 p-4 backdrop-blur-sm">
+            <div className="w-full max-w-sm rounded-3xl border border-[#E8D8C3] bg-[#FFFDF9] p-6 text-center shadow-2xl">
+              <div className="flex items-center justify-between border-b border-[#E8D8C3] pb-3 mb-4">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#7B2D26] font-temple">
                   Instant UPI Payment
                 </span>
                 <button
                   type="button"
                   onClick={() => setShowQRModal(false)}
-                  className="text-slate-400 hover:text-white"
+                  className="text-[#7D6B5D] hover:text-[#3B2A1E] text-lg font-bold"
                 >
                   &times;
                 </button>
               </div>
 
-              <div className="rounded-2xl border border-slate-700 bg-white p-4 mx-auto w-48 h-48 flex items-center justify-center mb-4 shadow-inner">
-                <div className="flex flex-col items-center justify-center text-slate-950">
-                  <QrCode className="h-32 w-32" />
-                  <span className="text-[10px] font-mono font-bold mt-1">Scan via GPay / PhonePe / Paytm</span>
+              <div className="rounded-2xl border border-[#D4C3B3] bg-white p-4 mx-auto w-48 h-48 flex items-center justify-center mb-4 shadow-sm">
+                <div className="flex flex-col items-center justify-center text-[#3B2A1E]">
+                  <QrCode className="h-32 w-32 text-[#7B2D26]" />
+                  <span className="text-[10px] font-mono font-bold mt-1 text-[#7D6B5D]">Scan via GPay / PhonePe / Paytm</span>
                 </div>
               </div>
 
-              <div className="text-sm font-bold text-white mb-1">
+              <div className="text-sm font-bold font-temple text-[#3B2A1E] mb-1">
                 Paying: ₹{selectedPack} (Total Credits: ₹{packs.find(p => p.amount === selectedPack)?.totalCredits})
               </div>
-              <div className="text-xs text-slate-400 mb-6">UPI ID: aapkaastro@icici (Verified Merchant)</div>
+              <div className="text-xs text-[#7D6B5D] mb-6 font-body">UPI ID: aapkaastro@icici (Verified Merchant)</div>
 
               <button
                 type="button"
@@ -225,7 +219,7 @@ export const WalletPage: React.FC = () => {
                   const p = packs.find(pk => pk.amount === selectedPack)!;
                   handleRecharge(p);
                 }}
-                className="w-full rounded-xl bg-amber-500 py-3 text-xs font-extrabold text-slate-950 hover:bg-amber-400 transition-all flex items-center justify-center gap-2"
+                className="w-full rounded-xl bg-[#7B2D26] py-3 text-xs font-bold text-white hover:bg-[#64231D] transition-all flex items-center justify-center gap-2 shadow-sm"
               >
                 {isProcessing ? (
                   <span>Verifying UPI Transaction...</span>
@@ -238,12 +232,12 @@ export const WalletPage: React.FC = () => {
         )}
 
         {/* Trust & Guarantee Notes */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-6 text-xs text-slate-300">
-          <div className="flex items-center gap-2 font-bold text-white mb-2">
-            <ShieldCheck className="h-4 w-4 text-emerald-400" />
+        <div className="rounded-2xl border border-[#E8D8C3] bg-[#FFFDF9] p-6 text-xs text-[#6B5A4E] shadow-sm">
+          <div className="flex items-center gap-2 font-bold font-temple text-[#7B2D26] mb-2">
+            <ShieldCheck className="h-4 w-4 text-[#6B8E5A]" />
             <span>Aapka Astro Consumer Trust Guarantee</span>
           </div>
-          <ul className="space-y-1.5 text-slate-400 list-disc list-inside">
+          <ul className="space-y-1.5 text-[#7D6B5D] list-disc list-inside font-body">
             <li>Unused wallet balance carries lifetime validity with zero expiry date.</li>
             <li>If a call drops prematurely or cannot connect, 100% of your credits are immediately restored.</li>
             <li>Instant 1-click refunds available upon request through our Varanasi desk.</li>

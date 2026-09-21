@@ -14,21 +14,13 @@ import { calculateKundli } from "@/lib/astrology/chartCalculations";
 import { KundliData } from "@/lib/astrology/types";
 import { NorthIndianChart } from "@/components/kundli/NorthIndianChart";
 import { PlanetaryTable } from "@/components/kundli/PlanetaryTable";
-import { DashaTimeline } from "@/components/kundli/DashaTimeline";
 import {
   ShieldCheck,
   PhoneCall,
   Clock,
-  User,
-  Send,
-  Sparkles,
   PhoneOff,
   CheckCircle2,
-  AlertCircle,
   FileText,
-  DollarSign,
-  Award,
-  Power,
   RefreshCw,
 } from "lucide-react";
 
@@ -102,18 +94,18 @@ export default function AstrologerCockpitPage() {
   };
 
   const handleAcceptQueueItem = (queueId: string) => {
-    const session = AstrologerStateStore.startSessionFromQueue(queueId);
-    if (session) {
-      setActiveSession(session);
-      setStatus("BUSY");
+    const sess = AstrologerStateStore.acceptNextInQueue(queueId);
+    if (sess) {
+      setActiveSession(sess);
+      setSessionSeconds(0);
+      syncState();
     }
   };
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!astroReply.trim() || !activeSession) return;
-    const msg = AstrologerStateStore.sendMessage(activeSession.id, "astrologer", astroReply.trim());
-    setMessages((prev) => [...prev, msg]);
+    AstrologerStateStore.sendMessage(activeSession.id, "astrologer", astroReply.trim());
     setAstroReply("");
   };
 
@@ -122,9 +114,7 @@ export default function AstrologerCockpitPage() {
     AstrologerStateStore.sendMessage(
       activeSession.id,
       "astrologer",
-      `[OFFICIAL VEDIC REMEDY PRESCRIPTION]: ${remedyText}`,
-      "remedy",
-      { remedy: remedyText }
+      `VEDIC REMEDY PRESCRIBED: ${remedyText.trim()}`
     );
     setRemedySent(true);
     setTimeout(() => setRemedySent(false), 2500);
@@ -140,22 +130,22 @@ export default function AstrologerCockpitPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070A10] text-slate-100 py-8">
+    <div className="min-h-screen bg-[#FBF3E7] text-[#3B2A1E] py-8">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Cockpit Header */}
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-6 mb-8">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#E8D8C3] pb-6 mb-8">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500 text-slate-950 font-black shadow-lg shadow-amber-500/20">
-              <ShieldCheck className="h-6 w-6" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#7B2D26] text-white font-black shadow-md">
+              <ShieldCheck className="h-6 w-6 text-[#E8A33D]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-extrabold text-white">Acharya Ji&apos;s Operator Cockpit</h1>
-                <span className="rounded-full bg-amber-500/20 px-2.5 py-0.5 text-[10px] font-bold text-amber-300 border border-amber-500/30">
+                <h1 className="text-xl font-bold font-temple text-[#7B2D26]">Acharya Ji&apos;s Operator Cockpit</h1>
+                <span className="rounded-full bg-[#FAF1E4] px-2.5 py-0.5 text-[10px] font-bold text-[#7B2D26] border border-[#E8D8C3] font-temple">
                   MASTER CONSOLE
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-[#7D6B5D] font-body">
                 Single-Astrologer Control Desk &bull; Live Queue, Presence &amp; Real-Time Consultation Workbench
               </p>
             </div>
@@ -163,17 +153,17 @@ export default function AstrologerCockpitPage() {
 
           {/* Quick Metrics */}
           <div className="flex items-center gap-4 text-xs font-mono">
-            <div className="rounded-xl border border-slate-800 bg-slate-900/60 px-3.5 py-2">
-              <span className="text-slate-500 block text-[10px]">Today&apos;s Earnings</span>
-              <span className="font-bold text-emerald-400">₹11,480</span>
+            <div className="rounded-xl border border-[#E8D8C3] bg-[#FFFDF9] px-3.5 py-2 shadow-sm">
+              <span className="text-[#7D6B5D] block text-[10px]">Today&apos;s Earnings</span>
+              <span className="font-bold text-[#6B8E5A]">₹11,480</span>
             </div>
-            <div className="rounded-xl border border-slate-800 bg-slate-900/60 px-3.5 py-2">
-              <span className="text-slate-500 block text-[10px]">Sessions Completed</span>
-              <span className="font-bold text-white">14</span>
+            <div className="rounded-xl border border-[#E8D8C3] bg-[#FFFDF9] px-3.5 py-2 shadow-sm">
+              <span className="text-[#7D6B5D] block text-[10px]">Sessions Completed</span>
+              <span className="font-bold text-[#3B2A1E]">14</span>
             </div>
             <Link
               href="/"
-              className="rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2 text-xs font-semibold text-slate-300 hover:text-white"
+              className="rounded-xl border border-[#D4C3B3] bg-[#FAF5EE] px-3.5 py-2 text-xs font-semibold text-[#3B2A1E] hover:bg-[#F3E7D3] transition-all"
             >
               View Public Site &rarr;
             </Link>
@@ -181,23 +171,23 @@ export default function AstrologerCockpitPage() {
         </div>
 
         {/* Master Status Control Bar */}
-        <div className="mb-8 rounded-2xl border border-slate-800 bg-slate-900/80 p-5 backdrop-blur-xl">
+        <div className="mb-8 rounded-2xl border border-[#E8D8C3] bg-[#FFFDF9] p-5 shadow-sm">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#7D6B5D] block mb-1 font-temple">
                 Astrologer Live Presence Status
               </span>
-              <div className="text-sm font-semibold text-white flex items-center gap-2">
-                <span className="text-slate-300">Current Broadcast:</span>
+              <div className="text-sm font-semibold text-[#3B2A1E] flex items-center gap-2">
+                <span className="text-[#6B5A4E]">Current Broadcast:</span>
                 <span
                   className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${
                     status === "AVAILABLE"
-                      ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                      ? "bg-[#6B8E5A]/20 text-[#6B8E5A] border border-[#6B8E5A]/30"
                       : status === "BUSY"
-                      ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                      ? "bg-[#E8A33D]/20 text-[#C1662F] border border-[#E8A33D]/30"
                       : status === "BREAK"
-                      ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
-                      : "bg-slate-700 text-slate-300"
+                      ? "bg-[#7B2D26]/20 text-[#7B2D26] border border-[#7B2D26]/30"
+                      : "bg-slate-200 text-[#7D6B5D]"
                   }`}
                 >
                   {status}
@@ -212,8 +202,8 @@ export default function AstrologerCockpitPage() {
                 onClick={() => handleStatusChange("AVAILABLE")}
                 className={`rounded-xl px-4 py-2 text-xs font-bold transition-all ${
                   status === "AVAILABLE"
-                    ? "bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20"
-                    : "border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700"
+                    ? "bg-[#6B8E5A] text-white shadow-sm"
+                    : "border border-[#D4C3B3] bg-[#FAF5EE] text-[#3B2A1E] hover:bg-[#F3E7D3]"
                 }`}
               >
                 AVAILABLE (Online)
@@ -224,8 +214,8 @@ export default function AstrologerCockpitPage() {
                 onClick={() => handleStatusChange("BUSY")}
                 className={`rounded-xl px-4 py-2 text-xs font-bold transition-all ${
                   status === "BUSY"
-                    ? "bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20"
-                    : "border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700"
+                    ? "bg-[#C1662F] text-white shadow-sm"
+                    : "border border-[#D4C3B3] bg-[#FAF5EE] text-[#3B2A1E] hover:bg-[#F3E7D3]"
                 }`}
               >
                 BUSY (In Session)
@@ -236,8 +226,8 @@ export default function AstrologerCockpitPage() {
                 onClick={() => handleStatusChange("BREAK")}
                 className={`rounded-xl px-4 py-2 text-xs font-bold transition-all ${
                   status === "BREAK"
-                    ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20"
-                    : "border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700"
+                    ? "bg-[#7B2D26] text-white shadow-sm"
+                    : "border border-[#D4C3B3] bg-[#FAF5EE] text-[#3B2A1E] hover:bg-[#F3E7D3]"
                 }`}
               >
                 TEA / SADHANA BREAK
@@ -248,8 +238,8 @@ export default function AstrologerCockpitPage() {
                 onClick={() => handleStatusChange("OFFLINE")}
                 className={`rounded-xl px-4 py-2 text-xs font-bold transition-all ${
                   status === "OFFLINE"
-                    ? "bg-rose-600 text-white shadow-lg shadow-rose-600/20"
-                    : "border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700"
+                    ? "bg-stone-700 text-white shadow-sm"
+                    : "border border-[#D4C3B3] bg-[#FAF5EE] text-[#3B2A1E] hover:bg-[#F3E7D3]"
                 }`}
               >
                 OFFLINE
@@ -265,27 +255,27 @@ export default function AstrologerCockpitPage() {
           ========================================================================= */
           <div className="space-y-6">
             {/* Active Session Ribbon */}
-            <div className="flex flex-wrap items-center justify-between rounded-2xl border border-amber-500/40 bg-gradient-to-r from-amber-500/15 via-[#1E1B4B] to-slate-900 p-4">
+            <div className="flex flex-wrap items-center justify-between rounded-2xl border border-[#E8D8C3] bg-[#FAF1E4] p-4 shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="h-3 w-3 rounded-full bg-emerald-500 animate-ping" />
+                <div className="h-3 w-3 rounded-full bg-[#6B8E5A] animate-ping" />
                 <div>
-                  <h3 className="font-bold text-white text-base">
+                  <h3 className="font-bold font-temple text-[#7B2D26] text-base">
                     Consulting With: {activeSession.userName} ({activeSession.userPhone})
                   </h3>
-                  <div className="text-xs text-amber-200">
+                  <div className="text-xs text-[#6B5A4E] font-body">
                     Concern: &ldquo;{activeSession.concern}&rdquo; &bull; Mode: {activeSession.type.toUpperCase()}
                   </div>
                 </div>
               </div>
 
               <div className="flex items-center gap-4">
-                <div className="font-mono text-xs text-amber-300 font-bold bg-slate-950/70 px-3 py-1.5 rounded-lg border border-amber-500/30">
+                <div className="font-mono text-xs text-[#7B2D26] font-bold bg-[#FFFDF9] px-3 py-1.5 rounded-lg border border-[#E8D8C3]">
                   Timer: {Math.floor(sessionSeconds / 60)}m {sessionSeconds % 60}s &bull; Billing: ₹{Math.floor(sessionSeconds / 60) * 19}
                 </div>
                 <button
                   type="button"
                   onClick={handleEndSession}
-                  className="rounded-xl bg-rose-600 px-4 py-2 text-xs font-bold text-white hover:bg-rose-500 transition-all flex items-center gap-1.5"
+                  className="rounded-xl bg-[#7B2D26] px-4 py-2 text-xs font-bold text-white hover:bg-[#64231D] transition-all flex items-center gap-1.5 shadow-sm"
                 >
                   <PhoneOff className="h-4 w-4" />
                   <span>Conclude Session</span>
@@ -296,10 +286,10 @@ export default function AstrologerCockpitPage() {
             {/* Split Screen Workbench */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               {/* Left Pane: Live Chat & Remedy Writer */}
-              <div className="lg:col-span-6 rounded-2xl border border-slate-800 bg-slate-900/70 p-5 flex flex-col justify-between min-h-[520px]">
+              <div className="lg:col-span-6 rounded-2xl border border-[#E8D8C3] bg-[#FFFDF9] p-5 flex flex-col justify-between min-h-[520px] shadow-sm">
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-amber-400 mb-3 flex items-center gap-2">
-                    <FileText className="h-4 w-4" />
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#7B2D26] font-temple mb-3 flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-[#E8A33D]" />
                     <span>Live Consultation Conversation</span>
                   </h4>
 
@@ -311,10 +301,10 @@ export default function AstrologerCockpitPage() {
                         className={`flex flex-col ${m.sender === "astrologer" ? "items-end" : "items-start"}`}
                       >
                         <div
-                          className={`max-w-md rounded-2xl p-3 text-xs ${
+                          className={`max-w-md rounded-2xl p-3 text-xs shadow-sm ${
                             m.sender === "astrologer"
-                              ? "bg-amber-500 text-slate-950 font-medium rounded-br-none"
-                              : "bg-slate-800 text-slate-200 rounded-bl-none border border-slate-700"
+                              ? "bg-[#7B2D26] text-white font-medium rounded-br-none"
+                              : "bg-[#FAF5EE] text-[#3B2A1E] rounded-bl-none border border-[#E8D8C3]"
                           }`}
                         >
                           <div className="text-[10px] opacity-75 font-semibold mb-0.5">
@@ -333,11 +323,11 @@ export default function AstrologerCockpitPage() {
                       value={astroReply}
                       onChange={(e) => setAstroReply(e.target.value)}
                       placeholder="Type your astrological advice..."
-                      className="flex-1 rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2.5 text-xs text-white focus:border-amber-500 focus:outline-none"
+                      className="flex-1 rounded-xl border border-[#D4C3B3] bg-[#FAF5EE] px-3.5 py-2.5 text-xs text-[#3B2A1E] focus:border-[#7B2D26] focus:outline-none"
                     />
                     <button
                       type="submit"
-                      className="rounded-xl bg-amber-500 px-4 py-2.5 font-bold text-slate-950 hover:bg-amber-400 text-xs"
+                      className="rounded-xl bg-[#7B2D26] px-4 py-2.5 font-bold text-white hover:bg-[#64231D] text-xs shadow-sm transition-all"
                     >
                       Send
                     </button>
@@ -345,8 +335,8 @@ export default function AstrologerCockpitPage() {
                 </div>
 
                 {/* Remedy Prescription Generator */}
-                <div className="border-t border-slate-800 pt-4">
-                  <span className="text-xs font-bold uppercase tracking-wider text-amber-400 block mb-2">
+                <div className="border-t border-[#E8D8C3] pt-4">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#7B2D26] font-temple block mb-2">
                     Write Official Remedy / Prescription
                   </span>
                   <div className="flex gap-2">
@@ -355,12 +345,12 @@ export default function AstrologerCockpitPage() {
                       value={remedyText}
                       onChange={(e) => setRemedyText(e.target.value)}
                       placeholder="e.g. Wear 6.25 Ratti Pukhraj on Thursday; chant Om Namah Shivaya 108 times."
-                      className="flex-1 rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2 text-xs text-white focus:border-amber-500 focus:outline-none"
+                      className="flex-1 rounded-xl border border-[#D4C3B3] bg-[#FAF5EE] px-3.5 py-2 text-xs text-[#3B2A1E] focus:border-[#7B2D26] focus:outline-none"
                     />
                     <button
                       type="button"
                       onClick={handleSendRemedy}
-                      className="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-500"
+                      className="rounded-xl bg-[#6B8E5A] px-4 py-2 text-xs font-bold text-white hover:bg-[#587449] shadow-sm transition-all"
                     >
                       {remedySent ? "Prescribed ✓" : "Prescribe Remedy"}
                     </button>
@@ -369,13 +359,13 @@ export default function AstrologerCockpitPage() {
               </div>
 
               {/* Right Pane: Client's Kundli Side-by-Side */}
-              <div className="lg:col-span-6 rounded-2xl border border-slate-800 bg-slate-900/70 p-5 overflow-hidden">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-amber-400">
+              <div className="lg:col-span-6 rounded-2xl border border-[#E8D8C3] bg-[#FFFDF9] p-5 overflow-hidden shadow-sm">
+                <div className="flex items-center justify-between border-b border-[#E8D8C3] pb-3 mb-4">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#7B2D26] font-temple">
                     Client&apos;s Janam Kundli (Lagna &amp; Planetary Degrees)
                   </h4>
-                  <span className="text-xs text-slate-400 font-mono">
-                    Lagna: <strong className="text-white">{clientKundli.ascendant.rashiName}</strong> &bull; Moon: <strong className="text-white">{clientKundli.moonSign}</strong>
+                  <span className="text-xs text-[#7D6B5D] font-mono">
+                    Lagna: <strong className="text-[#3B2A1E]">{clientKundli.ascendant.rashiName}</strong> &bull; Moon: <strong className="text-[#3B2A1E]">{clientKundli.moonSign}</strong>
                   </span>
                 </div>
 
@@ -393,16 +383,16 @@ export default function AstrologerCockpitPage() {
           ========================================================================= */
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Queue List (Left Column) */}
-            <div className="lg:col-span-8 rounded-2xl border border-slate-800 bg-slate-900/60 p-6 backdrop-blur-xl">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
+            <div className="lg:col-span-8 rounded-2xl border border-[#E8D8C3] bg-[#FFFDF9] p-6 shadow-sm">
+              <div className="flex items-center justify-between border-b border-[#E8D8C3] pb-4 mb-6">
                 <div>
-                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <h3 className="text-lg font-bold font-temple text-[#7B2D26] flex items-center gap-2">
                     <span>Live Waiting Queue</span>
-                    <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-xs font-mono font-bold text-amber-300">
+                    <span className="rounded-full bg-[#FAF1E4] px-2 py-0.5 text-xs font-mono font-bold text-[#7B2D26] border border-[#E8D8C3]">
                       {queue.length} Clients
                     </span>
                   </h3>
-                  <p className="text-xs text-slate-400 mt-0.5">
+                  <p className="text-xs text-[#7D6B5D] mt-0.5 font-body">
                     Clients currently in line waiting for Acharya Ji to accept their session.
                   </p>
                 </div>
@@ -410,7 +400,7 @@ export default function AstrologerCockpitPage() {
                 <button
                   type="button"
                   onClick={syncState}
-                  className="rounded-lg border border-slate-700 bg-slate-800 p-2 text-slate-300 hover:text-white"
+                  className="rounded-lg border border-[#D4C3B3] bg-[#FAF5EE] p-2 text-[#3B2A1E] hover:bg-[#F3E7D3]"
                   title="Refresh Queue"
                 >
                   <RefreshCw className="h-4 w-4" />
@@ -418,10 +408,10 @@ export default function AstrologerCockpitPage() {
               </div>
 
               {queue.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-slate-800 p-12 text-center text-xs text-slate-400">
-                  <Clock className="mx-auto h-8 w-8 text-slate-600 mb-2" />
+                <div className="rounded-xl border border-dashed border-[#D4C3B3] p-12 text-center text-xs text-[#7D6B5D]">
+                  <Clock className="mx-auto h-8 w-8 text-[#C1662F] mb-2" />
                   No clients currently waiting in the live queue.
-                  <p className="text-[11px] text-slate-500 mt-1">
+                  <p className="text-[11px] text-[#7D6B5D] mt-1 font-body">
                     Your status is set to &ldquo;{status}&rdquo;. New consultations will appear here automatically.
                   </p>
                 </div>
@@ -430,21 +420,21 @@ export default function AstrologerCockpitPage() {
                   {queue.map((item, idx) => (
                     <div
                       key={item.id}
-                      className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-xl border border-slate-800 bg-slate-950/60 p-4 hover:border-slate-700 transition-all"
+                      className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-xl border border-[#E8D8C3] bg-[#FAF5EE] p-4 hover:border-[#D4C3B3] transition-all"
                     >
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-bold text-amber-400">#{idx + 1}</span>
-                          <span className="font-bold text-white text-sm">{item.userName}</span>
-                          <span className="rounded bg-slate-800 px-2 py-0.5 text-[10px] font-semibold text-slate-300">
+                          <span className="font-mono text-xs font-bold text-[#7B2D26]">#{idx + 1}</span>
+                          <span className="font-bold text-[#3B2A1E] text-sm">{item.userName}</span>
+                          <span className="rounded bg-[#FFFDF9] border border-[#E8D8C3] px-2 py-0.5 text-[10px] font-semibold text-[#7D6B5D]">
                             {item.consultationType.toUpperCase()}
                           </span>
-                          <span className="text-xs text-slate-400">({item.userPhone})</span>
+                          <span className="text-xs text-[#7D6B5D]">({item.userPhone})</span>
                         </div>
-                        <div className="text-xs text-slate-300 italic">
+                        <div className="text-xs text-[#6B5A4E] italic font-body">
                           &ldquo;{item.concern}&rdquo;
                         </div>
-                        <div className="text-[11px] text-slate-500">
+                        <div className="text-[11px] text-[#7D6B5D]">
                           Birth: {item.birthDetails.birthDate} at {item.birthDetails.birthTime} ({item.birthDetails.birthPlace})
                         </div>
                       </div>
@@ -453,9 +443,9 @@ export default function AstrologerCockpitPage() {
                         <button
                           type="button"
                           onClick={() => handleAcceptQueueItem(item.id)}
-                          className="rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-slate-950 hover:bg-amber-400 shadow-lg shadow-amber-500/20 flex items-center gap-1.5"
+                          className="rounded-xl bg-[#7B2D26] px-4 py-2 text-xs font-bold text-white hover:bg-[#64231D] shadow-sm flex items-center gap-1.5 transition-all"
                         >
-                          <PhoneCall className="h-3.5 w-3.5" />
+                          <PhoneCall className="h-3.5 w-3.5 text-[#E8A33D]" />
                           <span>Accept &amp; Connect</span>
                         </button>
                       </div>
@@ -467,25 +457,25 @@ export default function AstrologerCockpitPage() {
 
             {/* Quick Stats & Astrologer Instructions (Right Column) */}
             <div className="lg:col-span-4 space-y-6">
-              <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 backdrop-blur-xl">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-amber-400 mb-3">
+              <div className="rounded-2xl border border-[#E8D8C3] bg-[#FFFDF9] p-5 shadow-sm">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[#7B2D26] font-temple mb-3">
                   Operator Guidelines
                 </h4>
-                <ul className="space-y-2.5 text-xs text-slate-300 leading-relaxed">
+                <ul className="space-y-2.5 text-xs text-[#6B5A4E] leading-relaxed font-body">
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="h-4 w-4 text-[#6B8E5A] shrink-0 mt-0.5" />
                     <span>
                       When taking a break or stepping away, always set status to <strong>BREAK</strong> or <strong>OFFLINE</strong> to maintain user trust.
                     </span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="h-4 w-4 text-[#6B8E5A] shrink-0 mt-0.5" />
                     <span>
                       The client&apos;s chart automatically opens side-by-side upon clicking &ldquo;Accept &amp; Connect&rdquo;.
                     </span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="h-4 w-4 text-[#6B8E5A] shrink-0 mt-0.5" />
                     <span>
                       Billing automatically counts second-by-second and charges the client&apos;s wallet balance in real-time.
                     </span>

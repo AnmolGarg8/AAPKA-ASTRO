@@ -12,16 +12,15 @@ interface NorthIndianChartProps {
 
 export const NorthIndianChart: React.FC<NorthIndianChartProps> = ({
   kundli,
-  size = 420,
+  size = 400,
   className = "",
-  chartTitle = "Lagna Chart (D1)",
+  chartTitle = "Lagna Kundli (D1 Chart)",
 }) => {
   const S = size;
   const H_S = S / 2;
   const Q_S = S / 4;
   const TQ_S = (3 * S) / 4;
 
-  // Get planets grouped by house
   const getHouseData = (houseNum: number) => {
     const house = kundli.houses.find((h) => h.houseNumber === houseNum);
     return {
@@ -30,7 +29,6 @@ export const NorthIndianChart: React.FC<NorthIndianChartProps> = ({
     };
   };
 
-  // Center coordinates for House labels & planet lists
   const houseCoordinates: Record<number, { rashiX: number; rashiY: number; planetX: number; planetY: number }> = {
     1: { rashiX: H_S, rashiY: Q_S - 24, planetX: H_S, planetY: Q_S },
     2: { rashiX: Q_S - 15, rashiY: 28, planetX: Q_S - 10, planetY: 55 },
@@ -49,7 +47,7 @@ export const NorthIndianChart: React.FC<NorthIndianChartProps> = ({
   return (
     <div className={`relative flex flex-col items-center select-none ${className}`}>
       {chartTitle && (
-        <div className="text-xs font-semibold uppercase tracking-widest text-amber-500 mb-2">
+        <div className="font-temple text-xs font-bold uppercase tracking-wider text-[#7B2D26] mb-2">
           {chartTitle}
         </div>
       )}
@@ -58,41 +56,29 @@ export const NorthIndianChart: React.FC<NorthIndianChartProps> = ({
         width={S}
         height={S}
         viewBox={`0 0 ${S} ${S}`}
-        className="rounded-xl shadow-2xl border-2 border-amber-500/40 bg-gradient-to-br from-[#0F172A] via-[#0B0F19] to-[#1E1B4B]"
+        className="rounded-2xl border-2 border-[#7B2D26] bg-[#FFFDF7] shadow-md"
       >
-        <defs>
-          {/* Subtle cosmic glow */}
-          <radialGradient id="kundliGlow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#D97706" stopOpacity="0.12" />
-            <stop offset="100%" stopColor="#0B0F19" stopOpacity="0" />
-          </radialGradient>
-        </defs>
-
-        <rect x="0" y="0" width={S} height={S} fill="url(#kundliGlow)" />
-
-        {/* Outer Square */}
+        {/* Outer Square Frame */}
         <rect
-          x="1.5"
-          y="1.5"
-          width={S - 3}
-          height={S - 3}
-          fill="none"
-          stroke="#F59E0B"
-          strokeWidth="2.5"
-          opacity="0.85"
+          x="2"
+          y="2"
+          width={S - 4}
+          height={S - 4}
+          fill="#FFFDF7"
+          stroke="#7B2D26"
+          strokeWidth="3"
         />
 
-        {/* Main Diagonals */}
-        <line x1="0" y1="0" x2={S} y2={S} stroke="#D97706" strokeWidth="1.75" opacity="0.75" />
-        <line x1="0" y1={S} x2={S} y2="0" stroke="#D97706" strokeWidth="1.75" opacity="0.75" />
+        {/* Diagonal Cross Lines */}
+        <line x1="0" y1="0" x2={S} y2={S} stroke="#C1662F" strokeWidth="1.8" />
+        <line x1="0" y1={S} x2={S} y2="0" stroke="#C1662F" strokeWidth="1.8" />
 
         {/* Inner Diamond connecting midpoints */}
         <polygon
           points={`${H_S},0 ${S},${H_S} ${H_S},${S} 0,${H_S}`}
           fill="none"
-          stroke="#F59E0B"
-          strokeWidth="2"
-          opacity="0.85"
+          stroke="#7B2D26"
+          strokeWidth="2.2"
         />
 
         {/* Houses data & planets rendering */}
@@ -108,10 +94,10 @@ export const NorthIndianChart: React.FC<NorthIndianChartProps> = ({
                 y={coords.rashiY}
                 textAnchor="middle"
                 dominantBaseline="central"
-                fill="#FBBF24"
-                fontSize="11"
+                fill="#C1662F"
+                fontSize="11.5"
                 fontWeight="bold"
-                className="font-mono opacity-80"
+                className="font-mono"
               >
                 {rashi}
               </text>
@@ -120,7 +106,7 @@ export const NorthIndianChart: React.FC<NorthIndianChartProps> = ({
               {planets.length > 0 && (
                 <g>
                   {planets.map((p, idx) => {
-                    const offset = (idx - (planets.length - 1) / 2) * 13;
+                    const offset = (idx - (planets.length - 1) / 2) * 14;
                     const isExalted = p.dignity === "Exalted";
                     const isDebilitated = p.dignity === "Debilitated";
 
@@ -133,25 +119,23 @@ export const NorthIndianChart: React.FC<NorthIndianChartProps> = ({
                         dominantBaseline="central"
                         fill={
                           isExalted
-                            ? "#34D399"
+                            ? "#2E7D32"
                             : isDebilitated
-                            ? "#F87171"
+                            ? "#C62828"
                             : p.name === "Sun"
-                            ? "#FDE047"
-                            : p.name === "Moon"
-                            ? "#E0E7FF"
+                            ? "#B45309"
                             : p.name === "Mars"
-                            ? "#FB7185"
-                            : p.name === "Jupiter"
-                            ? "#FCD34D"
-                            : "#CBD5E1"
+                            ? "#7B2D26"
+                            : p.name === "Saturn"
+                            ? "#1E3A8A"
+                            : "#3B2A1E"
                         }
-                        fontSize="11.5"
-                        fontWeight="600"
+                        fontSize="12"
+                        fontWeight="bold"
                         className="tracking-tight"
                       >
                         {p.symbol}
-                        <tspan fontSize="8.5" fill="#94A3B8" dx="2">
+                        <tspan fontSize="9" fill="#78716C" dx="2">
                           {p.degreeFormatted.split(" ")[0]}
                         </tspan>
                       </text>
@@ -165,15 +149,15 @@ export const NorthIndianChart: React.FC<NorthIndianChartProps> = ({
       </svg>
 
       {/* Legend footnote */}
-      <div className="flex items-center gap-4 text-[10px] text-slate-400 mt-2">
+      <div className="flex items-center gap-4 text-[10px] text-[#6E5545] mt-2 font-medium">
         <span className="flex items-center gap-1">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" /> Exalted
+          <span className="w-2 h-2 rounded-full bg-[#2E7D32] inline-block" /> Exalted (उच्च)
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-2 h-2 rounded-full bg-rose-400 inline-block" /> Debilitated
+          <span className="w-2 h-2 rounded-full bg-[#C62828] inline-block" /> Debilitated (नीच)
         </span>
         <span className="flex items-center gap-1">
-          <span className="text-amber-400 font-bold font-mono">1-12</span> Signs (Rashis)
+          <span className="text-[#C1662F] font-bold font-mono">1-12</span> Signs (राशि)
         </span>
       </div>
     </div>

@@ -13,13 +13,7 @@ import { KundliData } from "@/lib/astrology/types";
 import {
   Sparkles,
   PhoneCall,
-  Download,
-  Share2,
-  Calendar,
-  Compass,
-  ArrowRight,
   Printer,
-  ShieldCheck,
   CheckCircle2,
 } from "lucide-react";
 
@@ -47,20 +41,20 @@ export default function KundliPage() {
   };
 
   return (
-    <div className="bg-[#0B0F19] py-8 lg:py-12 min-h-screen">
+    <div className="bg-[#FBF3E7] py-8 lg:py-12 min-h-screen text-[#3B2A1E]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb & Header */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
           <div>
-            <div className="flex items-center gap-2 text-xs text-slate-400 mb-1">
-              <Link href="/" className="hover:text-amber-400">Home</Link>
+            <div className="flex items-center gap-2 text-xs text-[#7D6B5D] mb-1">
+              <Link href="/" className="hover:text-[#7B2D26]">Home</Link>
               <span>/</span>
-              <span className="text-amber-400">Vedic Janam Kundli</span>
+              <span className="text-[#7B2D26] font-semibold">Vedic Janam Kundli</span>
             </div>
-            <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+            <h1 className="text-2xl sm:text-4xl font-bold font-temple text-[#7B2D26] tracking-tight">
               Detailed Vedic Janam Kundli (जन्म पत्रिका)
             </h1>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1">
+            <p className="text-xs sm:text-sm text-[#7D6B5D] mt-1 font-body">
               High-precision planetary degrees and Dasha timing based on authentic Lahiri Ephemeris
             </p>
           </div>
@@ -69,16 +63,16 @@ export default function KundliPage() {
             <button
               type="button"
               onClick={handlePrint}
-              className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2 text-xs font-semibold text-white hover:bg-slate-700 transition-all"
+              className="flex items-center gap-1.5 rounded-xl border border-[#D4C3B3] bg-[#FFFDF9] px-3.5 py-2 text-xs font-semibold text-[#3B2A1E] hover:bg-[#F3E7D3] transition-all shadow-sm"
             >
-              <Printer className="h-4 w-4 text-amber-400" />
+              <Printer className="h-4 w-4 text-[#C1662F]" />
               <span>Print / Save PDF</span>
             </button>
             <Link
               href="/consult"
-              className="flex items-center gap-1.5 rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-slate-950 shadow-lg shadow-amber-500/20 hover:bg-amber-400 transition-all"
+              className="flex items-center gap-1.5 rounded-xl bg-[#7B2D26] px-4 py-2 text-xs font-bold text-white shadow-md hover:bg-[#64231D] transition-all"
             >
-              <PhoneCall className="h-4 w-4" />
+              <PhoneCall className="h-4 w-4 text-[#E8A33D]" />
               <span>Get Detailed Analysis from Acharya Ji</span>
             </Link>
           </div>
@@ -90,67 +84,67 @@ export default function KundliPage() {
             <KundliForm onCalculated={(data) => setKundli(data)} />
 
             {/* Favorable Metrics Card */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 backdrop-blur-xl">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-amber-400 mb-4 flex items-center gap-2">
-                <Sparkles className="h-4 w-4" />
+            <div className="rounded-2xl border border-[#E8D8C3] bg-[#FFFDF9] p-5 shadow-sm">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[#7B2D26] font-temple mb-4 flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-[#E8A33D]" />
                 <span>Auspicious Vedic Alignments</span>
               </h4>
               <div className="space-y-3 text-xs">
-                <div className="flex justify-between border-b border-slate-800/80 pb-2">
-                  <span className="text-slate-400">Ascendant (Lagna):</span>
-                  <span className="font-bold text-white">{kundli.ascendant.rashiName} ({kundli.ascendant.hindiName})</span>
+                <div className="flex justify-between border-b border-[#E8D8C3]/80 pb-2">
+                  <span className="text-[#7D6B5D]">Ascendant (Lagna):</span>
+                  <span className="font-bold text-[#3B2A1E]">{kundli.ascendant.rashiName} ({kundli.ascendant.hindiName})</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-800/80 pb-2">
-                  <span className="text-slate-400">Moon Sign (Rashi):</span>
-                  <span className="font-bold text-amber-300">{kundli.moonSign}</span>
+                <div className="flex justify-between border-b border-[#E8D8C3]/80 pb-2">
+                  <span className="text-[#7D6B5D]">Moon Sign (Rashi):</span>
+                  <span className="font-bold text-[#7B2D26]">{kundli.moonSign}</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-800/80 pb-2">
-                  <span className="text-slate-400">Sun Sign:</span>
-                  <span className="font-bold text-white">{kundli.sunSign}</span>
+                <div className="flex justify-between border-b border-[#E8D8C3]/80 pb-2">
+                  <span className="text-[#7D6B5D]">Sun Sign:</span>
+                  <span className="font-bold text-[#3B2A1E]">{kundli.sunSign}</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-800/80 pb-2">
-                  <span className="text-slate-400">Birth Nakshatra:</span>
-                  <span className="font-bold text-amber-300">{kundli.nakshatra} (Pada {kundli.charanPada})</span>
+                <div className="flex justify-between border-b border-[#E8D8C3]/80 pb-2">
+                  <span className="text-[#7D6B5D]">Birth Nakshatra:</span>
+                  <span className="font-bold text-[#C1662F]">{kundli.nakshatra} (Pada {kundli.charanPada})</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-800/80 pb-2">
-                  <span className="text-slate-400">Recommended Gemstone:</span>
-                  <span className="font-bold text-emerald-400">{kundli.luckyGemstone}</span>
+                <div className="flex justify-between border-b border-[#E8D8C3]/80 pb-2">
+                  <span className="text-[#7D6B5D]">Recommended Gemstone:</span>
+                  <span className="font-bold text-[#6B8E5A]">{kundli.luckyGemstone}</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-800/80 pb-2">
-                  <span className="text-slate-400">Favorable Color:</span>
-                  <span className="font-bold text-slate-200">{kundli.luckyColor}</span>
+                <div className="flex justify-between border-b border-[#E8D8C3]/80 pb-2">
+                  <span className="text-[#7D6B5D]">Favorable Color:</span>
+                  <span className="font-bold text-[#3B2A1E]">{kundli.luckyColor}</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-800/80 pb-2">
-                  <span className="text-slate-400">Lucky Number:</span>
-                  <span className="font-bold text-amber-400">{kundli.luckyNumber}</span>
+                <div className="flex justify-between border-b border-[#E8D8C3]/80 pb-2">
+                  <span className="text-[#7D6B5D]">Lucky Number:</span>
+                  <span className="font-bold text-[#C1662F]">{kundli.luckyNumber}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Ishta Devata:</span>
-                  <span className="font-bold text-amber-300">{kundli.favorableDeity}</span>
+                  <span className="text-[#7D6B5D]">Ishta Devata:</span>
+                  <span className="font-bold text-[#7B2D26]">{kundli.favorableDeity}</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Right Column: Chart & Deep Tab Content */}
-          <div className="lg:col-span-8 rounded-2xl border border-slate-800 bg-slate-900/60 p-6 backdrop-blur-xl">
+          <div className="lg:col-span-8 rounded-2xl border border-[#E8D8C3] bg-[#FFFDF9] p-6 shadow-sm">
             {/* Header & Chart Switcher */}
-            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-5">
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#E8D8C3] pb-5">
               <div>
-                <h3 className="text-xl font-bold text-white">{kundli.name}&apos;s Vedic Chart</h3>
-                <div className="text-xs text-slate-400 mt-0.5">
+                <h3 className="text-xl font-bold font-temple text-[#7B2D26]">{kundli.name}&apos;s Vedic Chart</h3>
+                <div className="text-xs text-[#7D6B5D] mt-0.5">
                   Born {kundli.birthDate} at {kundli.birthTime} ({kundli.birthPlace})
                 </div>
               </div>
 
-              <div className="flex items-center rounded-xl border border-slate-700 bg-slate-800/80 p-1 text-xs">
+              <div className="flex items-center rounded-xl border border-[#D4C3B3] bg-[#F5EBE1] p-1 text-xs">
                 <button
                   type="button"
                   onClick={() => setChartType("north")}
                   className={`rounded-lg px-3 py-1 font-semibold transition-all ${
                     chartType === "north"
-                      ? "bg-amber-500 text-slate-950 shadow"
-                      : "text-slate-400 hover:text-white"
+                      ? "bg-[#7B2D26] text-white shadow-sm"
+                      : "text-[#7D6B5D] hover:text-[#3B2A1E]"
                   }`}
                 >
                   North Indian
@@ -160,8 +154,8 @@ export default function KundliPage() {
                   onClick={() => setChartType("south")}
                   className={`rounded-lg px-3 py-1 font-semibold transition-all ${
                     chartType === "south"
-                      ? "bg-amber-500 text-slate-950 shadow"
-                      : "text-slate-400 hover:text-white"
+                      ? "bg-[#7B2D26] text-white shadow-sm"
+                      : "text-[#7D6B5D] hover:text-[#3B2A1E]"
                   }`}
                 >
                   South Indian
@@ -170,14 +164,14 @@ export default function KundliPage() {
             </div>
 
             {/* Navigation Tabs */}
-            <div className="flex border-b border-slate-800 my-5 text-xs font-semibold gap-3 overflow-x-auto">
+            <div className="flex border-b border-[#E8D8C3] my-5 text-xs font-semibold gap-3 overflow-x-auto">
               <button
                 type="button"
                 onClick={() => setActiveTab("chart")}
                 className={`pb-3 border-b-2 transition-all shrink-0 ${
                   activeTab === "chart"
-                    ? "border-amber-400 text-amber-400 font-bold"
-                    : "border-transparent text-slate-400 hover:text-white"
+                    ? "border-[#7B2D26] text-[#7B2D26] font-bold"
+                    : "border-transparent text-[#7D6B5D] hover:text-[#3B2A1E]"
                 }`}
               >
                 Kundli Chart (D1)
@@ -187,8 +181,8 @@ export default function KundliPage() {
                 onClick={() => setActiveTab("planets")}
                 className={`pb-3 border-b-2 transition-all shrink-0 ${
                   activeTab === "planets"
-                    ? "border-amber-400 text-amber-400 font-bold"
-                    : "border-transparent text-slate-400 hover:text-white"
+                    ? "border-[#7B2D26] text-[#7B2D26] font-bold"
+                    : "border-transparent text-[#7D6B5D] hover:text-[#3B2A1E]"
                 }`}
               >
                 Planetary Degrees
@@ -198,8 +192,8 @@ export default function KundliPage() {
                 onClick={() => setActiveTab("dasha")}
                 className={`pb-3 border-b-2 transition-all shrink-0 ${
                   activeTab === "dasha"
-                    ? "border-amber-400 text-amber-400 font-bold"
-                    : "border-transparent text-slate-400 hover:text-white"
+                    ? "border-[#7B2D26] text-[#7B2D26] font-bold"
+                    : "border-transparent text-[#7D6B5D] hover:text-[#3B2A1E]"
                 }`}
               >
                 Vimshottari Dasha
@@ -209,8 +203,8 @@ export default function KundliPage() {
                 onClick={() => setActiveTab("dosha")}
                 className={`pb-3 border-b-2 transition-all shrink-0 ${
                   activeTab === "dosha"
-                    ? "border-amber-400 text-amber-400 font-bold"
-                    : "border-transparent text-slate-400 hover:text-white"
+                    ? "border-[#7B2D26] text-[#7B2D26] font-bold"
+                    : "border-transparent text-[#7D6B5D] hover:text-[#3B2A1E]"
                 }`}
               >
                 Dosha Diagnosis
@@ -220,8 +214,8 @@ export default function KundliPage() {
                 onClick={() => setActiveTab("remedies")}
                 className={`pb-3 border-b-2 transition-all shrink-0 ${
                   activeTab === "remedies"
-                    ? "border-amber-400 text-amber-400 font-bold"
-                    : "border-transparent text-slate-400 hover:text-white"
+                    ? "border-[#7B2D26] text-[#7B2D26] font-bold"
+                    : "border-transparent text-[#7D6B5D] hover:text-[#3B2A1E]"
                 }`}
               >
                 Remedies &amp; Gemstones
@@ -237,7 +231,7 @@ export default function KundliPage() {
                   ) : (
                     <SouthIndianChart kundli={kundli} size={420} chartTitle="South Indian Kundli" />
                   )}
-                  <p className="text-xs text-slate-400 mt-4 text-center max-w-lg">
+                  <p className="text-xs text-[#7D6B5D] mt-4 text-center max-w-lg font-body">
                     House 1 represents the physical self, health, and innate vitality. The Ascendant sign
                     governs life trajectory and overall personality.
                   </p>
@@ -250,39 +244,39 @@ export default function KundliPage() {
 
               {activeTab === "remedies" && (
                 <div className="space-y-4">
-                  <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-5">
-                    <h4 className="text-sm font-bold text-amber-300 mb-2 flex items-center gap-2">
-                      <Sparkles className="h-4 w-4" />
+                  <div className="rounded-xl border border-[#E8A33D]/40 bg-[#FAF1E4] p-5">
+                    <h4 className="text-sm font-bold text-[#7B2D26] font-temple mb-2 flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-[#E8A33D]" />
                       <span>Prescribed Gemstone: {kundli.luckyGemstone}</span>
                     </h4>
-                    <p className="text-xs text-slate-300 leading-relaxed">
+                    <p className="text-xs text-[#6B5A4E] leading-relaxed">
                       Recommended to fortify your Lagna Lord and balance planetary afflictions. Wear on the designated finger after proper purification with raw milk, Gangajal, and Vedic mantra chanting on an auspicious day.
                     </p>
                     <div className="mt-4 flex gap-3">
                       <Link
                         href="/gemstones"
-                        className="rounded-lg bg-amber-500 px-4 py-2 text-xs font-bold text-slate-950 hover:bg-amber-400"
+                        className="rounded-lg bg-[#7B2D26] px-4 py-2 text-xs font-bold text-white hover:bg-[#64231D] shadow-sm transition-all"
                       >
                         Order Govt-Certified {kundli.luckyGemstone.split(" ")[0]}
                       </Link>
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-5">
-                    <h4 className="text-sm font-bold text-white mb-2">
+                  <div className="rounded-xl border border-[#E8D8C3] bg-[#FFFDF9] p-5">
+                    <h4 className="text-sm font-bold font-temple text-[#3B2A1E] mb-2">
                       Daily Vedic Mantras &amp; Lifestyle Alignment
                     </h4>
-                    <ul className="space-y-2 text-xs text-slate-300">
+                    <ul className="space-y-2 text-xs text-[#6B5A4E]">
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-amber-400" />
+                        <CheckCircle2 className="h-4 w-4 text-[#6B8E5A]" />
                         <span>Chant Gayatri Mantra 21 times daily during sunrise facing East.</span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-amber-400" />
+                        <CheckCircle2 className="h-4 w-4 text-[#6B8E5A]" />
                         <span>Perform water offering (Surya Arghya) with copper vessel and red flowers.</span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-amber-400" />
+                        <CheckCircle2 className="h-4 w-4 text-[#6B8E5A]" />
                         <span>Favorable Day for beginning critical ventures: Thursday &amp; Monday.</span>
                       </li>
                     </ul>
@@ -292,16 +286,16 @@ export default function KundliPage() {
             </div>
 
             {/* Bottom Consultation CTA */}
-            <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-500/15 via-[#1E1B4B] to-slate-900 p-5">
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border border-[#E8A33D]/60 bg-gradient-to-r from-[#7B2D26] via-[#64231D] to-[#3B2A1E] text-white p-5 shadow-lg">
               <div>
-                <h4 className="text-sm font-bold text-white">Have specific questions about this Kundli?</h4>
-                <p className="text-xs text-slate-300 mt-0.5">
-                  Discuss career transitions, love life, child prospects, and health with Acharya Rajesh Sharma.
+                <h4 className="text-base font-bold font-temple">Have specific questions about this Kundli?</h4>
+                <p className="text-xs text-amber-100/80 mt-0.5 font-body">
+                  Discuss career transitions, love life, child prospects, and health directly with Acharya Rajesh Sharma.
                 </p>
               </div>
               <Link
                 href="/consult"
-                className="shrink-0 rounded-xl bg-amber-500 px-5 py-2.5 text-xs font-bold text-slate-950 hover:bg-amber-400 shadow-md"
+                className="shrink-0 rounded-xl bg-[#E8A33D] px-5 py-2.5 text-xs font-bold text-[#3B2A1E] hover:bg-[#d69330] shadow-md transition-all"
               >
                 Consult Acharya Ji (₹19/min)
               </Link>
