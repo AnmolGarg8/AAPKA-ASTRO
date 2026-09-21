@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { Compass, Gem, FileText, PhoneCall, ArrowRight, CheckCircle2, Sparkles } from "lucide-react";
 import { MandalaDivider } from "@/components/ui/MandalaDivider";
-import { ADMIN_CONFIGURABLE_PRICING, FIRST_CONSULTATION_OFFER } from "@/config/placeholderContent";
+import { ADMIN_CONFIGURABLE_PRICING, FIRST_CONSULTATION_OFFER, PLACEHOLDER_ASTROLOGER } from "@/config/placeholderContent";
 
 export const ServicesGrid: React.FC = () => {
   // {/* PLACEHOLDER: replace with real content */}
@@ -66,7 +66,7 @@ export const ServicesGrid: React.FC = () => {
       title: "Live Consultation",
       hindi: "सीधा व्यक्तिगत परामर्श",
       description:
-        "Real-time chat, voice, or video sessions covering any of the above with Acharya [ASTROLOGER NAME].",
+        `Real-time chat, voice, or video sessions covering any of the above with ${PLACEHOLDER_ASTROLOGER.displayName}.`,
       pricing: `Chat: ₹${ADMIN_CONFIGURABLE_PRICING.chat.ratePerMinute}/m | Voice: ₹${ADMIN_CONFIGURABLE_PRICING.voice.ratePerMinute}/m | Video: ₹${ADMIN_CONFIGURABLE_PRICING.video.ratePerMinute}/m`,
       badge: "50% Off 1st Session",
       icon: PhoneCall,

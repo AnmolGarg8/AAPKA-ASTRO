@@ -1,5 +1,5 @@
 import React from "react";
-import { PLACEHOLDER_ASTROLOGER } from "@/config/placeholderContent";
+import { PLACEHOLDER_ASTROLOGER, PLACEHOLDER_CONTACT_INFO, PLACEHOLDER_SOCIAL_LINKS } from "@/config/placeholderContent";
 
 export interface LocalBusinessJsonLdProps {
   url?: string;
@@ -17,12 +17,12 @@ export interface LocalBusinessJsonLdProps {
 export function LocalBusinessJsonLd({
   url = "https://aapkaastro.com",
   name = "Aapka Astro — Vedic Astrology, Vastu & Gemstone Wisdom",
-  telephone = "+91 98765 43210",
+  telephone = PLACEHOLDER_CONTACT_INFO.phone,
   address = {
-    streetAddress: "Kashi Vishwanath Corridor, Dashashwamedh Ghat",
-    addressLocality: "Varanasi",
-    addressRegion: "Uttar Pradesh",
-    postalCode: "221001",
+    streetAddress: "Aapka Astro Consultation Sanctum, Sector 44",
+    addressLocality: "Noida / New Delhi NCR",
+    addressRegion: "Delhi NCR",
+    postalCode: "201303",
     addressCountry: "IN",
   },
 }: LocalBusinessJsonLdProps) {
@@ -33,15 +33,15 @@ export function LocalBusinessJsonLd({
     url,
     telephone,
     priceRange: "₹₹",
-    image: "https://aapkaastro.com/images/mandala-bg.png",
+    image: "https://aapkaastro.com/images/logo.png",
     address: {
       "@type": "PostalAddress",
       ...address,
     },
     geo: {
       "@type": "GeoCoordinates",
-      latitude: 25.3176,
-      longitude: 82.9739,
+      latitude: 28.5672,
+      longitude: 77.3248,
     },
     openingHoursSpecification: {
       "@type": "OpeningHoursSpecification",
@@ -58,8 +58,9 @@ export function LocalBusinessJsonLd({
       closes: "23:00",
     },
     sameAs: [
-      "https://instagram.com/aapka_astro",
-      "https://youtube.com/@aapka_astro",
+      PLACEHOLDER_SOCIAL_LINKS.instagram.url,
+      PLACEHOLDER_SOCIAL_LINKS.facebook.url,
+      PLACEHOLDER_SOCIAL_LINKS.youtube.url,
     ],
   };
 

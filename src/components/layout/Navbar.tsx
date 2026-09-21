@@ -51,9 +51,11 @@ export const Navbar: React.FC = () => {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         {/* Brand Emblem */}
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#7B2D26] text-[#E8A33D] font-temple shadow-sm border border-[#C1662F]/30 group-hover:scale-105 transition-transform">
-            <span className="text-xl font-bold">ॐ</span>
-          </div>
+          <img
+            src="/images/logo.png"
+            alt="Aapka Astro"
+            className="h-10 w-10 object-contain rounded-xl border border-[#C1662F]/30 bg-[#7B2D26] p-1 shadow-sm group-hover:scale-105 transition-transform"
+          />
           <div>
             <div className="flex items-center gap-1.5">
               <span className="font-temple text-xl font-bold tracking-wider text-[#7B2D26]">
@@ -64,7 +66,7 @@ export const Navbar: React.FC = () => {
               </span>
             </div>
             <div className="text-[10px] text-[#6E5545] font-medium tracking-wide flex items-center gap-1">
-              <span>Bespoke Jyotish &amp; Vastu Sanctuary</span>
+              <span>Acharya Niraj Kumar &bull; Jyotish &amp; Vastu</span>
             </div>
           </div>
         </Link>

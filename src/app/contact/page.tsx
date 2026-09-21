@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { ClientAccountStore } from "@/lib/store/clientAccountStore";
-import { PLACEHOLDER_ASTROLOGER } from "@/config/placeholderContent";
+import { PLACEHOLDER_ASTROLOGER, PLACEHOLDER_CONTACT_INFO } from "@/config/placeholderContent";
 import { MandalaDivider } from "@/components/ui/MandalaDivider";
 import { DiyaIcon } from "@/components/ui/DiyaIcon";
 import {
@@ -85,9 +85,9 @@ export default function ContactPage() {
                 <div className="flex items-start gap-4 rounded-2xl border border-[#E8D8C3] bg-[#FFFDF9] p-5 shadow-sm">
                   <MapPin className="h-5 w-5 text-[#7B2D26] shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="font-bold text-[#7B2D26]">Vedic Sanctuary (Headquarters)</h4>
+                    <h4 className="font-bold text-[#7B2D26]">Delhi NCR Consultation Sanctum</h4>
                     <p className="text-[#6E5545] mt-1">
-                      Assi Ghat Marg, Near Shivala, Varanasi (Kashi), Uttar Pradesh – 221005
+                      Sector 44, Noida &amp; South Delhi NCR Consultation Sanctum, India
                     </p>
                   </div>
                 </div>
@@ -95,9 +95,9 @@ export default function ContactPage() {
                 <div className="flex items-start gap-4 rounded-2xl border border-[#E8D8C3] bg-[#FFFDF9] p-5 shadow-sm">
                   <MapPin className="h-5 w-5 text-[#C1662F] shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="font-bold text-[#7B2D26]">Delhi NCR Consultation Annex</h4>
+                    <h4 className="font-bold text-[#7B2D26]">Spiritual Lineage Sanctum</h4>
                     <p className="text-[#6E5545] mt-1">
-                      Sector 44, Near Botanical Garden, Noida / South Delhi NCR – 201303
+                      Baidyanath Dham, Deoghar, Jharkhand &ndash; Sacred Discipleship of Late Guru Shri B. B. Tiwari
                     </p>
                   </div>
                 </div>
@@ -105,10 +105,14 @@ export default function ContactPage() {
                 <div className="flex items-start gap-4 rounded-2xl border border-[#E8D8C3] bg-[#FFFDF9] p-5 shadow-sm">
                   <Phone className="h-5 w-5 text-[#6B8E5A] shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="font-bold text-[#7B2D26]">Helpline &amp; WhatsApp</h4>
-                    <p className="text-[#6E5545] mt-1">+91 98765 43210 / +91 98111 22334</p>
+                    <h4 className="font-bold text-[#7B2D26]">Official Helpline &amp; WhatsApp</h4>
+                    <p className="text-[#6E5545] mt-1">
+                      <a href={`tel:${PLACEHOLDER_CONTACT_INFO.phoneRaw}`} className="hover:text-[#7B2D26] font-semibold">
+                        {PLACEHOLDER_CONTACT_INFO.phone}
+                      </a>
+                    </p>
                     <span className="text-[11px] text-[#6B8E5A] font-semibold block mt-0.5">
-                      Available Mon – Sat, 10:00 AM – 08:00 PM IST
+                      {PLACEHOLDER_CONTACT_INFO.operatingHours}
                     </span>
                   </div>
                 </div>
@@ -117,7 +121,11 @@ export default function ContactPage() {
                   <Mail className="h-5 w-5 text-[#E8A33D] shrink-0 mt-0.5" />
                   <div>
                     <h4 className="font-bold text-[#7B2D26]">Official Inquiries</h4>
-                    <p className="text-[#6E5545] mt-1">support@aapkaastro.com / acharya@aapkaastro.com</p>
+                    <p className="text-[#6E5545] mt-1">
+                      <a href={`mailto:${PLACEHOLDER_CONTACT_INFO.email}`} className="hover:text-[#7B2D26] font-semibold">
+                        {PLACEHOLDER_CONTACT_INFO.email}
+                      </a>
+                    </p>
                   </div>
                 </div>
               </div>
@@ -128,11 +136,11 @@ export default function ContactPage() {
                   <MessageCircle className="h-6 w-6 text-[#6B8E5A]" />
                   <div className="text-xs">
                     <span className="font-bold text-[#2A4720] block">Prefer WhatsApp?</span>
-                    <span className="text-[#4F6D40]">Get quick slot confirmations instantly</span>
+                    <span className="text-[#4F6D40]">Direct consultation desk: {PLACEHOLDER_CONTACT_INFO.whatsapp}</span>
                   </div>
                 </div>
                 <a
-                  href="https://wa.me/919876543210"
+                  href={PLACEHOLDER_CONTACT_INFO.whatsappLink}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="rounded-xl bg-[#6B8E5A] px-4 py-2 text-xs font-bold text-white hover:bg-[#58754a] transition-all"
@@ -199,7 +207,7 @@ export default function ContactPage() {
                           required
                           value={formData.phone}
                           onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                          placeholder="+91 98765 43210"
+                          placeholder="+91 93112 15564"
                           className="w-full rounded-xl border border-[#E8D8C3] bg-[#FBF3E7] px-4 py-2.5 text-xs text-[#3B2A1E] focus:outline-none focus:ring-2 focus:ring-[#7B2D26]"
                         />
                       </div>

@@ -127,19 +127,18 @@ export const Hero: React.FC = () => {
             </div>
 
             {/* Trust Proof Points */}
-            {/* PLACEHOLDER: replace with real content */}
             <div className="grid grid-cols-3 gap-6 pt-6 border-t border-[#E8D8C3] max-w-xl">
               <div>
-                <div className="font-temple text-2xl sm:text-3xl font-bold text-[#7B2D26]">{PLACEHOLDER_ASTROLOGER.experienceYears}+</div>
-                <div className="text-xs text-[#6E5545] font-medium">Years Vedic Sadhana</div>
+                <div className="font-temple text-2xl sm:text-3xl font-bold text-[#7B2D26]">20+</div>
+                <div className="text-xs text-[#6E5545] font-medium">Years Vedic Mastery</div>
               </div>
               <div>
-                <div className="font-temple text-2xl sm:text-3xl font-bold text-[#7B2D26]">{PLACEHOLDER_ASTROLOGER.followersCount}</div>
-                <div className="text-xs text-[#6E5545] font-medium">Trusted Followers</div>
+                <div className="font-temple text-2xl sm:text-3xl font-bold text-[#7B2D26]">15,000+</div>
+                <div className="text-xs text-[#6E5545] font-medium">Consultations Completed</div>
               </div>
               <div>
                 <div className="font-temple text-2xl sm:text-3xl font-bold text-[#7B2D26]">4.98 ★</div>
-                <div className="text-xs text-[#6E5545] font-medium">12,850+ Consultations</div>
+                <div className="text-xs text-[#6E5545] font-medium">Bhartiya Vidya Bhawan</div>
               </div>
             </div>
           </div>
@@ -157,13 +156,13 @@ export const Hero: React.FC = () => {
                 <img
                   src={PLACEHOLDER_ASTROLOGER.avatarUrl}
                   alt={PLACEHOLDER_ASTROLOGER.displayName}
-                  className="h-64 w-full object-cover object-top filter sepia-[0.15] contrast-[1.02]"
+                  className="h-64 w-full object-cover object-top filter contrast-[1.02]"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#3B2A1E]/80 via-transparent to-transparent" />
 
                 <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
                   <div className="rounded-lg bg-[#FFFDF9]/95 px-2.5 py-1 text-xs font-bold text-[#7B2D26] shadow-sm border border-[#E8D8C3] font-temple">
-                    Traditional Vedic Master
+                    Jyotish Acharya &bull; Vastu Expert
                   </div>
                   <div className="flex items-center gap-1 rounded-lg bg-[#E8A33D] px-2 py-1 text-xs font-black text-[#3B2A1E] shadow-sm">
                     <Star className="h-3.5 w-3.5 fill-current" />
@@ -173,7 +172,6 @@ export const Hero: React.FC = () => {
               </div>
 
               {/* Bio & Credentials */}
-              {/* PLACEHOLDER: replace with real content */}
               <div className="space-y-3">
                 <div>
                   <h3 className="font-temple text-xl font-bold text-[#7B2D26]">
@@ -185,7 +183,7 @@ export const Hero: React.FC = () => {
                 </div>
 
                 <p className="text-xs text-[#6E5545] leading-relaxed line-clamp-3 font-body">
-                  Trained in the traditional Vedic sciences and trusted by a growing community of over 26,000 followers, combining ancient wisdom with a warm, personal approach.
+                  Rooted in Baidyanath Dham (Deoghar), disciple of Late Guru Shri B. B. Tiwari with 20+ years of corporate leadership (former VP at Reliance Retail &amp; Metro Cash &amp; Carry). Over 15,000+ chart analyses combining spiritual science with strategic life counsel.
                 </p>
 
                 {/* Core Specialties Badges */}

@@ -78,7 +78,7 @@ export default function ServicesPage() {
       title: "Live Consultation",
       hindi: "सीधा व्यक्तिगत परामर्श",
       description:
-        "Immediate 1-on-1 private encrypted chat, audio, or video consultation directly with Acharya [ASTROLOGER NAME].",
+        `Immediate 1-on-1 private encrypted chat, audio, or video consultation directly with ${PLACEHOLDER_ASTROLOGER.displayName}.`,
       features: [
         "Real-time chart display during the consultation",
         "Second-by-second billing with zero hidden platform charges",

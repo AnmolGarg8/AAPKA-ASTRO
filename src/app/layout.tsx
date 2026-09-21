@@ -4,6 +4,7 @@ import "./globals.css";
 import { AstrologerStatusHeader } from "@/components/layout/AstrologerStatusHeader";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { PLACEHOLDER_ASTROLOGER } from "@/config/placeholderContent";
 
 const cinzel = Cinzel({
   variable: "--font-cinzel",
@@ -18,9 +19,9 @@ const mukta = Mukta({
 });
 
 export const metadata: Metadata = {
-  title: "Aapka Astro | Your Trusted Guide to Astrology, Vastu & Gemstone Wisdom",
+  title: `Aapka Astro | ${PLACEHOLDER_ASTROLOGER.displayName} — Vedic Astrology & Vastu`,
   description:
-    "Direct 1-on-1 consultations with Acharya [ASTROLOGER NAME]. Trained in traditional Vedic sciences, Janam Kundli reading, Vastu audits, and certified gemstone wisdom.",
+    `Direct 1-on-1 consultations with ${PLACEHOLDER_ASTROLOGER.displayName}. Traditional Vedic sciences, Janam Kundli analysis, Devta & Energy Vastu audits, and certified natural gemstones.`,
   keywords: [
     "Vedic Astrology",
     "Aapka Astro",
@@ -29,8 +30,10 @@ export const metadata: Metadata = {
     "Kundli Milan",
     "Vastu Shastra Consultant",
     "Certified Gemstones",
-    "Acharya [ASTROLOGER NAME]",
-    "Astrotalk alternative"
+    PLACEHOLDER_ASTROLOGER.displayName,
+    "Acharya Niraj Kumar Astrologer",
+    "Devta Vastu",
+    "Astrotalk alternative",
   ],
 };
 

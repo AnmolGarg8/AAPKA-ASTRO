@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { Lock, Award, Heart, Phone, Mail, MapPin, ShieldCheck } from "lucide-react";
 import { MandalaDivider } from "@/components/ui/MandalaDivider";
-import { PLACEHOLDER_ASTROLOGER, PLACEHOLDER_SOCIAL_LINKS } from "@/config/placeholderContent";
+import { PLACEHOLDER_ASTROLOGER, PLACEHOLDER_SOCIAL_LINKS, PLACEHOLDER_CONTACT_INFO } from "@/config/placeholderContent";
 
 // Social Icons as direct SVG components
 const InstagramIcon: React.FC<{ className?: string }> = ({ className = "h-4 w-4" }) => (
@@ -88,12 +88,13 @@ export const Footer: React.FC = () => {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand Info & Tagline */}
-          {/* PLACEHOLDER: replace with real content */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#E8A33D] text-[#3B2A1E] font-temple font-black">
-                <span>ॐ</span>
-              </div>
+              <img
+                src="/images/logo.png"
+                alt="Aapka Astro"
+                className="h-9 w-9 object-contain rounded-lg bg-[#FAF1E4] p-1 shadow-sm"
+              />
               <span className="font-temple text-lg font-bold tracking-wider text-[#FBF3E7]">
                 AAPKA<span className="text-[#E8A33D]">ASTRO</span>
               </span>
@@ -102,11 +103,10 @@ export const Footer: React.FC = () => {
               {PLACEHOLDER_ASTROLOGER.tagline}
             </p>
             <p className="text-xs text-[#FBF3E7]/80 leading-relaxed font-body">
-              India&apos;s sacred sanctuary for authentic Vedic astrology, Janampatri analysis, and non-demolition Vastu Shastra. Consultations conducted personally by {PLACEHOLDER_ASTROLOGER.displayName}.
+              India&apos;s sacred sanctuary for authentic Vedic astrology, Janampatri analysis, and non-demolition Devta &amp; Energy Vastu Shastra. Consultations conducted personally by {PLACEHOLDER_ASTROLOGER.displayName}.
             </p>
 
-            {/* Social Links: Placeholder URLs */}
-            {/* PLACEHOLDER: replace with real content. NOTE: Real social media handles will be provided later by the business owner. */}
+            {/* Social Links */}
             <div className="pt-2">
               <div className="text-[11px] font-bold text-[#E8A33D] uppercase tracking-wider mb-2 font-temple">
                 Connect With Acharya Ji
@@ -251,15 +251,19 @@ export const Footer: React.FC = () => {
             <ul className="mt-4 space-y-2.5 text-[#FBF3E7]/80">
               <li className="flex items-center gap-2">
                 <Phone className="h-3.5 w-3.5 text-[#E8A33D]" />
-                <span>+91 98100 XXXXX (Official Desk)</span>
+                <a href={`tel:${PLACEHOLDER_CONTACT_INFO.phoneRaw}`} className="hover:text-[#E8A33D] transition-colors">
+                  {PLACEHOLDER_CONTACT_INFO.phone}
+                </a>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="h-3.5 w-3.5 text-[#E8A33D]" />
-                <span>consult@aapkaastro.com</span>
+                <a href={`mailto:${PLACEHOLDER_CONTACT_INFO.email}`} className="hover:text-[#E8A33D] transition-colors">
+                  {PLACEHOLDER_CONTACT_INFO.email}
+                </a>
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="h-3.5 w-3.5 text-[#E8A33D] mt-0.5" />
-                <span>Varanasi &bull; New Delhi &bull; Global Online Consultations</span>
+                <span>{PLACEHOLDER_CONTACT_INFO.sanctumCity}</span>
               </li>
             </ul>
 
