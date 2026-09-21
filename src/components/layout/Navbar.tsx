@@ -15,6 +15,8 @@ import {
   HeartHandshake,
   User,
   ShieldCheck,
+  Sparkles,
+  BookOpen,
 } from "lucide-react";
 import { DiyaIcon } from "@/components/ui/DiyaIcon";
 
@@ -36,11 +38,12 @@ export const Navbar: React.FC = () => {
   }, []);
 
   const navLinks = [
-    { label: "Janam Kundli", href: "/kundli", icon: FileText },
-    { label: "Kundli Milan", href: "/kundli-matching", icon: HeartHandshake },
+    { label: "Services", href: "/services", icon: Compass },
     { label: "Live Consult", href: "/consult", icon: PhoneCall, highlight: true },
-    { label: "Vastu Shastra", href: "/vastu", icon: Compass },
-    { label: "Certified Gemstones", href: "/gemstones", icon: Gem },
+    { label: "Kundli Generator", href: "/kundli-generator", icon: FileText },
+    { label: "Daily Panchang", href: "/panchang", icon: HeartHandshake },
+    { label: "Reels", href: "/reels", icon: Sparkles },
+    { label: "Blog", href: "/blog", icon: BookOpen },
   ];
 
   return (
@@ -113,7 +116,7 @@ export const Navbar: React.FC = () => {
 
           {/* User Account */}
           <Link
-            href="/dashboard"
+            href="/account"
             className="hidden sm:flex items-center gap-1.5 rounded-lg border border-[#E8D8C3] bg-[#FFFDF9] px-3 py-1.5 text-xs font-bold text-[#3B2A1E] hover:bg-[#FBF3E7] transition-all"
           >
             <User className="h-3.5 w-3.5 text-[#6E5545]" />
@@ -150,7 +153,15 @@ export const Navbar: React.FC = () => {
               );
             })}
             <Link
-              href="/astrologer"
+              href="/account"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-3 rounded-lg border border-[#E8D8C3] bg-[#FBF3E7] px-3 py-2.5 text-xs font-bold text-[#3B2A1E]"
+            >
+              <User className="h-4 w-4 text-[#7B2D26]" />
+              <span>My Account</span>
+            </Link>
+            <Link
+              href="/dashboard"
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center gap-3 rounded-lg border border-[#7B2D26]/20 bg-[#7B2D26]/10 px-3 py-2.5 text-xs font-bold text-[#7B2D26]"
             >

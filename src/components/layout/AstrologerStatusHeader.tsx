@@ -113,7 +113,7 @@ export const AstrologerStatusHeader: React.FC = () => {
           </Link>
 
           <Link
-            href="/astrologer"
+            href="/dashboard"
             className="hidden md:flex items-center gap-1 rounded-lg border border-[#FBF3E7]/30 bg-[#FBF3E7]/10 px-2.5 py-1 text-[11px] font-semibold text-[#FBF3E7] hover:bg-[#FBF3E7]/20 transition-all"
             title="Operator Cockpit"
           >

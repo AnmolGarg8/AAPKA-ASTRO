@@ -3,11 +3,19 @@ import React from "react";
 interface MandalaDividerProps {
   className?: string;
   withOm?: boolean;
+  opacity?: number;
 }
 
-export const MandalaDivider: React.FC<MandalaDividerProps> = ({ className = "", withOm = false }) => {
+export const MandalaDivider: React.FC<MandalaDividerProps> = ({
+  className = "",
+  withOm = false,
+  opacity,
+}) => {
   return (
-    <div className={`flex items-center justify-center gap-3 select-none ${className}`}>
+    <div
+      style={opacity !== undefined ? { opacity } : undefined}
+      className={`flex items-center justify-center gap-3 select-none ${className}`}
+    >
       <div className="h-[1px] w-16 sm:w-24 bg-gradient-to-r from-transparent via-[#C1662F]/40 to-[#7B2D26]/60" />
       {withOm ? (
         <span className="font-temple text-sm font-bold text-[#7B2D26]">ॐ</span>

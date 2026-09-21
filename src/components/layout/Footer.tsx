@@ -147,30 +147,35 @@ export const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* Quick Tools */}
+          {/* Quick Tools & Resources */}
           <div>
             <h4 className="font-temple text-xs font-bold uppercase tracking-wider text-[#E8A33D] mb-3">
-              Vedic Astrology Tools
+              Tools &amp; Panchang
             </h4>
             <ul className="space-y-2 text-[#FBF3E7]/80">
               <li>
-                <Link href="/kundli" className="hover:text-[#E8A33D] transition-colors">
-                  Janam Kundli Calculator
+                <Link href="/kundli-generator" className="hover:text-[#E8A33D] transition-colors">
+                  Free Kundli Generator
+                </Link>
+              </li>
+              <li>
+                <Link href="/panchang" className="hover:text-[#E8A33D] transition-colors">
+                  Daily Vedic Panchang
+                </Link>
+              </li>
+              <li>
+                <Link href="/reels" className="hover:text-[#E8A33D] transition-colors">
+                  Instagram Reels Gallery
+                </Link>
+              </li>
+              <li>
+                <Link href="/blog" className="hover:text-[#E8A33D] transition-colors">
+                  Vedic Astrology Journal
                 </Link>
               </li>
               <li>
                 <Link href="/kundli-matching" className="hover:text-[#E8A33D] transition-colors">
-                  Kundli Milan (36 Gun Matching)
-                </Link>
-              </li>
-              <li>
-                <Link href="/consult" className="hover:text-[#E8A33D] transition-colors">
-                  Live Consultation Waitlist
-                </Link>
-              </li>
-              <li>
-                <Link href="/wallet" className="hover:text-[#E8A33D] transition-colors">
-                  Consultation Wallet &amp; Offers
+                  Kundli Milan (36 Guna)
                 </Link>
               </li>
             </ul>
@@ -179,38 +184,71 @@ export const Footer: React.FC = () => {
           {/* Services */}
           <div>
             <h4 className="font-temple text-xs font-bold uppercase tracking-wider text-[#E8A33D] mb-3">
-              Core Vedic Services
+              Vedic Services
             </h4>
             <ul className="space-y-2 text-[#FBF3E7]/80">
               <li>
-                <Link href="/kundli" className="hover:text-[#E8A33D] transition-colors">
-                  Kundli &amp; Horoscope Reading
+                <Link href="/services/kundli" className="hover:text-[#E8A33D] transition-colors">
+                  Kundli &amp; Horoscope
                 </Link>
               </li>
               <li>
-                <Link href="/vastu" className="hover:text-[#E8A33D] transition-colors">
+                <Link href="/services/vastu" className="hover:text-[#E8A33D] transition-colors">
                   Vastu Consultancy
                 </Link>
               </li>
               <li>
-                <Link href="/gemstones" className="hover:text-[#E8A33D] transition-colors">
+                <Link href="/services/gemstone" className="hover:text-[#E8A33D] transition-colors">
                   Gemstone Recommendation
                 </Link>
               </li>
               <li>
-                <Link href="/consult" className="hover:text-[#E8A33D] transition-colors">
-                  Live Consultation (Chat / Call / Video)
+                <Link href="/services/live-consultation" className="hover:text-[#E8A33D] transition-colors">
+                  Live Consultation Room
+                </Link>
+              </li>
+              <li>
+                <Link href="/services" className="hover:text-[#E8A33D] transition-colors">
+                  Explore All Services
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Direct Desk */}
+          {/* Sacred Desk & Portals */}
           <div>
             <h4 className="font-temple text-xs font-bold uppercase tracking-wider text-[#E8A33D] mb-3">
-              Sacred Desk
+              Aapka Astro Sanctuary
             </h4>
-            <ul className="space-y-2.5 text-[#FBF3E7]/80">
+            <ul className="space-y-2 text-[#FBF3E7]/80">
+              <li>
+                <Link href="/about" className="hover:text-[#E8A33D] transition-colors">
+                  About Acharya Ji
+                </Link>
+              </li>
+              <li>
+                <Link href="/testimonials" className="hover:text-[#E8A33D] transition-colors">
+                  Seeker Testimonials
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="hover:text-[#E8A33D] transition-colors">
+                  Contact &amp; Helpline
+                </Link>
+              </li>
+              <li>
+                <Link href="/account" className="hover:text-[#E8A33D] transition-colors">
+                  Seeker Account Portal
+                </Link>
+              </li>
+              <li>
+                <Link href="/dashboard" className="text-[#E8A33D] hover:underline font-bold">
+                  Operator Cockpit
+                </Link>
+              </li>
+            </ul>
+
+            <ul className="mt-4 space-y-2.5 text-[#FBF3E7]/80">
               <li className="flex items-center gap-2">
                 <Phone className="h-3.5 w-3.5 text-[#E8A33D]" />
                 <span>+91 98100 XXXXX (Official Desk)</span>

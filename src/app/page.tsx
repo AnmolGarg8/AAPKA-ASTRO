@@ -7,6 +7,9 @@ import { ServicesGrid } from "@/components/home/ServicesGrid";
 import { WhyAapkaAstro } from "@/components/home/WhyAapkaAstro";
 import { Testimonials } from "@/components/home/Testimonials";
 import { FAQSection } from "@/components/home/FAQSection";
+import { PanchangWidget } from "@/components/home/PanchangWidget";
+import { InstagramFeedSection } from "@/components/home/InstagramFeedSection";
+import { BlogPreviewSection } from "@/components/home/BlogPreviewSection";
 import { KundliForm } from "@/components/kundli/KundliForm";
 import { NorthIndianChart } from "@/components/kundli/NorthIndianChart";
 import { SouthIndianChart } from "@/components/kundli/SouthIndianChart";
@@ -238,16 +241,25 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* 2. Daily Vedic Panchang Alignment */}
+      <PanchangWidget />
+
       {/* 3. Offerings Grid */}
       <ServicesGrid />
 
-      {/* 4. Why Aapka Astro vs Astrotalk */}
+      {/* 4. Daily Vedic Guidance & Reels */}
+      <InstagramFeedSection />
+
+      {/* 5. Why Aapka Astro vs Astrotalk */}
       <WhyAapkaAstro />
 
-      {/* 5. Client Testimonials */}
+      {/* 6. Client Testimonials */}
       <Testimonials />
 
-      {/* 6. FAQ Section */}
+      {/* 7. Vedic Astrology Journal / Blog Preview */}
+      <BlogPreviewSection />
+
+      {/* 8. FAQ Section */}
       <FAQSection />
 
       {/* 7. Sacred Action Banner */}

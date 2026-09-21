@@ -2,238 +2,326 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { AstrologerStateStore } from "@/lib/store/astrologerStore";
+import { useRouter } from "next/navigation";
 import {
-  User,
-  PhoneCall,
-  Sparkles,
-  FileText,
-  PlusCircle,
-  Gem,
-} from "lucide-react";
+  AstrologerStateStore,
+  AstrologerStatus,
+  QueueItem,
+  ActiveSession,
+} from "@/lib/store/astrologerStore";
+import { AdminStore } from "@/lib/store/adminStore";
 import { PLACEHOLDER_ASTROLOGER } from "@/config/placeholderContent";
+import { MandalaDivider } from "@/components/ui/MandalaDivider";
+import { DiyaIcon } from "@/components/ui/DiyaIcon";
+import {
+  ShieldCheck,
+  PhoneCall,
+  Video,
+  MessageSquare,
+  Users,
+  DollarSign,
+  BookOpen,
+  Film,
+  TrendingUp,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
+  ExternalLink,
+  Settings,
+} from "lucide-react";
 
-export default function DashboardPage() {
-  const [wallet, setWallet] = useState(250);
+export default function AstrologerDashboardPage() {
+  const router = useRouter();
+  const [status, setStatus] = useState<AstrologerStatus>("AVAILABLE");
+  const [queue, setQueue] = useState<QueueItem[]>([]);
+  const [activeSession, setActiveSession] = useState<ActiveSession | null>(null);
+  const analytics = AdminStore.getAnalytics();
+
+  const sync = () => {
+    setStatus(AstrologerStateStore.getStatus());
+    setQueue(AstrologerStateStore.getQueue());
+    setActiveSession(AstrologerStateStore.getActiveSession());
+  };
 
   useEffect(() => {
-    setWallet(AstrologerStateStore.getWalletBalance());
-    const sync = () => setWallet(AstrologerStateStore.getWalletBalance());
+    sync();
     window.addEventListener("astro_state_changed", sync);
-    return () => window.removeEventListener("astro_state_changed", sync);
+    const interval = setInterval(sync, 2000);
+    return () => {
+      window.removeEventListener("astro_state_changed", sync);
+      clearInterval(interval);
+    };
   }, []);
 
-  const savedProfiles = [
-    {
-      name: "Aarav Sharma (Self)",
-      birthDate: "24 Oct 1995",
-      birthTime: "14:35",
-      birthPlace: "New Delhi",
-      lagna: "Capricorn",
-      rashi: "Libra",
-      nakshatra: "Swati",
-    },
-    {
-      name: "Meera Kapoor (Spouse / Partner)",
-      birthDate: "12 Apr 1997",
-      birthTime: "09:15",
-      birthPlace: "Jaipur",
-      lagna: "Gemini",
-      rashi: "Taurus",
-      nakshatra: "Rohini",
-    },
-  ];
+  const handleStatusChange = (newStatus: AstrologerStatus) => {
+    AstrologerStateStore.setStatus(newStatus);
+    setStatus(newStatus);
+  };
 
-  // {/* PLACEHOLDER: replace with real content */}
-  const pastConsultations = [
-    {
-      id: "CON-8842",
-      date: "18 Sep 2026",
-      duration: "14 Minutes",
-      mode: "Audio Call",
-      amount: "₹266",
-      astrologer: PLACEHOLDER_ASTROLOGER.displayName,
-      topic: "Career Promotion & Foreign Relocation Dasha",
-      remedy: "Chant Brihaspati Beej Mantra 108 times on Thursdays. Wear 6.25 Ratti Yellow Sapphire.",
-    },
-    {
-      id: "CON-7104",
-      date: "04 Aug 2026",
-      duration: "21 Minutes",
-      mode: "Live Chat",
-      amount: "₹399",
-      astrologer: PLACEHOLDER_ASTROLOGER.displayName,
-      topic: "Kundli Milan & Manglik dosha balancing",
-      remedy: "Gauri Shankar Rudraksha recommendation. Perform Sunday Aditya Hridaya Stotra.",
-    },
-  ];
+  const handleAcceptQueueItem = (item: QueueItem) => {
+    const session = AstrologerStateStore.startDirectSession({
+      userName: item.userName,
+      userPhone: item.userPhone,
+      type: item.consultationType,
+      birthDetails: item.birthDetails,
+      concern: item.concern,
+    });
+    router.push(`/dashboard/session/${session.id}`);
+  };
+
+  const handleRemoveQueueItem = (id: string) => {
+    AstrologerStateStore.removeFromQueue(id);
+    setQueue(AstrologerStateStore.getQueue());
+  };
 
   return (
-    <div className="bg-[#FBF3E7] py-8 lg:py-16 min-h-screen text-[#3B2A1E]">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* User Top Profile Ribbon */}
-        <div className="rounded-3xl border border-[#E8D8C3] bg-[#FFFDF9] p-6 md:p-8 shadow-sm mb-10">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#FAF1E4] text-[#7B2D26] font-bold border border-[#E8D8C3] font-temple text-2xl">
-                AS
+    <div className="bg-[#FBF3E7] text-[#3B2A1E] min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl space-y-8">
+        {/* Top Cockpit Header */}
+        <div className="rounded-3xl border border-[#E8D8C3] bg-[#FFFDF9] p-6 sm:p-8 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <img
+              src={PLACEHOLDER_ASTROLOGER.avatarUrl}
+              alt={PLACEHOLDER_ASTROLOGER.displayName}
+              className="h-16 w-16 rounded-2xl object-cover border-2 border-[#7B2D26] shadow-sm"
+            />
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="font-temple text-2xl font-bold text-[#7B2D26]">
+                  {PLACEHOLDER_ASTROLOGER.displayName} Cockpit
+                </h1>
+                <span className="rounded-md bg-[#7B2D26] px-2 py-0.5 text-[10px] font-bold text-white uppercase">
+                  Astrologer Admin
+                </span>
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-2xl font-bold font-temple text-[#7B2D26]">Aarav Sharma</h1>
-                  <span className="rounded-full bg-[#6B8E5A]/20 px-2.5 py-0.5 text-[10px] font-bold text-[#6B8E5A] border border-[#6B8E5A]/30">
-                    VERIFIED CLIENT
-                  </span>
-                </div>
-                <div className="text-xs text-[#7D6B5D] mt-1 font-body">
-                  +91 98765 43210 &bull; Member since March 2025
-                </div>
-              </div>
+              <p className="text-xs text-[#6E5545] mt-0.5">
+                Single-Astrologer Control Desk • Manage your live presence and client consultations
+              </p>
             </div>
+          </div>
 
-            {/* Wallet & Quick Action */}
-            <div className="flex items-center gap-4">
-              <div className="rounded-2xl border border-[#E8D8C3] bg-[#FAF5EE] p-4 text-right">
-                <span className="text-[10px] uppercase font-bold text-[#7D6B5D] block font-temple">
-                  Wallet Balance
-                </span>
-                <span className="text-2xl font-bold font-temple text-[#7B2D26]">
-                  ₹{wallet}
-                </span>
-              </div>
-
-              <Link
-                href="/wallet"
-                className="rounded-xl bg-[#7B2D26] px-5 py-3 text-xs font-bold text-white hover:bg-[#64231D] transition-all shadow-sm"
-              >
-                + Add Money
-              </Link>
+          {/* Real-time Presence Broadcaster Toggle */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 bg-[#FBF3E7] p-2.5 rounded-2xl border border-[#E8D8C3]">
+            <span className="text-xs font-bold text-[#6E5545] px-2">Broadcaster Status:</span>
+            <div className="flex rounded-xl bg-[#FFFDF9] p-1 border border-[#E8D8C3] gap-1">
+              {[
+                { id: "AVAILABLE", label: "Available", color: "bg-[#6B8E5A] text-white" },
+                { id: "BUSY", label: "Busy", color: "bg-[#E8A33D] text-[#3B2A1E]" },
+                { id: "BREAK", label: "Break", color: "bg-[#C1662F] text-white" },
+                { id: "OFFLINE", label: "Offline", color: "bg-[#A8988B] text-white" },
+              ].map((btn) => (
+                <button
+                  key={btn.id}
+                  type="button"
+                  onClick={() => handleStatusChange(btn.id as AstrologerStatus)}
+                  className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${
+                    status === btn.id
+                      ? `${btn.color} shadow-sm`
+                      : "text-[#6E5545] hover:text-[#3B2A1E]"
+                  }`}
+                >
+                  {btn.label}
+                </button>
+              ))}
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Left Column: Saved Birth Profiles */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="rounded-2xl border border-[#E8D8C3] bg-[#FFFDF9] p-6 shadow-sm">
-              <div className="flex items-center justify-between border-b border-[#E8D8C3] pb-4 mb-4">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-[#7B2D26] font-temple flex items-center gap-2">
-                  <User className="h-4 w-4 text-[#E8A33D]" />
-                  <span>Saved Janam Kundlis</span>
-                </h3>
-                <Link
-                  href="/kundli"
-                  className="flex items-center gap-1 text-xs font-semibold text-[#C1662F] hover:text-[#7B2D26]"
-                >
-                  <PlusCircle className="h-3.5 w-3.5" />
-                  <span>New Chart</span>
-                </Link>
+        {/* Active Session Callout (if active) */}
+        {activeSession && (
+          <div className="rounded-3xl border-2 border-[#6B8E5A] bg-[#F4F9F2] p-6 shadow-md flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#6B8E5A] text-white animate-pulse">
+                <PhoneCall className="h-6 w-6" />
               </div>
-
-              <div className="space-y-3">
-                {savedProfiles.map((p, idx) => (
-                  <div
-                    key={idx}
-                    className="rounded-xl border border-[#E8D8C3] bg-[#FAF5EE] p-4 hover:border-[#D4C3B3] transition-all"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-bold font-temple text-[#3B2A1E] text-sm">{p.name}</span>
-                      <Link
-                        href="/kundli"
-                        className="text-[11px] font-bold text-[#7B2D26] hover:underline"
-                      >
-                        Open Chart &rarr;
-                      </Link>
-                    </div>
-                    <div className="text-[11px] text-[#7D6B5D] font-body">
-                      Born: {p.birthDate} at {p.birthTime} ({p.birthPlace})
-                    </div>
-                    <div className="mt-2 flex gap-2 text-[10px] font-mono text-[#6B5A4E]">
-                      <span className="rounded bg-[#FFFDF9] border border-[#E8D8C3] px-2 py-0.5">Lagna: {p.lagna}</span>
-                      <span className="rounded bg-[#FFFDF9] border border-[#E8D8C3] px-2 py-0.5">Moon: {p.rashi}</span>
-                      <span className="rounded bg-[#FFFDF9] border border-[#E8D8C3] px-2 py-0.5">Nakshatra: {p.nakshatra}</span>
-                    </div>
-                  </div>
-                ))}
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#2A4720]">
+                  LIVE CONSULTATION IN PROGRESS
+                </span>
+                <h3 className="font-temple text-lg font-bold text-[#2A4720]">
+                  Active with {activeSession.userName} ({activeSession.type.toUpperCase()})
+                </h3>
+                <p className="text-xs text-[#4F6D40]">
+                  Session ID: {activeSession.id} • Rate: ₹{activeSession.ratePerMin}/min
+                </p>
               </div>
             </div>
 
-            {/* Quick Live Consult Prompt */}
-            {/* PLACEHOLDER: replace with real content */}
-            <div className="rounded-2xl border border-[#E8D8C3] bg-[#FAF1E4] p-6 shadow-sm">
-              <h4 className="text-sm font-bold font-temple text-[#7B2D26] mb-1">Speak with {PLACEHOLDER_ASTROLOGER.displayName}</h4>
-              <p className="text-xs text-[#6B5A4E] leading-relaxed mb-4 font-body">
-                Acharya Ji is currently available. Have questions about an upcoming decision?
+            <Link
+              href={`/dashboard/session/${activeSession.id}`}
+              className="rounded-xl bg-[#2A4720] px-5 py-2.5 text-xs font-bold text-white hover:bg-[#1f3517] transition-all shadow-md"
+            >
+              Open Workbench &rarr;
+            </Link>
+          </div>
+        )}
+
+        {/* Management Tool Navigation Cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <Link
+            href="/dashboard/earnings"
+            className="rounded-2xl border border-[#E8D8C3] bg-[#FFFDF9] p-5 shadow-sm hover:border-[#7B2D26] hover:shadow-md transition-all group"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#6B8E5A]/15 text-[#6B8E5A]">
+                <DollarSign className="h-5 w-5" />
+              </div>
+              <span className="font-mono text-xs font-bold text-[#6B8E5A]">
+                +₹{analytics.monthlyRevenue.toLocaleString("en-IN")}
+              </span>
+            </div>
+            <h3 className="font-temple text-sm font-bold text-[#7B2D26] group-hover:text-[#C1662F]">
+              Earnings &amp; Payouts
+            </h3>
+            <p className="text-[11px] text-[#6E5545] mt-0.5">Daily &amp; monthly revenue</p>
+          </Link>
+
+          <Link
+            href="/dashboard/blog"
+            className="rounded-2xl border border-[#E8D8C3] bg-[#FFFDF9] p-5 shadow-sm hover:border-[#7B2D26] hover:shadow-md transition-all group"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#7B2D26]/10 text-[#7B2D26]">
+                <BookOpen className="h-5 w-5" />
+              </div>
+              <span className="text-[10px] font-bold text-[#7B2D26]">Editor</span>
+            </div>
+            <h3 className="font-temple text-sm font-bold text-[#7B2D26] group-hover:text-[#C1662F]">
+              Vedic Blog Writer
+            </h3>
+            <p className="text-[11px] text-[#6E5545] mt-0.5">Create &amp; schedule articles</p>
+          </Link>
+
+          <Link
+            href="/dashboard/reels"
+            className="rounded-2xl border border-[#E8D8C3] bg-[#FFFDF9] p-5 shadow-sm hover:border-[#7B2D26] hover:shadow-md transition-all group"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#C1662F]/15 text-[#C1662F]">
+                <Film className="h-5 w-5" />
+              </div>
+              <span className="text-[10px] font-bold text-[#C1662F]">Auto-Sync</span>
+            </div>
+            <h3 className="font-temple text-sm font-bold text-[#7B2D26] group-hover:text-[#C1662F]">
+              Instagram Reels
+            </h3>
+            <p className="text-[11px] text-[#6E5545] mt-0.5">Pin, unpin &amp; curate reels</p>
+          </Link>
+
+          <Link
+            href="/dashboard/clients"
+            className="rounded-2xl border border-[#E8D8C3] bg-[#FFFDF9] p-5 shadow-sm hover:border-[#7B2D26] hover:shadow-md transition-all group"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E8A33D]/20 text-[#7B2D26]">
+                <Users className="h-5 w-5" />
+              </div>
+              <span className="text-[10px] font-bold text-[#7B2D26]">CRM</span>
+            </div>
+            <h3 className="font-temple text-sm font-bold text-[#7B2D26] group-hover:text-[#C1662F]">
+              Client Directory
+            </h3>
+            <p className="text-[11px] text-[#6E5545] mt-0.5">Past seekers &amp; Kundlis</p>
+          </Link>
+        </div>
+
+        {/* Incoming Live Queue */}
+        <div className="rounded-3xl border border-[#E8D8C3] bg-[#FFFDF9] p-6 sm:p-8 shadow-sm">
+          <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#E8D8C3]">
+            <div>
+              <h2 className="font-temple text-xl font-bold text-[#7B2D26] flex items-center gap-2">
+                <Users className="h-5 w-5 text-[#C1662F]" />
+                <span>Live Incoming Queue ({queue.length})</span>
+              </h2>
+              <p className="text-xs text-[#6E5545] mt-0.5">
+                Clients currently waiting to enter consultation with you.
               </p>
-              <Link
-                href="/consult"
-                className="flex items-center justify-center gap-2 rounded-xl bg-[#7B2D26] py-3 text-xs font-bold text-white hover:bg-[#64231D] shadow-sm transition-all"
-              >
-                <PhoneCall className="h-4 w-4 text-[#E8A33D]" />
-                <span>Join Live Consultation Queue</span>
-              </Link>
             </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                // Seed a demo queue item if empty for operator testing
+                AstrologerStateStore.addToQueue({
+                  userName: "Devendra Verma",
+                  userPhone: "+91 98111 22334",
+                  consultationType: "voice",
+                  concern: "Mahadasha change & business investment timing",
+                  birthDetails: {
+                    name: "Devendra Verma",
+                    gender: "male",
+                    birthDate: "1988-04-18",
+                    birthTime: "06:45",
+                    birthPlace: "Lucknow, UP",
+                    latitude: 26.8467,
+                    longitude: 80.9462,
+                    timezone: 5.5,
+                  },
+                });
+                sync();
+              }}
+              className="text-xs font-semibold text-[#C1662F] hover:underline"
+            >
+              + Simulate Incoming Seeker
+            </button>
           </div>
 
-          {/* Right Column: Past Consultations & Prescribed Remedies */}
-          <div className="lg:col-span-7 space-y-6">
-            {/* Consultation History */}
-            <div className="rounded-2xl border border-[#E8D8C3] bg-[#FFFDF9] p-6 shadow-sm">
-              <div className="border-b border-[#E8D8C3] pb-4 mb-5">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-[#7B2D26] font-temple flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-[#E8A33D]" />
-                  <span>Consultation History &amp; Official Remedies</span>
-                </h3>
-              </div>
-
-              <div className="space-y-4">
-                {pastConsultations.map((c) => (
-                  <div
-                    key={c.id}
-                    className="rounded-2xl border border-[#E8D8C3] bg-[#FAF5EE] p-5 space-y-3"
-                  >
-                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E8D8C3] pb-3">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold font-temple text-[#3B2A1E] text-sm">{c.topic}</span>
-                          <span className="rounded bg-[#FFFDF9] border border-[#E8D8C3] px-2 py-0.5 text-[10px] font-mono text-[#7D6B5D]">
-                            {c.mode}
-                          </span>
-                        </div>
-                        <div className="text-[11px] text-[#7D6B5D] mt-0.5 font-body">
-                          {c.date} &bull; {c.duration} &bull; Billed: {c.amount}
-                        </div>
-                      </div>
-                      <span className="rounded-full bg-[#6B8E5A]/20 px-2.5 py-0.5 text-[10px] font-bold text-[#6B8E5A] border border-[#6B8E5A]/30">
-                        COMPLETED
-                      </span>
+          {queue.length === 0 ? (
+            <div className="py-12 text-center text-[#6E5545] space-y-2">
+              <Clock className="h-10 w-10 text-[#C1662F] mx-auto opacity-50" />
+              <p className="text-sm font-medium">Queue is clear.</p>
+              <p className="text-xs">Incoming consultation requests will appear here instantly with sound alert.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {queue.map((item, idx) => (
+                <div
+                  key={item.id}
+                  className="rounded-2xl border border-[#E8D8C3] bg-[#FBF3E7] p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#7B2D26] text-white font-mono font-bold text-sm">
+                      #{idx + 1}
                     </div>
-
-                    {/* Prescribed Remedy Card */}
-                    <div className="rounded-xl border border-[#E8A33D]/50 bg-[#FFFDF9] p-3.5 shadow-sm">
-                      <div className="flex items-center gap-1.5 text-xs font-bold font-temple text-[#7B2D26] mb-1">
-                        <Sparkles className="h-3.5 w-3.5 text-[#E8A33D]" />
-                        <span>Acharya Ji&apos;s Prescribed Remedy:</span>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-temple text-base font-bold text-[#7B2D26]">
+                          {item.userName}
+                        </h4>
+                        <span className="rounded-md bg-[#FFFDF9] px-2 py-0.5 text-[10px] font-bold text-[#C1662F] border border-[#E8D8C3] uppercase">
+                          {item.consultationType}
+                        </span>
                       </div>
-                      <p className="text-xs text-[#6B5A4E] leading-relaxed italic font-body">
-                        &ldquo;{c.remedy}&rdquo;
+                      <p className="text-xs text-[#6E5545] mt-1">
+                        Concern: <strong>{item.concern}</strong>
                       </p>
-                      <div className="mt-3 flex items-center justify-between pt-2 border-t border-[#E8D8C3] text-[11px]">
-                        <span className="text-[#7D6B5D] font-body">Prescribed by {c.astrologer}</span>
-                        <Link
-                          href="/gemstones"
-                          className="font-bold text-[#7B2D26] hover:text-[#C1662F] flex items-center gap-1 font-body"
-                        >
-                          <Gem className="h-3 w-3" />
-                          <span>View Prescribed Gemstone</span>
-                        </Link>
-                      </div>
+                      <p className="text-[11px] text-[#6E5545]">
+                        Born: {item.birthDetails.birthDate} at {item.birthDetails.birthTime} ({item.birthDetails.birthPlace})
+                      </p>
                     </div>
                   </div>
-                ))}
-              </div>
+
+                  <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveQueueItem(item.id)}
+                      className="rounded-xl border border-[#E8D8C3] px-3 py-2 text-xs font-semibold text-[#6E5545] hover:bg-[#FFFDF9]"
+                    >
+                      Dismiss
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleAcceptQueueItem(item)}
+                      className="rounded-xl bg-[#6B8E5A] px-4 py-2 text-xs font-bold text-white hover:bg-[#58754a] transition-all shadow-sm flex items-center gap-1.5"
+                    >
+                      <PhoneCall className="h-3.5 w-3.5" />
+                      <span>Accept &amp; Connect</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
