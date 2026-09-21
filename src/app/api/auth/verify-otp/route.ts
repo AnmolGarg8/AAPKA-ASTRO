@@ -3,41 +3,79 @@ import jwt from "jsonwebtoken";
 import { otpProvider } from "@/lib/providers/auth";
 import { prisma } from "@/lib/db/prisma";
 import { env } from "@/config/env";
+import {
+  VerifyOtpSchema,
+  normalizePhoneNumber,
+  sanitizeString,
+} from "@/lib/security/inputSanitizer";
+import { otpVerifyRateLimiter } from "@/lib/security/rateLimiter";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { phone, otp, name } = body;
 
-    if (!phone || !otp) {
+    // 1. Zod Input Validation
+    const validation = VerifyOtpSchema.safeParse(body);
+    if (!validation.success) {
       return NextResponse.json(
-        { success: false, message: "Phone and OTP are required" },
+        {
+          success: false,
+          message: validation.error.issues[0]?.message || "Invalid input parameters",
+        },
         { status: 400 }
       );
     }
 
-    const verification = await otpProvider.verifyOtp(phone, otp);
-    if (!verification.success) {
-      return NextResponse.json(verification, { status: 401 });
+    const normalizedPhone = normalizePhoneNumber(validation.data.phone);
+    const sanitizedName = validation.data.name ? sanitizeString(validation.data.name) : "Aarav Sharma";
+    const otp = validation.data.otp;
+
+    // 2. Sliding-Window Rate Limiting for verification attempts (Max 5 attempts per 10 mins)
+    const rateCheck = otpVerifyRateLimiter.check(normalizedPhone);
+    if (!rateCheck.allowed) {
+      const waitMinutes = Math.ceil(rateCheck.resetTimeMs / 60000);
+      return NextResponse.json(
+        {
+          success: false,
+          message: `Too many failed attempts. Security lockout active for ${waitMinutes} minute(s).`,
+        },
+        { status: 429 }
+      );
     }
 
-    // Try to find or create user in PostgreSQL via Prisma
+    // 3. Verify OTP via provider
+    const verification = await otpProvider.verifyOtp(normalizedPhone, otp);
+    if (!verification.success) {
+      return NextResponse.json(
+        {
+          ...verification,
+          remainingAttempts: rateCheck.remaining,
+        },
+        { status: 401 }
+      );
+    }
+
+    // Reset rate limiter on successful login
+    otpVerifyRateLimiter.reset(normalizedPhone);
+
+    // 4. Upsert user record in database
     let user = {
       id: `usr_${Date.now()}`,
-      phone,
-      name: name || "Aarav Sharma",
-      role: "USER",
+      phone: normalizedPhone,
+      name: sanitizedName,
+      role: "CLIENT",
       walletBalance: 250.0,
     };
 
     try {
       const dbUser = await prisma.user.upsert({
-        where: { phone },
+        where: { phone: normalizedPhone },
         update: {},
         create: {
-          phone,
-          name: name || "New Client",
-          walletBalance: 250.0, // Promotional ₹250 first-signup credits
+          phone: normalizedPhone,
+          name: sanitizedName || "New Client",
+          walletBalance: 250.0,
+          role: "CLIENT",
         },
       });
       user = {
@@ -48,10 +86,10 @@ export async function POST(req: NextRequest) {
         walletBalance: dbUser.walletBalance,
       };
     } catch {
-      // If PostgreSQL is not yet running locally, graceful user object is retained
+      // Fallback for local preview if database server is offline
     }
 
-    // Sign JWT token
+    // 5. Sign JWT session token
     const token = jwt.sign(
       {
         userId: user.id,
@@ -69,7 +107,7 @@ export async function POST(req: NextRequest) {
       token,
     });
 
-    // Set HttpOnly authentication cookie
+    // Set secure HttpOnly session cookie
     response.cookies.set("aapka_astro_session", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

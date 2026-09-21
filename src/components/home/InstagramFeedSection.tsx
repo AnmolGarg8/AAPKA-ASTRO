@@ -60,6 +60,8 @@ export const InstagramFeedSection: React.FC = () => {
                 <img
                   src={reel.thumbnail}
                   alt={reel.caption}
+                  loading="lazy"
+                  decoding="async"
                   className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />

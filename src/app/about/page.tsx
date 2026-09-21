@@ -1,10 +1,10 @@
-"use client";
-
 import React from "react";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { PLACEHOLDER_ASTROLOGER, ADMIN_CONFIGURABLE_PRICING } from "@/config/placeholderContent";
 import { MandalaDivider } from "@/components/ui/MandalaDivider";
 import { DiyaIcon } from "@/components/ui/DiyaIcon";
+import { PersonJsonLd, LocalBusinessJsonLd } from "@/components/seo/JsonLd";
 import {
   ShieldCheck,
   Award,
@@ -17,9 +17,21 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
+export const metadata: Metadata = {
+  title: `About ${PLACEHOLDER_ASTROLOGER.displayName} | Aapka Astro`,
+  description: PLACEHOLDER_ASTROLOGER.bio,
+  openGraph: {
+    title: `About ${PLACEHOLDER_ASTROLOGER.displayName} — Vedic Astrology & Vastu`,
+    description: PLACEHOLDER_ASTROLOGER.bio,
+    images: [PLACEHOLDER_ASTROLOGER.avatarUrl],
+  },
+};
+
 export default function AboutPage() {
   return (
     <div className="bg-[#FBF3E7] text-[#3B2A1E]">
+      <PersonJsonLd />
+      <LocalBusinessJsonLd />
       {/* 1. Header Banner */}
       <section className="relative overflow-hidden border-b border-[#E8D8C3] bg-[#7B2D26] py-16 sm:py-24 text-[#FBF3E7]">
         <div className="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">

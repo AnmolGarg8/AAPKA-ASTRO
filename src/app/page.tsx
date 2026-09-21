@@ -22,6 +22,7 @@ import { PhoneCall, ArrowRight } from "lucide-react";
 import { DiyaIcon } from "@/components/ui/DiyaIcon";
 import { MandalaDivider } from "@/components/ui/MandalaDivider";
 import { PLACEHOLDER_ASTROLOGER, ADMIN_CONFIGURABLE_PRICING } from "@/config/placeholderContent";
+import { LocalBusinessJsonLd, PersonJsonLd } from "@/components/seo/JsonLd";
 
 export default function HomePage() {
   const [kundli, setKundli] = useState<KundliData>(() =>
@@ -42,6 +43,10 @@ export default function HomePage() {
 
   return (
     <div className="bg-[#FBF3E7] text-[#3B2A1E]">
+      {/* Schema.org Structured Data */}
+      <LocalBusinessJsonLd />
+      <PersonJsonLd />
+
       {/* 1. Hero Section */}
       <Hero />
 
