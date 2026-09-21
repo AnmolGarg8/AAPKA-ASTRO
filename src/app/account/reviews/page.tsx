@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { ClientAccountStore, ClientReview } from "@/lib/store/clientAccountStore";
+import { ClientAccountStore, ClientReview, ConsultationRecord } from "@/lib/store/clientAccountStore";
 import { PLACEHOLDER_ASTROLOGER } from "@/config/placeholderContent";
 import { MandalaDivider } from "@/components/ui/MandalaDivider";
 import { DiyaIcon } from "@/components/ui/DiyaIcon";
@@ -19,6 +19,11 @@ import {
 export default function AccountReviewsPage() {
   const profile = ClientAccountStore.getProfile();
   const pastReviews = ClientAccountStore.getReviews();
+  const completedConsultations = ClientAccountStore.getConsultations();
+
+  const [selectedSessionId, setSelectedSessionId] = useState<string>(
+    completedConsultations[0]?.id || ""
+  );
   const [rating, setRating] = useState(5);
   const [hoverRating, setHoverRating] = useState(0);
   const [service, setService] = useState("Voice Call Consultation");
@@ -30,12 +35,19 @@ export default function AccountReviewsPage() {
     e.preventDefault();
     if (!comment.trim()) return;
 
+    // Verify session completion
+    if (!selectedSessionId && completedConsultations.length === 0) {
+      alert("A verified completed consultation is required before leaving a review.");
+      return;
+    }
+
     ClientAccountStore.addReview({
       clientName: profile.name,
       service,
       rating,
       comment,
       consentPublic,
+      consultationId: selectedSessionId,
     });
 
     setSubmitted(true);
@@ -82,8 +94,54 @@ export default function AccountReviewsPage() {
                 Submit another review
               </button>
             </div>
+          ) : completedConsultations.length === 0 ? (
+            <div className="text-center py-8 space-y-4">
+              <div className="h-14 w-14 rounded-full bg-[#FAF1E4] text-[#7B2D26] border border-[#E8D8C3] mx-auto flex items-center justify-center">
+                <ShieldCheck className="h-7 w-7 text-[#7B2D26]" />
+              </div>
+              <h3 className="font-temple text-xl font-bold text-[#7B2D26]">
+                Verified Consultation Required to Leave a Review
+              </h3>
+              <p className="text-xs sm:text-sm text-[#6E5545] max-w-lg mx-auto leading-relaxed">
+                To uphold the sacred integrity of our reviews and ensure 100% genuine feedback for all spiritual seekers, reviews can only be submitted after completing a live consultation session with {PLACEHOLDER_ASTROLOGER.displayName}.
+              </p>
+              <div className="pt-2">
+                <Link
+                  href="/consult"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#7B2D26] px-6 py-3 text-xs font-bold text-white hover:bg-[#64231D] shadow-md transition-all"
+                >
+                  <span>Start Your First Consultation (50% Off)</span>
+                </Link>
+              </div>
+            </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Verified Session Selector */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-[#C1662F] mb-1">
+                  Select Verified Completed Session *
+                </label>
+                <select
+                  value={selectedSessionId}
+                  onChange={(e) => {
+                    setSelectedSessionId(e.target.value);
+                    const matched = completedConsultations.find((c: ConsultationRecord) => c.id === e.target.value);
+                    if (matched) setService(matched.mode);
+                  }}
+                  className="w-full rounded-xl border border-[#E8D8C3] bg-[#FBF3E7] p-3 text-xs font-semibold text-[#3B2A1E] focus:outline-none focus:ring-2 focus:ring-[#7B2D26]"
+                >
+                  {completedConsultations.map((c: ConsultationRecord) => (
+                    <option key={c.id} value={c.id}>
+                      {c.date} • {c.mode} ({c.duration}) — Topic: &ldquo;{c.topic}&rdquo;
+                    </option>
+                  ))}
+                </select>
+                <span className="text-[10px] text-[#6B8E5A] font-semibold flex items-center gap-1 mt-1">
+                  <ShieldCheck className="h-3.5 w-3.5 text-[#6B8E5A]" />
+                  <span>Verified session from your Aapka Astro consultation ledger</span>
+                </span>
+              </div>
+
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#C1662F] mb-2">
                   Rate Your Experience with {PLACEHOLDER_ASTROLOGER.displayName}

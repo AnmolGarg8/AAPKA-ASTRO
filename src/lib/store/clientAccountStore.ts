@@ -168,6 +168,8 @@ export const ClientAccountStore = {
 
   getConsultationHistory: (): ConsultationRecord[] => [...memoryConsultations],
 
+  getConsultations: (): ConsultationRecord[] => [...memoryConsultations],
+
   getConsultationById: (id: string): ConsultationRecord | undefined => {
     return memoryConsultations.find((c) => c.id === id);
   },

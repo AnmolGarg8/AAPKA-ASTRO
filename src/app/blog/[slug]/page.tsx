@@ -1,26 +1,66 @@
-"use client";
-
-import React, { use } from "react";
+import React from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { BlogStore } from "@/lib/store/blogStore";
-import { PLACEHOLDER_ASTROLOGER, ADMIN_CONFIGURABLE_PRICING } from "@/config/placeholderContent";
-import { MandalaDivider } from "@/components/ui/MandalaDivider";
-import { DiyaIcon } from "@/components/ui/DiyaIcon";
+import { PLACEHOLDER_ASTROLOGER } from "@/config/placeholderContent";
 import {
   Clock,
   Calendar,
-  User,
   ArrowLeft,
-  Share2,
   Tag,
   PhoneCall,
-  Sparkles,
 } from "lucide-react";
 
-export default function BlogPostDetailPage({ params }: { params: Promise<{ slug: string }> }) {
-  const resolvedParams = use(params);
-  const slug = resolvedParams.slug;
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const post = BlogStore.getPostBySlug(slug);
+
+  if (!post) {
+    return {
+      title: "Article Not Found | Aapka Astro",
+      description: "The requested Vedic astrology article could not be found.",
+    };
+  }
+
+  return {
+    title: `${post.title} | Aapka Astro`,
+    description: post.excerpt,
+    keywords: post.tags,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      type: "article",
+      publishedTime: post.publishedAt,
+      authors: [post.author],
+      images: [
+        {
+          url: post.coverImage,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.excerpt,
+      images: [post.coverImage],
+    },
+  };
+}
+
+export default async function BlogPostDetailPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
   const post = BlogStore.getPostBySlug(slug);
 
   if (!post) {
@@ -31,8 +71,36 @@ export default function BlogPostDetailPage({ params }: { params: Promise<{ slug:
     .filter((p) => p.id !== post.id)
     .slice(0, 2);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.excerpt,
+    image: post.coverImage,
+    datePublished: post.publishedAt,
+    author: {
+      "@type": "Person",
+      name: post.author,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Aapka Astro",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://aapkaastro.com/images/logo.png",
+      },
+    },
+    keywords: post.tags.join(", "),
+  };
+
   return (
     <div className="bg-[#FBF3E7] text-[#3B2A1E]">
+      {/* Schema.org Article Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* 1. Header Banner */}
       <section className="border-b border-[#E8D8C3] bg-[#7B2D26] py-16 text-[#FBF3E7]">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">

@@ -314,6 +314,14 @@ export class AstrologerStateStore {
     return updated;
   }
 
+  static setWalletBalance(amount: number): void {
+    this.setStorage(STORAGE_KEYS.WALLET, Math.max(0, amount));
+  }
+
+  static addWallet(amount: number): number {
+    return this.addWalletBalance(amount);
+  }
+
   static deductWallet(amount: number): number {
     return this.deductWalletBalance(amount);
   }

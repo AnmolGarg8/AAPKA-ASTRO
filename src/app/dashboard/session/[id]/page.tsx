@@ -28,6 +28,7 @@ import {
   ShieldCheck,
   CheckCircle2,
   FileText,
+  AlertTriangle,
 } from "lucide-react";
 
 export default function AstrologerSessionWorkbench({
@@ -102,12 +103,25 @@ export default function AstrologerSessionWorkbench({
     }
     setMessages(AstrologerStateStore.getMessages(sess.id));
 
+    const syncWalletAndSession = () => {
+      const liveBalance = AstrologerStateStore.getWalletBalance();
+      setClientBalance(liveBalance);
+      const liveSession = AstrologerStateStore.getActiveSession();
+      if (!liveSession) {
+        // Session was ended by client or exhausted wallet
+        // Keep UI informative
+      }
+    };
+
     const timer = setInterval(() => {
       setSessionSeconds((prev) => prev + 1);
+      syncWalletAndSession();
     }, 1000);
 
     return () => clearInterval(timer);
   }, [sessionId]);
+
+  const [clientBalance, setClientBalance] = useState(250);
 
   const handleSendReply = (e: React.FormEvent) => {
     e.preventDefault();
@@ -196,6 +210,24 @@ export default function AstrologerSessionWorkbench({
             </button>
           </div>
         </div>
+
+        {/* Low Balance Advisory Alert for Astrologer */}
+        {clientBalance < (activeSession?.ratePerMin || 20) && (
+          <div className="rounded-2xl bg-amber-500/15 border border-amber-500/40 p-3.5 flex items-center justify-between text-xs text-[#7B2D26]">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-amber-600 animate-pulse shrink-0" />
+              <span className="font-bold">
+                Client Wallet Depletion Alert: Remaining client balance is ₹{clientBalance.toFixed(2)} (&lt; 1 min).
+              </span>
+              <span className="text-[#6E5545] hidden sm:inline">
+                Please begin summarizing remedial insights and conclude guidance gracefully.
+              </span>
+            </div>
+            <span className="font-mono font-bold text-amber-700 bg-amber-100 px-2.5 py-0.5 rounded-lg border border-amber-200">
+              Graceful Auto-End Armed
+            </span>
+          </div>
+        )}
 
         {/* Workbench Split Screen */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">

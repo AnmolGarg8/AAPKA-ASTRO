@@ -24,12 +24,19 @@ import {
   VideoOff,
   Calendar,
   Star,
+  AlertTriangle,
+  WifiOff,
+  RefreshCw,
 } from "lucide-react";
 import {
   PLACEHOLDER_ASTROLOGER,
   ADMIN_CONFIGURABLE_PRICING,
   FIRST_CONSULTATION_OFFER,
 } from "@/config/placeholderContent";
+import {
+  ConsultationBillingEngine,
+  BillingState,
+} from "@/lib/services/consultationBilling";
 
 export default function ConsultPage() {
   // Live State
@@ -49,6 +56,10 @@ export default function ConsultPage() {
 
   // In-Queue state for current user
   const [myQueueItem, setMyQueueItem] = useState<QueueItem | null>(null);
+
+  // Consultation Billing Engine & Disconnect Resilience
+  const billingEngineRef = useRef<ConsultationBillingEngine | null>(null);
+  const [billingState, setBillingState] = useState<BillingState | null>(null);
 
   // Active Chat / Call State
   const [messages, setMessages] = useState<ConsultationMessage[]>([]);
@@ -94,30 +105,62 @@ export default function ConsultPage() {
     };
   }, []);
 
-  // Timer effect when session is active
+  // Initialize Billing Engine when active session is established
   useEffect(() => {
-    let timer: NodeJS.Timeout;
     if (activeSession) {
-      timer = setInterval(() => {
-        setSessionSeconds((prev) => {
-          const next = prev + 1;
-          if (next % 60 === 0) {
-            const current = AstrologerStateStore.getWalletBalance();
-            const sessionRate = activeSession.ratePerMin || 15;
-            if (current < sessionRate) {
-              handleEndSession();
-              alert("Consultation ended due to insufficient wallet balance. Please recharge.");
-            } else {
-              AstrologerStateStore.deductWallet(sessionRate);
-            }
+      const engine = new ConsultationBillingEngine(
+        activeSession.id,
+        activeSession.ratePerMin || ratePerMinute,
+        walletBalance
+      );
+      billingEngineRef.current = engine;
+      setBillingState(engine.getState());
+
+      const handleOnline = () => {
+        billingEngineRef.current?.notifyReconnect();
+        setBillingState(billingEngineRef.current?.getState() || null);
+      };
+
+      const handleOffline = () => {
+        billingEngineRef.current?.notifyDisconnect();
+        setBillingState(billingEngineRef.current?.getState() || null);
+      };
+
+      window.addEventListener("online", handleOnline);
+      window.addEventListener("offline", handleOffline);
+
+      const timer = setInterval(() => {
+        if (!billingEngineRef.current) return;
+        const nextState = billingEngineRef.current.tick();
+        setBillingState(nextState);
+        setSessionSeconds(nextState.sessionSeconds);
+        setWalletBalance(nextState.walletBalance);
+        AstrologerStateStore.setWalletBalance(nextState.walletBalance);
+
+        if (nextState.isTerminated) {
+          if (nextState.terminationReason === "zero_balance") {
+            alert(
+              "⚠️ Session Ended Gracefully: Your wallet balance reached ₹0. Please recharge your wallet to initiate another consultation."
+            );
+          } else if (nextState.terminationReason === "grace_expired") {
+            alert(
+              "⚠️ Session Disconnected: Network reconnect grace window (60s) has expired without restoration. Billing paused and session finalized."
+            );
           }
-          return next;
-        });
+          handleEndSession();
+        }
       }, 1000);
+
+      return () => {
+        window.removeEventListener("online", handleOnline);
+        window.removeEventListener("offline", handleOffline);
+        clearInterval(timer);
+      };
     } else {
+      billingEngineRef.current = null;
+      setBillingState(null);
       setSessionSeconds(0);
     }
-    return () => clearInterval(timer);
   }, [activeSession]);
 
   useEffect(() => {
@@ -267,6 +310,107 @@ export default function ConsultPage() {
                   <PhoneOff className="h-4 w-4" />
                   <span>End Session</span>
                 </button>
+              </div>
+            </div>
+
+            {/* Low-Balance Warning Alert Banner (< 60 seconds remaining) */}
+            {billingState?.isLowBalance && !billingState.isGracePeriod && (
+              <div className="bg-gradient-to-r from-amber-600 via-orange-600 to-[#7B2D26] text-white px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs shadow-inner animate-pulse">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 shrink-0 text-amber-200" />
+                  <span className="font-bold">
+                    Low Balance Warning: Less than 1 minute ({billingState.secondsRemaining}s) remaining!
+                  </span>
+                  <span className="opacity-90 hidden sm:inline">
+                    Recharge now to prevent mid-conversation auto-termination.
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      billingEngineRef.current?.addFunds(100);
+                      AstrologerStateStore.addWallet(100);
+                      setBillingState(billingEngineRef.current?.getState() || null);
+                      setWalletBalance((prev) => prev + 100);
+                    }}
+                    className="rounded-lg bg-white px-3 py-1 text-xs font-black text-[#7B2D26] hover:bg-amber-100 transition-all shadow"
+                  >
+                    Quick Add +₹100
+                  </button>
+                  <Link
+                    href="/account/wallet"
+                    target="_blank"
+                    className="underline text-amber-100 hover:text-white font-medium text-xs"
+                  >
+                    Open Wallet &rarr;
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {/* Disconnect Grace Period Banner (60s Reconnect Window) */}
+            {billingState?.isGracePeriod && (
+              <div className="bg-rose-900 border-b-2 border-rose-500 text-white px-6 py-3 flex flex-wrap items-center justify-between gap-3 text-xs shadow-md">
+                <div className="flex items-center gap-2.5">
+                  <WifiOff className="h-5 w-5 shrink-0 text-rose-300 animate-bounce" />
+                  <div>
+                    <div className="font-bold text-sm flex items-center gap-2">
+                      <span>Connection Dropped &bull; Billing Paused</span>
+                      <span className="rounded bg-rose-700 px-2 py-0.5 text-xs font-mono text-white">
+                        {billingState.graceSecondsRemaining}s grace window
+                      </span>
+                    </div>
+                    <p className="text-rose-200 text-[11px] mt-0.5">
+                      We detected a network interruption. Your consultation billing has stopped. Reconnect before the timer expires to resume automatically.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      billingEngineRef.current?.notifyReconnect();
+                      setBillingState(billingEngineRef.current?.getState() || null);
+                    }}
+                    className="rounded-xl bg-[#6B8E5A] px-4 py-2 text-xs font-bold text-white hover:bg-[#58754a] transition-all shadow flex items-center gap-1.5"
+                  >
+                    <RefreshCw className="h-3.5 w-3.5" />
+                    <span>Reconnect Now</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Disconnect Testing & Resilience Bar (For verification and simulation) */}
+            <div className="bg-[#FAF1E4] border-b border-[#E8D8C3] px-6 py-1.5 flex items-center justify-between text-[11px] text-[#7D6B5D]">
+              <span>Resilience Diagnostics:</span>
+              <div className="flex items-center gap-3">
+                {!billingState?.isGracePeriod ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      billingEngineRef.current?.notifyDisconnect();
+                      setBillingState(billingEngineRef.current?.getState() || null);
+                    }}
+                    className="text-xs text-rose-700 hover:underline flex items-center gap-1"
+                  >
+                    <WifiOff className="h-3 w-3" />
+                    <span>Test Network Drop (Pause Billing)</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      billingEngineRef.current?.notifyReconnect();
+                      setBillingState(billingEngineRef.current?.getState() || null);
+                    }}
+                    className="text-xs text-[#6B8E5A] font-bold hover:underline flex items-center gap-1"
+                  >
+                    <RefreshCw className="h-3 w-3" />
+                    <span>Test Network Restoration (Resume Billing)</span>
+                  </button>
+                )}
               </div>
             </div>
 

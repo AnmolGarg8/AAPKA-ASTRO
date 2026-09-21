@@ -9,6 +9,7 @@ import {
   PhoneCall,
   Clock,
   QrCode,
+  FileDown,
 } from "lucide-react";
 import { PLACEHOLDER_ASTROLOGER, ADMIN_CONFIGURABLE_PRICING } from "@/config/placeholderContent";
 
@@ -109,13 +110,24 @@ export const WalletPage: React.FC = () => {
               </div>
             </div>
 
-            <Link
-              href="/consult"
-              className="shrink-0 rounded-2xl bg-[#7B2D26] px-6 py-3.5 text-xs font-bold text-white hover:bg-[#64231D] shadow-md flex items-center gap-2 transition-all"
-            >
-              <PhoneCall className="h-4 w-4 text-[#E8A33D]" />
-              <span>Use Balance &amp; Consult Now</span>
-            </Link>
+            <div className="flex flex-wrap items-center gap-3">
+              <a
+                href="/api/wallet/statement"
+                download
+                className="shrink-0 rounded-2xl border border-[#D4C3B3] bg-[#FAF5EE] px-4 py-3.5 text-xs font-bold text-[#3B2A1E] hover:bg-[#F3E7D3] shadow-sm flex items-center gap-2 transition-all"
+              >
+                <FileDown className="h-4 w-4 text-[#7B2D26]" />
+                <span>Download Statement (CSV)</span>
+              </a>
+
+              <Link
+                href="/consult"
+                className="shrink-0 rounded-2xl bg-[#7B2D26] px-6 py-3.5 text-xs font-bold text-white hover:bg-[#64231D] shadow-md flex items-center gap-2 transition-all"
+              >
+                <PhoneCall className="h-4 w-4 text-[#E8A33D]" />
+                <span>Use Balance &amp; Consult Now</span>
+              </Link>
+            </div>
           </div>
         </div>
 
