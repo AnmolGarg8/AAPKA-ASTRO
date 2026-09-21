@@ -1,5 +1,5 @@
 // ==============================================================================
-// AAPKA ASTRO - ENTERPRISE POSTGRESQL PRISMA SCHEMA
+// AAPKA ASTRO - PRODUCTION POSTGRESQL PRISMA SCHEMA
 // ==============================================================================
 
 generator client {
@@ -11,8 +11,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  USER
+// ------------------------------------------------------------------------------
+// Enums
+// ------------------------------------------------------------------------------
+
+enum UserRole {
+  CLIENT
   ASTROLOGER
   ADMIN
 }
@@ -24,9 +28,10 @@ enum AstrologerPresenceStatus {
   OFFLINE
 }
 
-enum ConsultationType {
+enum SessionType {
   CHAT
-  CALL
+  VOICE
+  VIDEO
 }
 
 enum SessionStatus {
@@ -37,8 +42,9 @@ enum SessionStatus {
 }
 
 enum TransactionType {
-  CREDIT
+  RECHARGE
   DEBIT
+  CREDIT
 }
 
 enum TransactionStatus {
@@ -47,191 +53,298 @@ enum TransactionStatus {
   FAILED
 }
 
-// ------------------------------------------------------------------------------
-// User & Authentication
-// ------------------------------------------------------------------------------
-model User {
-  id            String   @id @default(cuid())
-  phone         String   @unique
-  name          String?
-  email         String?  @unique
-  role          Role     @default(USER)
-  walletBalance Float    @default(0.0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  // Relationships
-  astrologerProfile    AstrologerProfile?
-  consultations        ConsultationSession[] @relation("UserConsultations")
-  walletTransactions   WalletTransaction[]
-  kundlis              KundliProfile[]
-  appointments         Appointment[]
-  vastuBookings        VastuBooking[]
-  gemstoneOrders       GemstoneOrder[]
-
-  @@index([phone])
+enum InstagramMediaType {
+  IMAGE
+  VIDEO
+  REEL
 }
 
+enum BlogPostStatus {
+  DRAFT
+  PUBLISHED
+  SCHEDULED
+}
+
+enum CouponType {
+  PERCENTAGE
+  FIXED
+}
+
+// ------------------------------------------------------------------------------
+// 1. User (role: client/astrologer/admin, phone, name, email, created_at)
+// ------------------------------------------------------------------------------
+model User {
+  id            String    @id @default(cuid())
+  phone         String    @unique
+  name          String?
+  email         String?   @unique
+  role          UserRole  @default(CLIENT)
+  walletBalance Float     @default(0.0) @map("wallet_balance")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  // Relationships
+  wallet             Wallet?
+  walletTransactions WalletTransaction[]
+  clientSessions     Session[]           @relation("ClientSessions")
+  astrologerSessions Session[]           @relation("AstrologerSessions")
+  kundliRecords      KundliRecord[]
+
+  @@index([phone])
+  @@index([role])
+  @@index([createdAt])
+  @@map("users")
+}
+
+// ------------------------------------------------------------------------------
+// 2. Wallet (user_id, balance)
+// ------------------------------------------------------------------------------
+model Wallet {
+  id        String   @id @default(cuid())
+  userId    String   @unique @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  balance   Float    @default(0.0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  transactions WalletTransaction[]
+
+  @@index([userId])
+  @@map("wallets")
+}
+
+// ------------------------------------------------------------------------------
+// 3. WalletTransaction (user_id, amount, type: recharge/debit, razorpay_order_id, status, created_at)
+// ------------------------------------------------------------------------------
+model WalletTransaction {
+  id                String            @id @default(cuid())
+  userId            String            @map("user_id")
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  walletId          String?           @map("wallet_id")
+  wallet            Wallet?           @relation(fields: [walletId], references: [id], onDelete: SetNull)
+  amount            Float
+  type              TransactionType
+  razorpayOrderId   String?           @map("razorpay_order_id")
+  razorpayPaymentId String?           @map("razorpay_payment_id")
+  status            TransactionStatus @default(SUCCESS)
+  description       String?
+  provider          String            @default("razorpay")
+  createdAt         DateTime          @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("wallet_transactions")
+}
+
+// ------------------------------------------------------------------------------
+// 4. Session (client_id, astrologer_id, type: chat/voice/video, start_time, end_time, rate_per_min, total_cost, status)
+// ------------------------------------------------------------------------------
+model Session {
+  id           String        @id @default(cuid())
+  clientId     String        @map("client_id")
+  client       User          @relation("ClientSessions", fields: [clientId], references: [id])
+  astrologerId String        @map("astrologer_id")
+  astrologer   User          @relation("AstrologerSessions", fields: [astrologerId], references: [id])
+  type         SessionType
+  startTime    DateTime?     @map("start_time")
+  endTime      DateTime?     @map("end_time")
+  ratePerMin   Float         @map("rate_per_min")
+  totalCost    Float         @default(0.0) @map("total_cost")
+  status       SessionStatus @default(WAITING)
+  notes        String?       @db.Text
+  remedies     Json?
+  birthDetails Json?         @map("birth_details")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  messages SessionMessage[]
+  review   Review?
+
+  @@index([clientId])
+  @@index([astrologerId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("sessions")
+}
+
+// ------------------------------------------------------------------------------
+// 5. SessionMessage (for chat transcripts, if storing them)
+// ------------------------------------------------------------------------------
+model SessionMessage {
+  id             String    @id @default(cuid())
+  sessionId      String    @map("session_id")
+  session        Session   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  senderId       String?   @map("sender_id")
+  senderRole     String?   @map("sender_role") // "client" | "astrologer"
+  text           String    @db.Text
+  attachmentType String?   @map("attachment_type")
+  attachmentData Json?     @map("attachment_data")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  @@index([sessionId])
+  @@index([createdAt])
+  @@map("session_messages")
+}
+
+// ------------------------------------------------------------------------------
+// 6. Review (session_id, rating, comment)
+// ------------------------------------------------------------------------------
+model Review {
+  id        String   @id @default(cuid())
+  sessionId String   @unique @map("session_id")
+  session   Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  rating    Int      // 1 to 5 stars
+  comment   String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([sessionId])
+  @@index([rating])
+  @@index([createdAt])
+  @@map("reviews")
+}
+
+// ------------------------------------------------------------------------------
+// 7. KundliRecord (user_id, dob, time_of_birth, place_of_birth, chart_data_json, is_free_chart boolean)
+// ------------------------------------------------------------------------------
+model KundliRecord {
+  id            String   @id @default(cuid())
+  userId        String?  @map("user_id")
+  user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name          String?
+  gender        String?
+  dob           DateTime
+  timeOfBirth   String   @map("time_of_birth")
+  placeOfBirth  String   @map("place_of_birth")
+  chartDataJson Json     @map("chart_data_json")
+  isFreeChart   Boolean  @default(true) @map("is_free_chart")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([isFreeChart])
+  @@index([createdAt])
+  @@map("kundli_records")
+}
+
+// ------------------------------------------------------------------------------
+// 8. BlogPost (title, slug, content, cover_image, published_at, status)
+// ------------------------------------------------------------------------------
+model BlogPost {
+  id          String         @id @default(cuid())
+  title       String
+  slug        String         @unique
+  excerpt     String?        @db.Text
+  content     String         @db.Text
+  coverImage  String?        @map("cover_image")
+  category    String         @default("Vedic Astrology")
+  tags        String[]       @default([])
+  publishedAt DateTime?      @map("published_at")
+  status      BlogPostStatus @default(DRAFT)
+  views       Int            @default(0)
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  @@index([slug])
+  @@index([status])
+  @@index([publishedAt])
+  @@index([createdAt])
+  @@map("blog_posts")
+}
+
+// ------------------------------------------------------------------------------
+// 9. InstagramMedia (external_id, media_type: image/video/reel, permalink, thumbnail_url, caption, is_panchang_post boolean, panchang_date, pinned boolean, hidden boolean, fetched_at)
+// ------------------------------------------------------------------------------
+model InstagramMedia {
+  id             String             @id @default(cuid())
+  externalId     String             @unique @map("external_id")
+  mediaType      InstagramMediaType @map("media_type")
+  permalink      String
+  thumbnailUrl   String?            @map("thumbnail_url")
+  caption        String?            @db.Text
+  isPanchangPost Boolean            @default(false) @map("is_panchang_post")
+  panchangDate   DateTime?          @map("panchang_date")
+  pinned         Boolean            @default(false)
+  hidden         Boolean            @default(false)
+  viewsCount     String?            @map("views_count")
+  likesCount     String?            @map("likes_count")
+  fetchedAt      DateTime           @default(now()) @map("fetched_at")
+
+  @@index([externalId])
+  @@index([pinned])
+  @@index([hidden])
+  @@index([isPanchangPost])
+  @@index([fetchedAt])
+  @@map("instagram_media")
+}
+
+// ------------------------------------------------------------------------------
+// 10. InstagramSyncToken (access_token, expires_at, last_refreshed_at — single row, used by scheduled refresh job)
+// ------------------------------------------------------------------------------
+model InstagramSyncToken {
+  id              String   @id @default("singleton_sync_token")
+  accessToken     String   @map("access_token") @db.Text
+  expiresAt       DateTime @map("expires_at")
+  lastRefreshedAt DateTime @default(now()) @map("last_refreshed_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("instagram_sync_tokens")
+}
+
+// ------------------------------------------------------------------------------
+// 11. PanchangEntry (date, tithi, nakshatra, yoga, karana, sunrise, sunset, raw_data_json)
+// ------------------------------------------------------------------------------
+model PanchangEntry {
+  id          String   @id @default(cuid())
+  date        DateTime @unique
+  city        String   @default("New Delhi")
+  tithi       String
+  nakshatra   String
+  yoga        String
+  karana      String
+  sunrise     String
+  sunset      String
+  rawDataJson Json     @map("raw_data_json")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([date])
+  @@index([city])
+  @@index([createdAt])
+  @@map("panchang_entries")
+}
+
+// ------------------------------------------------------------------------------
+// 12. Coupon (code, type, discount_percent, used_by_user_ids, one_time_per_user boolean)
+// ------------------------------------------------------------------------------
+model Coupon {
+  id              String     @id @default(cuid())
+  code            String     @unique
+  type            CouponType @default(PERCENTAGE)
+  discountPercent Float      @map("discount_percent")
+  usedByUserIds   String[]   @default([]) @map("used_by_user_ids")
+  oneTimePerUser  Boolean    @default(true) @map("one_time_per_user")
+  isActive        Boolean    @default(true) @map("is_active")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  @@index([code])
+  @@index([isActive])
+  @@index([createdAt])
+  @@map("coupons")
+}
+
+// ------------------------------------------------------------------------------
+// 13. OtpSession (phone verification)
+// ------------------------------------------------------------------------------
 model OtpSession {
   id         String    @id @default(cuid())
   phone      String
-  otpHash    String
-  expiresAt  DateTime
-  verifiedAt DateTime?
-  createdAt  DateTime  @default(now())
+  otpHash    String    @map("otp_hash")
+  expiresAt  DateTime  @map("expires_at")
+  verifiedAt DateTime? @map("verified_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
 
   @@index([phone])
-}
-
-// ------------------------------------------------------------------------------
-// Single Astrologer Profile & Master Controls
-// ------------------------------------------------------------------------------
-model AstrologerProfile {
-  id                   String                   @id @default(cuid())
-  userId               String                   @unique
-  user                 User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name                 String
-  title                String
-  degree               String
-  experienceYears      Int                      @default(18)
-  bio                  String
-  rating               Float                    @default(4.98)
-  reviewsCount         Int                      @default(12850)
-  ratePerMin           Float                    @default(35.0)
-  discountedRatePerMin Float                    @default(19.0)
-  status               AstrologerPresenceStatus @default(AVAILABLE)
-  statusMessage        String?
-  nextAvailableAt      DateTime?
-  createdAt            DateTime                 @default(now())
-  updatedAt            DateTime                 @updatedAt
-
-  consultations ConsultationSession[] @relation("AstrologerConsultations")
-  appointments  Appointment[]
-}
-
-// ------------------------------------------------------------------------------
-// Live Consultation Sessions & Chat Messages
-// ------------------------------------------------------------------------------
-model ConsultationSession {
-  id           String           @id @default(cuid())
-  userId       String
-  user         User             @relation("UserConsultations", fields: [userId], references: [id])
-  astrologerId String
-  astrologer   AstrologerProfile @relation("AstrologerConsultations", fields: [astrologerId], references: [id])
-  type         ConsultationType
-  status       SessionStatus    @default(ACTIVE)
-  startedAt    DateTime         @default(now())
-  endedAt      DateTime?
-  durationSec  Int              @default(0)
-  ratePerMin   Float
-  totalAmount  Float            @default(0.0)
-  concern      String
-  notes        String?
-  remedies     Json? // Array of official remedy prescriptions
-  birthDetails Json // Snapshot of chart inputs during session
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
-
-  messages ConsultationMessage[]
-
-  @@index([userId])
-  @@index([astrologerId])
-}
-
-model ConsultationMessage {
-  id            String              @id @default(cuid())
-  sessionId     String
-  session       ConsultationSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  senderId      String
-  senderRole    Role
-  text          String
-  attachmentUrl String?
-  attachmentType String? // "kundli" | "remedy" | "image"
-  createdAt     DateTime            @default(now())
-
-  @@index([sessionId])
-}
-
-// ------------------------------------------------------------------------------
-// Indian Payments & Wallet Ledger
-// ------------------------------------------------------------------------------
-model WalletTransaction {
-  id          String            @id @default(cuid())
-  userId      String
-  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  amount      Float
-  type        TransactionType
-  status      TransactionStatus @default(SUCCESS)
-  description String
-  provider    String            @default("razorpay") // "razorpay" | "wallet" | "mock"
-  orderId     String? // Razorpay Order ID
-  paymentId   String? // Razorpay Payment ID
-  createdAt   DateTime          @default(now())
-
-  @@index([userId])
-}
-
-// ------------------------------------------------------------------------------
-// Kundli Profiles, Appointments & Special Services
-// ------------------------------------------------------------------------------
-model KundliProfile {
-  id         String   @id @default(cuid())
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name       String
-  gender     String
-  birthDate  String // YYYY-MM-DD
-  birthTime  String // HH:MM
-  birthPlace String
-  latitude   Float
-  longitude  Float
-  timezone   Float    @default(5.5)
-  createdAt  DateTime @default(now())
-
-  @@index([userId])
-}
-
-model Appointment {
-  id           String            @id @default(cuid())
-  userId       String
-  user         User              @relation(fields: [userId], references: [id])
-  astrologerId String
-  astrologer   AstrologerProfile @relation(fields: [astrologerId], references: [id])
-  scheduledFor DateTime
-  durationMins Int               @default(30)
-  amount       Float             @default(999.0)
-  status       SessionStatus     @default(WAITING)
-  createdAt    DateTime          @default(now())
-
-  @@index([userId])
-}
-
-model VastuBooking {
-  id           String   @id @default(cuid())
-  userId       String
-  user         User     @relation(fields: [userId], references: [id])
-  propertyType String // "residential" | "commercial" | "industrial"
-  areaSqFt     Int
-  city         String
-  concerns     String
-  floorPlanUrl String?
-  amount       Float
-  status       String   @default("SUBMITTED")
-  createdAt    DateTime @default(now())
-
-  @@index([userId])
-}
-
-model GemstoneOrder {
-  id              String   @id @default(cuid())
-  userId          String
-  user            User     @relation(fields: [userId], references: [id])
-  gemstoneName    String
-  ratti           String
-  price           Float
-  shippingAddress String
-  status          String   @default("PROCESSING")
-  createdAt       DateTime @default(now())
-
-  @@index([userId])
+  @@index([expiresAt])
+  @@map("otp_sessions")
 }

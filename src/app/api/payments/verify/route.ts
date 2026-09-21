@@ -37,10 +37,8 @@ export async function POST(req: NextRequest) {
             userId,
             amount: creditedAmount,
             type: "CREDIT",
-            status: "SUCCESS",
-            description: `Wallet recharge via ${paymentProvider.name}`,
-            orderId,
-            paymentId,
+            razorpayOrderId: orderId,
+            razorpayPaymentId: paymentId,
             provider: paymentProvider.name,
           },
         });
