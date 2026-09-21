@@ -4,11 +4,14 @@ import React from "react";
 import { Check, X, Award, ShieldCheck } from "lucide-react";
 import { MandalaDivider } from "@/components/ui/MandalaDivider";
 
+import { PLACEHOLDER_ASTROLOGER } from "@/config/placeholderContent";
+
 export const WhyAapkaAstro: React.FC = () => {
+  // {/* PLACEHOLDER: replace with real content */}
   const comparisonItems = [
     {
       feature: "Who Conducts Your Consultation?",
-      aapkaAstro: "Exclusively Acharya Rajesh Sharma (18+ Years Exp, BHU Gold Medalist)",
+      aapkaAstro: `Exclusively ${PLACEHOLDER_ASTROLOGER.displayName} (Over ${PLACEHOLDER_ASTROLOGER.experienceYears} Years Exp, Traditional Vedic Scholar)`,
       astrotalk: "Random gig worker selected from 500+ unverified listings",
       aapkaPositive: true,
     },

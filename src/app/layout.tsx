@@ -18,9 +18,9 @@ const mukta = Mukta({
 });
 
 export const metadata: Metadata = {
-  title: "Aapka Astro | Premier Vedic Astrology, Kundli & Vastu Consultations",
+  title: "Aapka Astro | Your Trusted Guide to Astrology, Vastu & Gemstone Wisdom",
   description:
-    "Direct 1-on-1 consultations with Acharya Rajesh Sharma (18+ Years Exp, BHU Gold Medalist). Authentic Janam Kundli reading, 36 Gun Milan, Vastu audits, and certified gemstone recommendations.",
+    "Direct 1-on-1 consultations with Acharya [ASTROLOGER NAME]. Trained in traditional Vedic sciences, Janam Kundli reading, Vastu audits, and certified gemstone wisdom.",
   keywords: [
     "Vedic Astrology",
     "Aapka Astro",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     "Kundli Milan",
     "Vastu Shastra Consultant",
     "Certified Gemstones",
-    "Acharya Rajesh Sharma",
+    "Acharya [ASTROLOGER NAME]",
     "Astrotalk alternative"
   ],
 };

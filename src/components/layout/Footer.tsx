@@ -4,18 +4,66 @@ import React from "react";
 import Link from "next/link";
 import { Lock, Award, Heart, Phone, Mail, MapPin, ShieldCheck } from "lucide-react";
 import { MandalaDivider } from "@/components/ui/MandalaDivider";
+import { PLACEHOLDER_ASTROLOGER, PLACEHOLDER_SOCIAL_LINKS } from "@/config/placeholderContent";
+
+// Social Icons as direct SVG components
+const InstagramIcon: React.FC<{ className?: string }> = ({ className = "h-4 w-4" }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+  </svg>
+);
+
+const YoutubeIcon: React.FC<{ className?: string }> = ({ className = "h-4 w-4" }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17" />
+    <polygon points="10 15 15 12 10 9 10 15" />
+  </svg>
+);
+
+const FacebookIcon: React.FC<{ className?: string }> = ({ className = "h-4 w-4" }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+  </svg>
+);
 
 export const Footer: React.FC = () => {
   return (
     <footer className="border-t border-[#E8D8C3] bg-[#7B2D26] text-[#FBF3E7] text-xs">
       {/* Trust Marks Banner */}
+      {/* PLACEHOLDER: replace with real content */}
       <div className="border-b border-[#FBF3E7]/15 bg-[#64221C] py-6">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             <div className="flex flex-col items-center">
               <Award className="h-6 w-6 text-[#E8A33D] mb-1.5" />
-              <span className="font-temple font-bold text-[#FBF3E7]">18+ Years Vedic Mastery</span>
-              <span className="text-[11px] text-[#FBF3E7]/70">Gold Medalist Scholar (BHU)</span>
+              <span className="font-temple font-bold text-[#FBF3E7]">Over {PLACEHOLDER_ASTROLOGER.experienceYears} Years Vedic Mastery</span>
+              <span className="text-[11px] text-[#FBF3E7]/70">Trained in Traditional Vedic Sciences</span>
             </div>
             <div className="flex flex-col items-center">
               <Lock className="h-6 w-6 text-[#E8A33D] mb-1.5" />
@@ -29,8 +77,8 @@ export const Footer: React.FC = () => {
             </div>
             <div className="flex flex-col items-center">
               <Heart className="h-6 w-6 text-[#E8A33D] mb-1.5" />
-              <span className="font-temple font-bold text-[#FBF3E7]">35,000+ Satisfied Clients</span>
-              <span className="text-[11px] text-[#FBF3E7]/70">4.98/5 Rated Across India</span>
+              <span className="font-temple font-bold text-[#FBF3E7]">{PLACEHOLDER_ASTROLOGER.followersCount} Followers</span>
+              <span className="text-[11px] text-[#FBF3E7]/70">Growing Trusted Community</span>
             </div>
           </div>
         </div>
@@ -39,7 +87,8 @@ export const Footer: React.FC = () => {
       {/* Main Footer Links */}
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Brand Info */}
+          {/* Brand Info & Tagline */}
+          {/* PLACEHOLDER: replace with real content */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#E8A33D] text-[#3B2A1E] font-temple font-black">
@@ -49,11 +98,52 @@ export const Footer: React.FC = () => {
                 AAPKA<span className="text-[#E8A33D]">ASTRO</span>
               </span>
             </div>
-            <p className="text-xs text-[#FBF3E7]/80 leading-relaxed">
-              India&apos;s sacred sanctuary for authentic Vedic astrology, Janampatri analysis, and non-demolition Vastu Shastra. Consultations conducted personally by Acharya Rajesh Sharma.
+            <p className="text-xs text-[#FBF3E7]/90 font-semibold font-temple">
+              {PLACEHOLDER_ASTROLOGER.tagline}
             </p>
-            <div className="text-[11px] text-[#E8A33D] font-bold">
-              Varanasi &bull; New Delhi &bull; Global Consultations
+            <p className="text-xs text-[#FBF3E7]/80 leading-relaxed font-body">
+              India&apos;s sacred sanctuary for authentic Vedic astrology, Janampatri analysis, and non-demolition Vastu Shastra. Consultations conducted personally by {PLACEHOLDER_ASTROLOGER.displayName}.
+            </p>
+
+            {/* Social Links: Placeholder URLs */}
+            {/* PLACEHOLDER: replace with real content. NOTE: Real social media handles will be provided later by the business owner. */}
+            <div className="pt-2">
+              <div className="text-[11px] font-bold text-[#E8A33D] uppercase tracking-wider mb-2 font-temple">
+                Connect With Acharya Ji
+              </div>
+              <div className="flex items-center gap-3">
+                <a
+                  href={PLACEHOLDER_SOCIAL_LINKS.instagram.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram (Placeholder)"
+                  className="rounded-lg bg-[#64221C] p-2 text-[#FBF3E7] hover:bg-[#E8A33D] hover:text-[#3B2A1E] transition-colors"
+                >
+                  <InstagramIcon className="h-4 w-4" />
+                </a>
+                <a
+                  href={PLACEHOLDER_SOCIAL_LINKS.youtube.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="YouTube (Placeholder)"
+                  className="rounded-lg bg-[#64221C] p-2 text-[#FBF3E7] hover:bg-[#E8A33D] hover:text-[#3B2A1E] transition-colors"
+                >
+                  <YoutubeIcon className="h-4 w-4" />
+                </a>
+                <a
+                  href={PLACEHOLDER_SOCIAL_LINKS.facebook.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook (Placeholder)"
+                  className="rounded-lg bg-[#64221C] p-2 text-[#FBF3E7] hover:bg-[#E8A33D] hover:text-[#3B2A1E] transition-colors"
+                >
+                  <FacebookIcon className="h-4 w-4" />
+                </a>
+              </div>
+              <div className="text-[10px] text-[#FBF3E7]/50 mt-1 italic">
+                {/* NOTE: Real social media handles will be provided later */}
+                Official social channels
+              </div>
             </div>
           </div>
 
@@ -89,27 +179,27 @@ export const Footer: React.FC = () => {
           {/* Services */}
           <div>
             <h4 className="font-temple text-xs font-bold uppercase tracking-wider text-[#E8A33D] mb-3">
-              Signature Consultations
+              Core Vedic Services
             </h4>
             <ul className="space-y-2 text-[#FBF3E7]/80">
               <li>
-                <Link href="/consult" className="hover:text-[#E8A33D] transition-colors">
-                  Career &amp; Business Astrology
-                </Link>
-              </li>
-              <li>
-                <Link href="/consult" className="hover:text-[#E8A33D] transition-colors">
-                  Marriage &amp; Relationship Dasha
+                <Link href="/kundli" className="hover:text-[#E8A33D] transition-colors">
+                  Kundli &amp; Horoscope Reading
                 </Link>
               </li>
               <li>
                 <Link href="/vastu" className="hover:text-[#E8A33D] transition-colors">
-                  Residential &amp; Commercial Vastu
+                  Vastu Consultancy
                 </Link>
               </li>
               <li>
                 <Link href="/gemstones" className="hover:text-[#E8A33D] transition-colors">
-                  Natural Certified Gemstones
+                  Gemstone Recommendation
+                </Link>
+              </li>
+              <li>
+                <Link href="/consult" className="hover:text-[#E8A33D] transition-colors">
+                  Live Consultation (Chat / Call / Video)
                 </Link>
               </li>
             </ul>
@@ -131,7 +221,7 @@ export const Footer: React.FC = () => {
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="h-3.5 w-3.5 text-[#E8A33D] mt-0.5" />
-                <span>Assi Ghat, Shivala, Varanasi, UP 221005</span>
+                <span>Varanasi &bull; New Delhi &bull; Global Online Consultations</span>
               </li>
             </ul>
 

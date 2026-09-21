@@ -10,6 +10,7 @@ import {
   Building,
   Factory,
 } from "lucide-react";
+import { PLACEHOLDER_ASTROLOGER } from "@/config/placeholderContent";
 
 export const VastuPage: React.FC = () => {
   const [propertyType, setPropertyType] = useState<"residential" | "commercial" | "industrial">("residential");
@@ -82,8 +83,9 @@ export const VastuPage: React.FC = () => {
           <h1 className="text-3xl sm:text-5xl font-bold font-temple text-[#7B2D26] tracking-tight">
             Scientific Non-Demolition Vastu Audits
           </h1>
+          {/* PLACEHOLDER: replace with real content */}
           <p className="mt-3 text-[#7D6B5D] text-sm sm:text-base leading-relaxed font-body">
-            Align your living and working space with cosmic magnetic fields. Correct doshas without tearing down walls using Acharya Rajesh Sharma&apos;s proven elemental remedies.
+            Align your living and working space with cosmic magnetic fields. Correct doshas without tearing down walls using {PLACEHOLDER_ASTROLOGER.displayName}&apos;s proven elemental remedies.
           </p>
         </div>
 
@@ -159,8 +161,9 @@ export const VastuPage: React.FC = () => {
                 <CheckCircle2 className="h-8 w-8" />
               </div>
               <h3 className="text-xl font-bold font-temple text-[#7B2D26]">Vastu Audit Request Received!</h3>
+              {/* PLACEHOLDER: replace with real content */}
               <p className="text-xs text-[#6B5A4E] mt-2 leading-relaxed font-body">
-                Thank you, {userName}. Acharya Rajesh Sharma&apos;s team has received your property details for{" "}
+                Thank you, {userName}. {PLACEHOLDER_ASTROLOGER.displayName}&apos;s team has received your property details for{" "}
                 <strong className="text-[#3B2A1E] capitalize">{propertyType} Vastu</strong>. Our desk will contact you within 2 hours at <strong className="text-[#3B2A1E]">{userPhone}</strong> to confirm your directional layout.
               </p>
               <div className="mt-6">

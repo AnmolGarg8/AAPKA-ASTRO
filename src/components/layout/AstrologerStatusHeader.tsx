@@ -6,6 +6,8 @@ import { AstrologerStateStore, AstrologerStatus, QueueItem } from "@/lib/store/a
 import { PhoneCall } from "lucide-react";
 import { DiyaIcon } from "@/components/ui/DiyaIcon";
 
+import { PLACEHOLDER_ASTROLOGER, ADMIN_CONFIGURABLE_PRICING } from "@/config/placeholderContent";
+
 export const AstrologerStatusHeader: React.FC = () => {
   const [status, setStatus] = useState<AstrologerStatus>("AVAILABLE");
   const [queue, setQueue] = useState<QueueItem[]>([]);
@@ -31,10 +33,11 @@ export const AstrologerStatusHeader: React.FC = () => {
   return (
     <aside
       aria-label="Astrologer Live Status"
-      className="border-b border-[#E8A33D]/30 bg-[#7B2D26] px-4 py-2 text-xs text-[#FBF3E7]"
+      className="border-b border-[#E8D8C3] bg-[#7B2D26] px-4 py-2 text-xs text-[#FBF3E7]"
     >
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3">
         {/* Left: Real-time Astrologer Status Indicator */}
+        {/* PLACEHOLDER: replace with real content */}
         <div className="flex items-center gap-2.5">
           <div className="flex items-center gap-2">
             <DiyaIcon size={18} />
@@ -62,14 +65,14 @@ export const AstrologerStatusHeader: React.FC = () => {
 
           <div className="flex items-center gap-1.5 font-medium">
             <span className="font-temple tracking-wide text-[#FBF3E7] font-semibold">
-              Acharya Rajesh Sharma:
+              {PLACEHOLDER_ASTROLOGER.displayName}:
             </span>
 
             {status === "AVAILABLE" && (
               <span className="text-[#A7D095] font-bold flex items-center gap-1">
                 ONLINE &amp; AVAILABLE
                 <span className="hidden sm:inline text-[#FBF3E7]/80 font-normal">
-                  — Direct 1-on-1 Consultation (Intro: ₹19/min)
+                  — 1-on-1 Consultation (From ₹{ADMIN_CONFIGURABLE_PRICING.chat.ratePerMinute}/min • 50% Off First)
                 </span>
               </span>
             )}

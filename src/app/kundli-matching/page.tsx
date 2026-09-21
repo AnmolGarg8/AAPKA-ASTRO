@@ -12,6 +12,7 @@ import {
   Heart,
   User,
 } from "lucide-react";
+import { PLACEHOLDER_ASTROLOGER } from "@/config/placeholderContent";
 
 export default function KundliMatchingPage() {
   // Boy State
@@ -319,11 +320,12 @@ export default function KundliMatchingPage() {
           </div>
 
           {/* Consult Acharya Ji Banner */}
+          {/* PLACEHOLDER: replace with real content */}
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border border-[#E8A33D]/60 bg-gradient-to-r from-[#7B2D26] via-[#64231D] to-[#3B2A1E] text-white p-6 shadow-md">
             <div>
               <h4 className="text-base font-bold font-temple">Need a personal review before taking the next step?</h4>
               <p className="text-xs text-amber-100/80 mt-1 max-w-xl font-body">
-                Acharya Rajesh Sharma analyzes deep planetary aspects (Navamsha, Dasha compatibility, and Shani-Manglik balance) that automated calculators cannot see.
+                {PLACEHOLDER_ASTROLOGER.displayName} analyzes deep planetary aspects (Navamsha, Dasha compatibility, and Shani-Manglik balance) that automated calculators cannot see.
               </p>
             </div>
             <Link

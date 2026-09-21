@@ -18,6 +18,7 @@ import { KundliData } from "@/lib/astrology/types";
 import { PhoneCall, ArrowRight } from "lucide-react";
 import { DiyaIcon } from "@/components/ui/DiyaIcon";
 import { MandalaDivider } from "@/components/ui/MandalaDivider";
+import { PLACEHOLDER_ASTROLOGER, ADMIN_CONFIGURABLE_PRICING } from "@/config/placeholderContent";
 
 export default function HomePage() {
   const [kundli, setKundli] = useState<KundliData>(() =>
@@ -259,8 +260,9 @@ export default function HomePage() {
           <h2 className="font-temple text-3xl sm:text-5xl font-bold text-[#FBF3E7] tracking-tight">
             Stop Guessing Your Future. Step Into Clarity.
           </h2>
-          <p className="mt-4 text-sm sm:text-base text-[#FBF3E7]/80 max-w-2xl mx-auto leading-relaxed">
-            Connect directly with Acharya Rajesh Sharma. Discuss career dilemmas, relationship knots, health timings, and practical remedies tailored specifically to your Janam Kundli.
+          {/* PLACEHOLDER: replace with real content */}
+          <p className="mt-4 text-sm sm:text-base text-[#FBF3E7]/80 max-w-2xl mx-auto leading-relaxed font-body">
+            Connect directly with {PLACEHOLDER_ASTROLOGER.displayName}. Discuss career dilemmas, relationship knots, health timings, and practical remedies tailored specifically to your Janam Kundli.
           </p>
 
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -271,7 +273,7 @@ export default function HomePage() {
               <PhoneCall className="h-4 w-4" />
               <span>Consult Acharya Ji Now</span>
               <span className="rounded-md bg-[#3B2A1E]/15 px-2 py-0.5 text-xs font-black">
-                ₹19/min
+                From ₹{ADMIN_CONFIGURABLE_PRICING.chat.ratePerMinute}/min
               </span>
             </Link>
 

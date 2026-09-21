@@ -7,6 +7,7 @@ import {
   ShieldCheck,
   PhoneCall,
 } from "lucide-react";
+import { PLACEHOLDER_ASTROLOGER, ADMIN_CONFIGURABLE_PRICING } from "@/config/placeholderContent";
 
 export const GemstonesPage: React.FC = () => {
   const [selectedPlanet, setSelectedPlanet] = useState<string>("all");
@@ -120,8 +121,9 @@ export const GemstonesPage: React.FC = () => {
           <h1 className="text-3xl sm:text-5xl font-bold font-temple text-[#7B2D26] tracking-tight">
             Govt.-Certified Vedic Gemstones
           </h1>
+          {/* PLACEHOLDER: replace with real content */}
           <p className="mt-3 text-[#7D6B5D] text-sm sm:text-base leading-relaxed font-body">
-            Every gemstone recommended by Acharya Rajesh Sharma is hand-selected, lab-certified for natural origin, and consecrated with individualized Vedic mantras before delivery.
+            Every gemstone recommended by {PLACEHOLDER_ASTROLOGER.displayName} is hand-selected, lab-certified for natural origin, and consecrated with individualized Vedic mantras before delivery.
           </p>
         </div>
 
@@ -236,8 +238,9 @@ export const GemstonesPage: React.FC = () => {
             <h3 className="text-xl font-bold font-temple">
               WARNING: Never wear a gemstone without Kundli verification
             </h3>
+            {/* PLACEHOLDER: replace with real content */}
             <p className="text-xs sm:text-sm text-amber-100/80 mt-1 max-w-2xl leading-relaxed font-body">
-              Wearing an incompatible gemstone for an enemy planet (such as Neelam or Moonga without proper house alignment) can trigger severe financial and health reversals. Let Acharya Rajesh Sharma calculate your Shadbala before ordering.
+              Wearing an incompatible gemstone for an enemy planet (such as Neelam or Moonga without proper house alignment) can trigger severe financial and health reversals. Let {PLACEHOLDER_ASTROLOGER.displayName} calculate your Shadbala before ordering.
             </p>
           </div>
 
@@ -246,7 +249,7 @@ export const GemstonesPage: React.FC = () => {
             className="shrink-0 rounded-xl bg-[#E8A33D] px-6 py-3.5 text-xs font-bold text-[#3B2A1E] hover:bg-[#d69330] shadow-md flex items-center gap-2 transition-all"
           >
             <PhoneCall className="h-4 w-4" />
-            <span>Consult Acharya Ji First (₹19/min)</span>
+            <span>Consult Acharya Ji First (From ₹{ADMIN_CONFIGURABLE_PRICING.chat.ratePerMinute}/min)</span>
           </Link>
         </div>
       </div>

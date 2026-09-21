@@ -4,21 +4,24 @@ import React, { useState } from "react";
 import { ChevronDown, HelpCircle } from "lucide-react";
 import { MandalaDivider } from "@/components/ui/MandalaDivider";
 
+import { PLACEHOLDER_ASTROLOGER, ADMIN_CONFIGURABLE_PRICING, FIRST_CONSULTATION_OFFER } from "@/config/placeholderContent";
+
 export const FAQSection: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
+  // {/* PLACEHOLDER: replace with real content */}
   const faqs = [
     {
       q: "How does the live consultation queue work if there is only one astrologer?",
-      a: "Because Acharya Rajesh Sharma consults personally without third-party interns, our live queue system is 100% transparent. When he is ONLINE, you can join the queue. You are shown your exact position (e.g. #2 in line) and an accurate estimated wait time (approx. 7–10 minutes per client). Your device chimes and notifies you the moment Acharya Ji connects with you.",
+      a: `Because ${PLACEHOLDER_ASTROLOGER.displayName} consults personally without third-party interns, our live queue system is 100% transparent. When he is ONLINE, you can join the queue. You are shown your exact position (e.g. #2 in line) and an accurate estimated wait time (approx. 7–10 minutes per client). Your device chimes and notifies you the moment Acharya Ji connects with you.`,
     },
     {
       q: "What happens if Acharya Ji is offline or taking a break?",
-      a: "When Acharya Ji is offline or conducting sacred rituals/sadhana, you will see his next available live time (e.g. 'Tomorrow at 10:00 AM IST'). You can pre-book a dedicated 30-minute appointment slot or request an instant SMS alert when he turns online.",
+      a: "When Acharya Ji is offline or conducting sacred rituals/sadhana, you will see his next available live time (e.g. 'Tomorrow at 10:00 AM IST'). You can pre-book a dedicated appointment slot or request an alert when he turns online.",
     },
     {
       q: "How does billing and wallet deduction work?",
-      a: "Live consultations are billed strictly on a per-minute basis (Introductory offer: ₹19/min; standard ₹35/min). You recharge your Aapka Astro wallet using UPI (Google Pay, PhonePe, Paytm), RuPay, or Cards. The live consultation screen has an active transparent timer displaying second-by-second deductions. Unused wallet balance never expires.",
+      a: `Live consultations are billed strictly on a per-minute basis (Chat: ₹${ADMIN_CONFIGURABLE_PRICING.chat.ratePerMinute}/min, Voice: ₹${ADMIN_CONFIGURABLE_PRICING.voice.ratePerMinute}/min, Video: ₹${ADMIN_CONFIGURABLE_PRICING.video.ratePerMinute}/min; first consultation enjoys ${FIRST_CONSULTATION_OFFER.discountPercentage}% off). You recharge your Aapka Astro wallet using UPI, RuPay, or Cards. The live consultation screen has an active transparent timer displaying second-by-second deductions. Unused wallet balance never expires.`,
     },
     {
       q: "How accurate is the free Janam Kundli calculator on this website?",
@@ -30,7 +33,7 @@ export const FAQSection: React.FC = () => {
     },
     {
       q: "Can I consult about Vastu without demolishing my current house structure?",
-      a: "Absolutely. Acharya Rajesh Sharma specializes in non-demolition Vastu remedies. By utilizing elemental balancing (Pancha Tattva), directional metal tapes, consecrated Vedic yantras, and specific natural plants/mirrors, directional defects are balanced effectively without structural damage.",
+      a: `Absolutely. ${PLACEHOLDER_ASTROLOGER.displayName} specializes in non-demolition Vastu remedies. By utilizing elemental balancing (Pancha Tattva), directional metal tapes, consecrated Vedic yantras, and specific natural remedies, directional defects are balanced effectively without structural damage.`,
     },
   ];
 

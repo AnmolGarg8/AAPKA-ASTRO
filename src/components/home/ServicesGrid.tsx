@@ -2,77 +2,80 @@
 
 import React from "react";
 import Link from "next/link";
-import { Compass, Gem, FileText, HeartHandshake, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Compass, Gem, FileText, PhoneCall, ArrowRight, CheckCircle2, Sparkles } from "lucide-react";
 import { MandalaDivider } from "@/components/ui/MandalaDivider";
+import { ADMIN_CONFIGURABLE_PRICING, FIRST_CONSULTATION_OFFER } from "@/config/placeholderContent";
 
 export const ServicesGrid: React.FC = () => {
-  const services = [
+  // {/* PLACEHOLDER: replace with real content */}
+  // Core services (equal focus, four categories)
+  const coreServices = [
     {
       id: "kundli",
-      title: "Janam Kundli & Dasha Deep Reading",
-      hindi: "जन्म पत्रिका एवं दशा फल",
+      title: "Kundli & Horoscope Reading",
+      hindi: "जन्म कुण्डली एवं फलित ज्योतिष",
       description:
-        "Comprehensive, mathematical interpretation of your Lagna, planetary yogas, Vimshottari Mahadasha, career ascendance, wealth potential, and health alerts.",
-      pricing: "₹999 / In-Depth 30m Session or ₹19/min Live",
-      badge: "Most Consulted",
+        "Birth chart analysis, life predictions, and dosha identification using classical Vedic astrological principles.",
+      pricing: "Included in Live Session & Detailed PDF Readings",
+      badge: "Core Service",
       icon: FileText,
       href: "/kundli",
       features: [
-        "Ascendant, Moon sign & Nakshatra breakdown",
-        "Upcoming Mahadasha & Antardasha transition timings",
-        "Wealth (Dhana) & Authority (Raja) yogas",
-        "Precise timeframes for life-defining milestones",
-      ],
-    },
-    {
-      id: "milan",
-      title: "Kundli Milan & Marital Longevity",
-      hindi: "कुंडली मिलान एवं वैवाहिक विचार",
-      description:
-        "Classical Ashta Koota 36 Gun Milan paired with planetary friendship, Manglik Dosha evaluation, and mutual psychological harmony.",
-      pricing: "Included in Live Session / ₹499 Detailed Report",
-      badge: "Vedic Precision",
-      icon: HeartHandshake,
-      href: "/kundli-matching",
-      features: [
-        "Full 36 Gun Ashta Koota mathematical report",
-        "Nadi & Bhakoot dosha cancellation analysis",
-        "In-depth physical, biological & mental rapport",
-        "Spousal nature, family peace & progeny yogas",
+        "Lagna & planetary degrees calculation",
+        "Vimshottari Dasha timing & upcoming life transits",
+        "Manglik, Sade Sati & Kaal Sarp dosha identification",
+        "Clear timeframes for career, marriage & health events",
       ],
     },
     {
       id: "vastu",
-      title: "Vedic Vastu Shastra Consultancy",
-      hindi: "वैज्ञानिक एवं वैदिक वास्तु परामर्श",
+      title: "Vastu Consultancy",
+      hindi: "वैदिक वास्तु परामर्श",
       description:
-        "Balanced directional alignments for residences, corporate offices, and industrial plots. 100% non-demolition metallic tape and pyramid remedies.",
-      pricing: "Starting ₹2,499 / Layout Audit",
-      badge: "Zero Demolition",
+        "Home and workspace energy alignment for prosperity and peace using non-demolition scientific remedies.",
+      pricing: "Residential, Corporate & Industrial Audits",
+      badge: "Core Service",
       icon: Compass,
       href: "/vastu",
       features: [
-        "North-East (Ishanya) & South-West energy balancing",
-        "Main entrance energy diagnosis and metal correction",
-        "Consecrated Vedic yantras and elemental harmonizers",
-        "Business cashflow acceleration & domestic tranquility",
+        "Main entrance (Simha Dwar) energy evaluation",
+        "Kitchen (Agni), bedroom & cash counter alignment",
+        "100% zero-demolition metallic tape & pyramid remedies",
+        "Removal of chronic financial & domestic blockages",
       ],
     },
     {
-      id: "gemstones",
-      title: "Natural Certified Gemstones",
-      hindi: "प्रामाणिक रत्न एवं अभिमंत्रित यंत्र",
+      id: "gemstone",
+      title: "Gemstone Recommendation",
+      hindi: "रत्न परामर्श एवं प्राण-प्रतिष्ठा",
       description:
-        "Personalized gemstone recommendations calculated from planetary strength (Shadbala) and Mahadasha. 100% natural, certified, and energized.",
-      pricing: "Free with Consultation / Direct Purchase",
-      badge: "Govt. Lab Certified",
+        "Personalized gemstone guidance based on planetary positions, Shadbala, and Lagna Lord strength.",
+      pricing: "100% Natural Lab-Certified Stones",
+      badge: "Core Service",
       icon: Gem,
       href: "/gemstones",
       features: [
-        "100% natural, unheated & untreated gemstones",
-        "Govt. recognized gem testing laboratory certificate",
-        "Individualized Vedic Prana Pratishtha energization",
-        "Prescribed auspicious wearing day, muhurat & mantra",
+        "Lagna lord fortifying & planet pacification guidance",
+        "Govt. recognized laboratory certification",
+        "Individualized Vedic consecration (Prana Pratishtha)",
+        "Precise wearing finger, auspicious day & Vedic mantra",
+      ],
+    },
+    {
+      id: "live-consultation",
+      title: "Live Consultation",
+      hindi: "सीधा व्यक्तिगत परामर्श",
+      description:
+        "Real-time chat, voice, or video sessions covering any of the above with Acharya [ASTROLOGER NAME].",
+      pricing: `Chat: ₹${ADMIN_CONFIGURABLE_PRICING.chat.ratePerMinute}/m | Voice: ₹${ADMIN_CONFIGURABLE_PRICING.voice.ratePerMinute}/m | Video: ₹${ADMIN_CONFIGURABLE_PRICING.video.ratePerMinute}/m`,
+      badge: "50% Off 1st Session",
+      icon: PhoneCall,
+      href: "/consult",
+      features: [
+        "Live 1-on-1 direct encrypted connection",
+        `Chat (₹${ADMIN_CONFIGURABLE_PRICING.chat.ratePerMinute}/min), Voice (₹${ADMIN_CONFIGURABLE_PRICING.voice.ratePerMinute}/min), Video (₹${ADMIN_CONFIGURABLE_PRICING.video.ratePerMinute}/min)`,
+        "First consultation: 50% off (auto-applied once per user)",
+        "Second-by-second live wallet billing with zero lock-in",
       ],
     },
   ];
@@ -80,69 +83,116 @@ export const ServicesGrid: React.FC = () => {
   return (
     <section className="border-t border-[#E8D8C3] bg-[#FFFDF9] py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#E8D8C3] bg-[#FBF3E7] px-3.5 py-1 text-xs font-bold text-[#7B2D26] mb-3">
-            <span>HERITAGE VEDIC TRADITION</span>
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#E8D8C3] bg-[#FBF3E7] px-3.5 py-1 text-xs font-bold text-[#7B2D26] mb-3 font-temple">
+            <span>CORE PILLARS OF WISDOM</span>
           </div>
           <h2 className="font-temple text-3xl sm:text-4xl font-bold text-[#7B2D26] tracking-tight">
-            Authentic Astrological Consultations
+            Comprehensive Vedic Guidance
           </h2>
           <MandalaDivider className="my-4" />
-          <p className="text-[#6E5545] text-sm sm:text-base leading-relaxed">
-            Every consultation is conducted personally by Acharya Rajesh Sharma using classical Parashari principles. No automated templates or third-party interns.
+          <p className="text-[#6E5545] text-sm sm:text-base leading-relaxed font-body">
+            Equal focus across four essential dimensions of life: personalized birth chart analysis, living space harmony, consecrated gemstone power, and direct live consultation.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {services.map((service) => {
+        {/* 4 Core Services Grid */}
+        {/* PLACEHOLDER: replace with real content */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+          {coreServices.map((service) => {
             const Icon = service.icon;
             return (
               <div
                 key={service.id}
-                className="group rounded-2xl border-2 border-[#E8D8C3] bg-[#FBF3E7]/70 p-8 transition-all hover:border-[#C1662F] hover:shadow-md flex flex-col justify-between"
+                className="rounded-2xl border border-[#E8D8C3] bg-[#FFFDF9] p-8 shadow-sm hover:shadow-md hover:border-[#D4C3B3] transition-all flex flex-col justify-between"
               >
                 <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#7B2D26] text-[#E8A33D] font-bold shadow-sm">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#FAF1E4] text-[#7B2D26] border border-[#E8D8C3]">
                       <Icon className="h-6 w-6" />
                     </div>
-                    <span className="rounded-full bg-[#E8A33D]/25 px-3 py-1 text-xs font-bold text-[#7B2D26] border border-[#E8A33D]/40">
+                    <span className="rounded-full bg-[#FAF1E4] px-3 py-1 text-xs font-bold text-[#7B2D26] border border-[#E8D8C3] font-temple">
                       {service.badge}
                     </span>
                   </div>
 
-                  <h3 className="font-temple text-xl font-bold text-[#7B2D26] group-hover:text-[#C1662F] transition-colors">
-                    {service.title}
-                  </h3>
-                  <div className="text-xs text-[#C1662F] font-bold mb-3">{service.hindi}</div>
-
-                  <p className="text-xs sm:text-sm text-[#6E5545] leading-relaxed mb-6">
+                  <h3 className="font-temple text-xl font-bold text-[#7B2D26]">{service.title}</h3>
+                  <div className="text-xs text-[#C1662F] font-semibold mb-3">{service.hindi}</div>
+                  <p className="text-xs sm:text-sm text-[#6E5545] leading-relaxed mb-6 font-body">
                     {service.description}
                   </p>
 
-                  <ul className="space-y-2.5 mb-6 border-t border-[#E8D8C3] pt-4">
-                    {service.features.map((feat, i) => (
-                      <li key={i} className="flex items-center gap-2 text-xs text-[#3B2A1E]">
-                        <CheckCircle2 className="h-4 w-4 text-[#6B8E5A] shrink-0" />
+                  <ul className="space-y-2.5 border-t border-[#E8D8C3] pt-5 text-xs text-[#6B5A4E] font-body">
+                    {service.features.map((feat, idx) => (
+                      <li key={idx} className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-[#6B8E5A] shrink-0 mt-0.5" />
                         <span>{feat}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="flex items-center justify-between border-t border-[#E8D8C3] pt-4">
-                  <span className="text-xs font-bold text-[#7B2D26]">{service.pricing}</span>
+                <div className="mt-8 pt-5 border-t border-[#E8D8C3] flex items-center justify-between">
+                  <div className="text-xs font-semibold text-[#7D6B5D] max-w-[200px] truncate font-body">
+                    {service.pricing}
+                  </div>
+
                   <Link
                     href={service.href}
-                    className="flex items-center gap-1.5 text-xs font-bold text-[#7B2D26] hover:text-[#C1662F] transition-colors"
+                    className="flex items-center gap-1.5 text-xs font-bold text-[#7B2D26] hover:text-[#64231D] font-temple"
                   >
                     <span>Explore Service</span>
-                    <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
                 </div>
               </div>
             );
           })}
+        </div>
+
+        {/* Sample Pricing Strip (Admin-Editable Placeholder) */}
+        {/* PLACEHOLDER: replace with real content */}
+        <div className="rounded-2xl border border-[#E8A33D]/50 bg-[#FAF1E4] p-6 shadow-sm">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+            <div>
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#7B2D26] font-temple mb-1">
+                <Sparkles className="h-4 w-4 text-[#E8A33D]" />
+                <span>Transparent Live Consultation Pricing (Admin Configurable)</span>
+              </div>
+              <p className="text-xs text-[#6E5545] font-body">
+                Pay only for the seconds you speak. No lock-in or minimum recharge hurdles.
+              </p>
+            </div>
+
+            {/* Pricing Badges */}
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="rounded-xl border border-[#E8D8C3] bg-[#FFFDF9] px-3.5 py-2 text-center shadow-sm">
+                <div className="text-[10px] uppercase font-bold text-[#7D6B5D] font-temple">Chat Session</div>
+                <div className="text-base font-bold font-temple text-[#7B2D26]">₹{ADMIN_CONFIGURABLE_PRICING.chat.ratePerMinute}/min</div>
+                <div className="text-[10px] text-[#6B8E5A] font-bold">First: ₹{ADMIN_CONFIGURABLE_PRICING.chat.effectiveFirstTimeRate}/min</div>
+              </div>
+
+              <div className="rounded-xl border border-[#E8D8C3] bg-[#FFFDF9] px-3.5 py-2 text-center shadow-sm">
+                <div className="text-[10px] uppercase font-bold text-[#7D6B5D] font-temple">Voice Call</div>
+                <div className="text-base font-bold font-temple text-[#7B2D26]">₹{ADMIN_CONFIGURABLE_PRICING.voice.ratePerMinute}/min</div>
+                <div className="text-[10px] text-[#6B8E5A] font-bold">First: ₹{ADMIN_CONFIGURABLE_PRICING.voice.effectiveFirstTimeRate}/min</div>
+              </div>
+
+              <div className="rounded-xl border border-[#E8D8C3] bg-[#FFFDF9] px-3.5 py-2 text-center shadow-sm">
+                <div className="text-[10px] uppercase font-bold text-[#7D6B5D] font-temple">Video Call</div>
+                <div className="text-base font-bold font-temple text-[#7B2D26]">₹{ADMIN_CONFIGURABLE_PRICING.video.ratePerMinute}/min</div>
+                <div className="text-[10px] text-[#6B8E5A] font-bold">First: ₹{ADMIN_CONFIGURABLE_PRICING.video.effectiveFirstTimeRate}/min</div>
+              </div>
+
+              <Link
+                href="/consult"
+                className="rounded-xl bg-[#7B2D26] px-5 py-3 text-xs font-bold text-white hover:bg-[#64231D] shadow-sm transition-all"
+              >
+                Connect Now (50% Off)
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </section>

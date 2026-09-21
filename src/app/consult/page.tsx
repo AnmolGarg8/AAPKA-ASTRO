@@ -22,10 +22,14 @@ import {
   Mic,
   MicOff,
   VideoOff,
-  CheckCircle,
   Calendar,
   Star,
 } from "lucide-react";
+import {
+  PLACEHOLDER_ASTROLOGER,
+  ADMIN_CONFIGURABLE_PRICING,
+  FIRST_CONSULTATION_OFFER,
+} from "@/config/placeholderContent";
 
 export default function ConsultPage() {
   // Live State
@@ -37,7 +41,7 @@ export default function ConsultPage() {
   // Client Consultation Form State
   const [userName, setUserName] = useState("Aarav Sharma");
   const [userPhone, setUserPhone] = useState("+91 98765 43210");
-  const [consultType, setConsultType] = useState<"chat" | "call">("chat");
+  const [consultType, setConsultType] = useState<"chat" | "voice" | "video">("chat");
   const [birthDate, setBirthDate] = useState("1995-10-24");
   const [birthTime, setBirthTime] = useState("14:35");
   const [birthPlace, setBirthPlace] = useState("New Delhi, Delhi");
@@ -60,6 +64,9 @@ export default function ConsultPage() {
   const [scheduleSuccess, setScheduleSuccess] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const activePricing = ADMIN_CONFIGURABLE_PRICING[consultType];
+  const ratePerMinute = activePricing.effectiveFirstTimeRate; // 50% discount auto-applied
 
   const syncAll = () => {
     const currentStatus = AstrologerStateStore.getStatus();
@@ -96,11 +103,12 @@ export default function ConsultPage() {
           const next = prev + 1;
           if (next % 60 === 0) {
             const current = AstrologerStateStore.getWalletBalance();
-            if (current < 19) {
+            const sessionRate = activeSession.ratePerMin || 15;
+            if (current < sessionRate) {
               handleEndSession();
               alert("Consultation ended due to insufficient wallet balance. Please recharge.");
             } else {
-              AstrologerStateStore.deductWallet(19);
+              AstrologerStateStore.deductWallet(sessionRate);
             }
           }
           return next;
@@ -120,8 +128,9 @@ export default function ConsultPage() {
   const handleStartConsultation = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (walletBalance < 38) {
-      alert("Minimum wallet balance of ₹38 (2 minutes) is required to start consultation. Please recharge your wallet.");
+    const minRequired = ratePerMinute * 2;
+    if (walletBalance < minRequired) {
+      alert(`Minimum wallet balance of ₹${minRequired} (2 minutes) is required to start consultation. Please recharge your wallet.`);
       return;
     }
 
@@ -130,6 +139,7 @@ export default function ConsultPage() {
         userName,
         userPhone,
         type: consultType,
+        ratePerMin: ratePerMinute,
         birthDetails: {
           name: userName,
           birthDate,
@@ -208,26 +218,30 @@ export default function ConsultPage() {
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <img
-                    src={INITIAL_ASTROLOGER.avatarUrl}
-                    alt="Acharya Rajesh Sharma"
+                    src={PLACEHOLDER_ASTROLOGER.avatarUrl}
+                    alt={PLACEHOLDER_ASTROLOGER.displayName}
                     className="h-11 w-11 rounded-full object-cover border-2 border-[#E8A33D]"
                   />
                   <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-[#6B8E5A] ring-2 ring-white" />
                 </div>
                 <div>
+                  {/* PLACEHOLDER: replace with real content */}
                   <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-[#3B2A1E] font-temple text-base">Acharya Rajesh Sharma</h3>
-                    <span className="rounded bg-[#6B8E5A]/20 px-2 py-0.5 text-[10px] font-bold text-[#6B8E5A] border border-[#6B8E5A]/30">
+                    <h3 className="font-bold text-[#3B2A1E] font-temple text-base">
+                      {PLACEHOLDER_ASTROLOGER.displayName}
+                    </h3>
+                    <span className="rounded bg-[#6B8E5A]/20 px-2 py-0.5 text-[10px] font-bold text-[#6B8E5A] border border-[#6B8E5A]/30 font-temple">
                       LIVE CONSULTATION
                     </span>
                   </div>
                   <div className="text-xs text-[#7D6B5D] font-body">
-                    Vedic Jyotish &bull; Client: {activeSession.userName}
+                    Vedic Jyotish &bull; Client: {activeSession.userName} ({activeSession.type.toUpperCase()})
                   </div>
                 </div>
               </div>
 
               {/* Billing HUD */}
+              {/* PLACEHOLDER: replace with real content */}
               <div className="flex items-center gap-4 sm:gap-6">
                 <div className="flex items-center gap-2 rounded-xl border border-[#E8A33D]/50 bg-[#FAF1E4] px-3.5 py-1.5 font-mono text-xs text-[#7B2D26]">
                   <Clock className="h-4 w-4 animate-pulse text-[#C1662F]" />
@@ -235,7 +249,9 @@ export default function ConsultPage() {
                     {Math.floor(sessionSeconds / 60).toString().padStart(2, "0")}:
                     {(sessionSeconds % 60).toString().padStart(2, "0")}
                   </span>
-                  <span className="text-[10px] text-[#7D6B5D]">(@ ₹19/min)</span>
+                  <span className="text-[10px] text-[#7D6B5D]">
+                    (@ ₹{activeSession.ratePerMin || ratePerMinute}/min • 50% Off)
+                  </span>
                 </div>
 
                 <div className="flex items-center gap-2 rounded-xl border border-[#D4C3B3] bg-[#FFFDF9] px-3 py-1.5 text-xs">
@@ -285,14 +301,14 @@ export default function ConsultPage() {
                   <div className="rounded-2xl border border-[#E8D8C3] bg-[#FFFDF9] p-4 text-center shadow-sm">
                     <div className="relative mx-auto mb-3 h-24 w-24 rounded-full border-2 border-[#E8A33D] p-1">
                       <img
-                        src={INITIAL_ASTROLOGER.avatarUrl}
+                        src={PLACEHOLDER_ASTROLOGER.avatarUrl}
                         alt="Acharya Ji"
                         className="h-full w-full rounded-full object-cover"
                       />
                       <span className="absolute bottom-0 right-0 h-4 w-4 rounded-full bg-[#6B8E5A] ring-2 ring-white" />
                     </div>
-                    <div className="text-xs font-bold text-[#3B2A1E]">Vedic Audio Bridge</div>
-                    <div className="text-[11px] text-[#7D6B5D]">Agora High-Definition Audio (Encrypted)</div>
+                    <div className="text-xs font-bold text-[#3B2A1E] font-temple">Encrypted Vedic Bridge</div>
+                    <div className="text-[11px] text-[#7D6B5D]">High-Definition Peer-to-Peer Connection</div>
 
                     <div className="mt-4 flex justify-center gap-3">
                       <button
@@ -321,7 +337,7 @@ export default function ConsultPage() {
                   </div>
                 </div>
 
-                <div className="text-center text-[11px] text-[#7D6B5D] mt-4">
+                <div className="text-center text-[11px] text-[#7D6B5D] mt-4 font-body">
                   Privacy Guaranteed &bull; 100% Confidential
                 </div>
               </div>
@@ -331,7 +347,7 @@ export default function ConsultPage() {
                 <div className="space-y-4 overflow-y-auto max-h-[420px] pr-2">
                   <div className="text-center">
                     <span className="rounded-full bg-[#FAF1E4] border border-[#E8D8C3] px-3 py-1 text-[10px] font-semibold text-[#7D6B5D]">
-                      Live Session Established &bull; Billed at ₹19/minute
+                      Live Session Established &bull; Billed at ₹{activeSession.ratePerMin || ratePerMinute}/min (50% Off First Session)
                     </span>
                   </div>
 
@@ -348,9 +364,9 @@ export default function ConsultPage() {
                         }`}
                       >
                         <div className="text-[10px] opacity-75 font-semibold mb-1">
-                          {m.sender === "client" ? "You" : "Acharya Rajesh Sharma"} &bull; {m.timestamp}
+                          {m.sender === "client" ? "You" : PLACEHOLDER_ASTROLOGER.displayName} &bull; {m.timestamp}
                         </div>
-                        <p className="leading-relaxed">{m.text}</p>
+                        <p className="leading-relaxed font-body">{m.text}</p>
                       </div>
                     </div>
                   ))}
@@ -406,9 +422,10 @@ export default function ConsultPage() {
                 <span className="text-[#7D6B5D]">Consultation Mode:</span>
                 <span className="font-bold uppercase text-[#7B2D26]">{myQueueItem.consultationType}</span>
               </div>
+              {/* PLACEHOLDER: replace with real content */}
               <div className="flex justify-between">
-                <span className="text-[#7D6B5D]">Introductory Rate:</span>
-                <span className="font-bold text-[#6B8E5A]">₹19 / Minute</span>
+                <span className="text-[#7D6B5D]">Applied Rate (50% Off First):</span>
+                <span className="font-bold text-[#6B8E5A]">₹{ratePerMinute} / Minute</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#7D6B5D]">Wallet Balance:</span>
@@ -449,12 +466,13 @@ export default function ConsultPage() {
             <div className="lg:col-span-5 space-y-6">
               <div className="rounded-3xl border border-[#E8D8C3] bg-[#FFFDF9] p-6 shadow-sm">
                 {/* Real-time Status Card */}
+                {/* PLACEHOLDER: replace with real content */}
                 <div className="flex items-center justify-between border-b border-[#E8D8C3] pb-5">
                   <div className="flex items-center gap-3">
                     <div className="relative">
                       <img
-                        src={INITIAL_ASTROLOGER.avatarUrl}
-                        alt="Acharya Rajesh Sharma"
+                        src={PLACEHOLDER_ASTROLOGER.avatarUrl}
+                        alt={PLACEHOLDER_ASTROLOGER.displayName}
                         className="h-14 w-14 rounded-2xl object-cover border-2 border-[#E8A33D]"
                       />
                       {status === "AVAILABLE" && (
@@ -462,14 +480,16 @@ export default function ConsultPage() {
                       )}
                     </div>
                     <div>
-                      <h3 className="font-bold font-temple text-[#3B2A1E] text-base">Acharya Rajesh Sharma</h3>
+                      <h3 className="font-bold font-temple text-[#3B2A1E] text-base">
+                        {PLACEHOLDER_ASTROLOGER.displayName}
+                      </h3>
                       <div className="text-xs text-[#C1662F] font-semibold">
-                        18+ Years Exp &bull; Varanasi Gold Medalist
+                        {PLACEHOLDER_ASTROLOGER.experienceText}
                       </div>
                       <div className="flex items-center gap-1 text-[11px] text-[#7D6B5D] mt-0.5 font-body">
                         <Star className="h-3 w-3 fill-[#E8A33D] text-[#E8A33D]" />
                         <span className="font-bold text-[#3B2A1E]">4.98</span>
-                        <span>(12,850+ Consultations)</span>
+                        <span>({PLACEHOLDER_ASTROLOGER.followersCount} Followers)</span>
                       </div>
                     </div>
                   </div>
@@ -493,24 +513,54 @@ export default function ConsultPage() {
                   </div>
 
                   <p className="text-xs text-[#6B5A4E] leading-relaxed font-body">
-                    {status === "AVAILABLE" && "Acharya Ji is at his desk and ready to connect right now."}
-                    {status === "BUSY" && `Acharya Ji is currently reading a client chart. ${queue.length} in queue. Estimated wait: ~${(queue.length + 1) * 7} mins.`}
+                    {status === "AVAILABLE" && `${PLACEHOLDER_ASTROLOGER.displayName} is at his desk and ready to connect right now.`}
+                    {status === "BUSY" && `${PLACEHOLDER_ASTROLOGER.displayName} is currently reading a client chart. ${queue.length} in queue. Estimated wait: ~${(queue.length + 1) * 7} mins.`}
                     {status === "BREAK" && "Acharya Ji is on a brief tea/sadhana break. Resuming live sessions shortly."}
                     {status === "OFFLINE" && "Acharya Ji is offline. Pre-book an appointment slot below for tomorrow."}
                   </p>
                 </div>
 
-                {/* Pricing & Transparency */}
+                {/* Pricing & Transparency (Admin-Editable Sample Pricing) */}
+                {/* PLACEHOLDER: replace with real content */}
                 <div className="mt-5 space-y-3 text-xs">
-                  <div className="flex items-center justify-between border-b border-[#E8D8C3]/80 pb-2">
-                    <span className="text-[#7D6B5D]">Introductory Rate:</span>
-                    <span className="font-bold text-[#6B8E5A]">₹19 / minute (First Session)</span>
+                  <div className="rounded-xl border border-[#E8A33D]/40 bg-[#FAF1E4] p-3 text-xs">
+                    <div className="font-bold text-[#7B2D26] flex items-center gap-1.5 font-temple">
+                      <Sparkles className="h-3.5 w-3.5 text-[#E8A33D]" />
+                      <span>{FIRST_CONSULTATION_OFFER.description}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between border-b border-[#E8D8C3]/80 pb-2">
-                    <span className="text-[#7D6B5D]">Standard Rate:</span>
-                    <span className="font-medium text-[#3B2A1E]">₹35 / minute</span>
+
+                  <div className="flex items-center justify-between border-b border-[#E8D8C3]/80 pb-2 font-body">
+                    <span className="text-[#7D6B5D]">Live Chat Rate:</span>
+                    <span className="font-bold text-[#3B2A1E]">
+                      ₹{ADMIN_CONFIGURABLE_PRICING.chat.ratePerMinute}/min{" "}
+                      <span className="text-[#6B8E5A] font-bold">
+                        (First: ₹{ADMIN_CONFIGURABLE_PRICING.chat.effectiveFirstTimeRate}/min)
+                      </span>
+                    </span>
                   </div>
-                  <div className="flex items-center justify-between">
+
+                  <div className="flex items-center justify-between border-b border-[#E8D8C3]/80 pb-2 font-body">
+                    <span className="text-[#7D6B5D]">Voice Call Rate:</span>
+                    <span className="font-bold text-[#3B2A1E]">
+                      ₹{ADMIN_CONFIGURABLE_PRICING.voice.ratePerMinute}/min{" "}
+                      <span className="text-[#6B8E5A] font-bold">
+                        (First: ₹{ADMIN_CONFIGURABLE_PRICING.voice.effectiveFirstTimeRate}/min)
+                      </span>
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between border-b border-[#E8D8C3]/80 pb-2 font-body">
+                    <span className="text-[#7D6B5D]">Video Call Rate:</span>
+                    <span className="font-bold text-[#3B2A1E]">
+                      ₹{ADMIN_CONFIGURABLE_PRICING.video.ratePerMinute}/min{" "}
+                      <span className="text-[#6B8E5A] font-bold">
+                        (First: ₹{ADMIN_CONFIGURABLE_PRICING.video.effectiveFirstTimeRate}/min)
+                      </span>
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between font-body">
                     <span className="text-[#7D6B5D]">Current Wallet:</span>
                     <span className="font-bold text-[#7B2D26]">₹{walletBalance}</span>
                   </div>
@@ -539,41 +589,68 @@ export default function ConsultPage() {
                 <div>
                   <h3 className="text-xl font-bold font-temple text-[#7B2D26]">Start 1-on-1 Consultation</h3>
                   <p className="text-xs text-[#7D6B5D] font-body">
-                    Direct access to Acharya Rajesh Sharma. No third-party advisors.
+                    Direct access to {PLACEHOLDER_ASTROLOGER.displayName}. No third-party advisors.
                   </p>
                 </div>
               </div>
 
               <form onSubmit={handleStartConsultation} className="space-y-4">
-                {/* Consultation Channel Selection */}
+                {/* Consultation Channel Selection (Chat, Voice, Video) */}
+                {/* PLACEHOLDER: replace with real content */}
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-[#3B2A1E] mb-2 font-temple">
-                    Select Consultation Mode
+                    Select Consultation Mode &amp; Pricing
                   </label>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <button
                       type="button"
                       onClick={() => setConsultType("chat")}
-                      className={`flex items-center justify-center gap-2.5 rounded-xl border p-3.5 text-xs font-bold transition-all ${
+                      className={`flex flex-col items-center justify-center p-3.5 rounded-xl border text-center transition-all ${
                         consultType === "chat"
-                          ? "border-[#7B2D26] bg-[#FAF1E4] text-[#7B2D26] ring-1 ring-[#7B2D26]/30"
+                          ? "border-[#7B2D26] bg-[#FAF1E4] text-[#7B2D26] ring-1 ring-[#7B2D26]/30 shadow-sm"
                           : "border-[#D4C3B3] bg-[#FAF5EE] text-[#7D6B5D] hover:bg-[#F3E7D3]"
                       }`}
                     >
-                      <MessageSquare className="h-4 w-4" />
-                      <span>Live Chat Consultation</span>
+                      <MessageSquare className="h-4 w-4 mb-1" />
+                      <span className="text-xs font-bold">Live Chat</span>
+                      <span className="text-[11px] font-mono mt-0.5 font-bold text-[#7B2D26]">
+                        ₹{ADMIN_CONFIGURABLE_PRICING.chat.ratePerMinute}/m
+                      </span>
+                      <span className="text-[9px] text-[#6B8E5A] font-bold">First: ₹{ADMIN_CONFIGURABLE_PRICING.chat.effectiveFirstTimeRate}/m</span>
                     </button>
+
                     <button
                       type="button"
-                      onClick={() => setConsultType("call")}
-                      className={`flex items-center justify-center gap-2.5 rounded-xl border p-3.5 text-xs font-bold transition-all ${
-                        consultType === "call"
-                          ? "border-[#7B2D26] bg-[#FAF1E4] text-[#7B2D26] ring-1 ring-[#7B2D26]/30"
+                      onClick={() => setConsultType("voice")}
+                      className={`flex flex-col items-center justify-center p-3.5 rounded-xl border text-center transition-all ${
+                        consultType === "voice"
+                          ? "border-[#7B2D26] bg-[#FAF1E4] text-[#7B2D26] ring-1 ring-[#7B2D26]/30 shadow-sm"
                           : "border-[#D4C3B3] bg-[#FAF5EE] text-[#7D6B5D] hover:bg-[#F3E7D3]"
                       }`}
                     >
-                      <PhoneCall className="h-4 w-4" />
-                      <span>Audio / Video Call</span>
+                      <PhoneCall className="h-4 w-4 mb-1" />
+                      <span className="text-xs font-bold">Voice Call</span>
+                      <span className="text-[11px] font-mono mt-0.5 font-bold text-[#7B2D26]">
+                        ₹{ADMIN_CONFIGURABLE_PRICING.voice.ratePerMinute}/m
+                      </span>
+                      <span className="text-[9px] text-[#6B8E5A] font-bold">First: ₹{ADMIN_CONFIGURABLE_PRICING.voice.effectiveFirstTimeRate}/m</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setConsultType("video")}
+                      className={`flex flex-col items-center justify-center p-3.5 rounded-xl border text-center transition-all ${
+                        consultType === "video"
+                          ? "border-[#7B2D26] bg-[#FAF1E4] text-[#7B2D26] ring-1 ring-[#7B2D26]/30 shadow-sm"
+                          : "border-[#D4C3B3] bg-[#FAF5EE] text-[#7D6B5D] hover:bg-[#F3E7D3]"
+                      }`}
+                    >
+                      <Video className="h-4 w-4 mb-1" />
+                      <span className="text-xs font-bold">Video Call</span>
+                      <span className="text-[11px] font-mono mt-0.5 font-bold text-[#7B2D26]">
+                        ₹{ADMIN_CONFIGURABLE_PRICING.video.ratePerMinute}/m
+                      </span>
+                      <span className="text-[9px] text-[#6B8E5A] font-bold">First: ₹{ADMIN_CONFIGURABLE_PRICING.video.effectiveFirstTimeRate}/m</span>
                     </button>
                   </div>
                 </div>
@@ -652,10 +729,10 @@ export default function ConsultPage() {
                 </div>
 
                 {/* Wallet Balance Warning / Quick Top-up Link */}
-                {walletBalance < 38 ? (
+                {walletBalance < ratePerMinute * 2 ? (
                   <div className="rounded-xl border border-[#C1662F]/40 bg-[#FAF1E4] p-3 flex items-center justify-between text-xs">
                     <span className="text-[#C1662F] font-semibold">
-                      Wallet balance low (₹{walletBalance}). Minimum ₹38 required.
+                      Wallet balance low (₹{walletBalance}). Minimum ₹{ratePerMinute * 2} required for 2 mins.
                     </span>
                     <Link
                       href="/wallet"
@@ -665,8 +742,8 @@ export default function ConsultPage() {
                     </Link>
                   </div>
                 ) : (
-                  <div className="text-[11px] text-[#7D6B5D]">
-                    Wallet Balance: <strong className="text-[#6B8E5A]">₹{walletBalance}</strong> (Available talktime ~{Math.floor(walletBalance / 19)} mins).
+                  <div className="text-[11px] text-[#7D6B5D] font-body">
+                    Wallet Balance: <strong className="text-[#6B8E5A]">₹{walletBalance}</strong> (Available talktime ~{Math.floor(walletBalance / ratePerMinute)} mins at ₹{ratePerMinute}/min).
                   </div>
                 )}
 
@@ -678,7 +755,7 @@ export default function ConsultPage() {
                   <PhoneCall className="h-4 w-4 text-[#E8A33D]" />
                   <span>
                     {status === "AVAILABLE" && queue.length === 0
-                      ? "Connect Now (Direct Live Session)"
+                      ? `Connect Now (@ ₹${ratePerMinute}/min • 50% Off)`
                       : `Join Live Queue (Position #${queue.length + 1})`}
                   </span>
                 </button>
@@ -731,7 +808,7 @@ export default function ConsultPage() {
                 <div className="rounded-xl border border-[#E8D8C3] bg-[#FAF5EE] p-3">
                   <div className="flex justify-between text-[#6B5A4E] mb-1">
                     <span>Dedicated 30m In-depth Fee:</span>
-                    <strong className="text-[#7B2D26] font-bold">₹999</strong>
+                    <strong className="text-[#7B2D26] font-bold">₹499</strong>
                   </div>
                   <span className="text-[10px] text-[#7D6B5D]">Includes full horoscope PDF and audio recording.</span>
                 </div>

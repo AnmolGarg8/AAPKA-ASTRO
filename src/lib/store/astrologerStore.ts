@@ -8,7 +8,7 @@ export interface QueueItem {
   userId: string;
   userName: string;
   userPhone: string;
-  consultationType: "chat" | "call";
+  consultationType: "chat" | "call" | "voice" | "video";
   birthDetails: {
     name: string;
     gender: "male" | "female" | "other";
@@ -39,7 +39,7 @@ export interface ActiveSession {
   userId: string;
   userName: string;
   userPhone: string;
-  type: "chat" | "call";
+  type: "chat" | "call" | "voice" | "video";
   startedAt: string;
   ratePerMin: number;
   elapsedSeconds: number;
@@ -75,32 +75,34 @@ export interface AstrologerProfile {
   };
 }
 
+import { PLACEHOLDER_ASTROLOGER, ADMIN_CONFIGURABLE_PRICING } from "@/config/placeholderContent";
+
+// {/* PLACEHOLDER: replace with real content */}
 export const INITIAL_ASTROLOGER: AstrologerProfile = {
-  id: "acharya-rajesh-sharma",
-  name: "Acharya Rajesh Sharma",
-  title: "Vedic Jyotish Maharishi & Vastu Shastra Expert",
-  degree: "Jyotish Acharya (Gold Medalist), Sampurnanand Sanskrit Vishwavidyalaya, Varanasi",
-  experienceYears: 18,
-  consultationsCompleted: 35420,
+  id: "acharya-placeholder",
+  name: PLACEHOLDER_ASTROLOGER.displayName,
+  title: PLACEHOLDER_ASTROLOGER.tagline,
+  degree: "Trained in Traditional Vedic Sciences, Vastu & Gemology",
+  experienceYears: 15,
+  consultationsCompleted: 26000,
   rating: 4.98,
   reviewsCount: 12850,
-  avatarUrl: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=400&q=80",
-  bio: "Celebrated Vedic scholar with over 18 years of disciplined Sadhana and predictive mastery. Known across India for unfailingly accurate astrological timelines, non-demolition Vastu remedies, and authentic gemstone prescriptions.",
+  avatarUrl: PLACEHOLDER_ASTROLOGER.avatarUrl,
+  bio: PLACEHOLDER_ASTROLOGER.bio,
   languages: ["Hindi (हिंदी)", "Sanskrit (संस्कृत)", "English"],
   specialties: [
-    "Kundli Janampatri & Dasha Fal",
-    "Marriage, Compatibility & Kundli Milan",
-    "Career, Business & Financial Yoga",
-    "Vedic Vastu Shastra (Residential & Commercial)",
-    "Govt.-Certified Gemstone Remedies"
+    "Kundli & Horoscope Reading",
+    "Vastu Consultancy",
+    "Gemstone Recommendation",
+    "Live 1-on-1 Consultation"
   ],
   status: "AVAILABLE",
   statusMessage: "Available right now for 1-on-1 consultations",
   nextAvailableAt: "Tomorrow, 10:00 AM IST",
-  ratePerMinute: 35,
-  discountedRatePerMinute: 19,
+  ratePerMinute: ADMIN_CONFIGURABLE_PRICING.chat.ratePerMinute,
+  discountedRatePerMinute: ADMIN_CONFIGURABLE_PRICING.chat.effectiveFirstTimeRate,
   flatRates: {
-    kundliReading: 999,
+    kundliReading: 499,
     vastuConsultation: 2499,
     gemstoneRecommendation: 499
   }
@@ -229,9 +231,10 @@ export class AstrologerStateStore {
   static startDirectSession(item: {
     userName: string;
     userPhone: string;
-    type: "chat" | "call";
+    type: "chat" | "call" | "voice" | "video";
     birthDetails: QueueItem["birthDetails"];
     concern: string;
+    ratePerMin?: number;
   }): ActiveSession {
     const newSession: ActiveSession = {
       id: `sess-${Date.now()}`,
@@ -240,7 +243,7 @@ export class AstrologerStateStore {
       userPhone: item.userPhone,
       type: item.type,
       startedAt: new Date().toISOString(),
-      ratePerMin: 19,
+      ratePerMin: item.ratePerMin || 15,
       elapsedSeconds: 0,
       status: "active",
       birthDetails: item.birthDetails,

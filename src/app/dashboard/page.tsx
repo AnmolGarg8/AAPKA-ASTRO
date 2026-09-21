@@ -11,6 +11,7 @@ import {
   PlusCircle,
   Gem,
 } from "lucide-react";
+import { PLACEHOLDER_ASTROLOGER } from "@/config/placeholderContent";
 
 export default function DashboardPage() {
   const [wallet, setWallet] = useState(250);
@@ -43,6 +44,7 @@ export default function DashboardPage() {
     },
   ];
 
+  // {/* PLACEHOLDER: replace with real content */}
   const pastConsultations = [
     {
       id: "CON-8842",
@@ -50,7 +52,7 @@ export default function DashboardPage() {
       duration: "14 Minutes",
       mode: "Audio Call",
       amount: "₹266",
-      astrologer: "Acharya Rajesh Sharma",
+      astrologer: PLACEHOLDER_ASTROLOGER.displayName,
       topic: "Career Promotion & Foreign Relocation Dasha",
       remedy: "Chant Brihaspati Beej Mantra 108 times on Thursdays. Wear 6.25 Ratti Yellow Sapphire.",
     },
@@ -60,7 +62,7 @@ export default function DashboardPage() {
       duration: "21 Minutes",
       mode: "Live Chat",
       amount: "₹399",
-      astrologer: "Acharya Rajesh Sharma",
+      astrologer: PLACEHOLDER_ASTROLOGER.displayName,
       topic: "Kundli Milan & Manglik dosha balancing",
       remedy: "Gauri Shankar Rudraksha recommendation. Perform Sunday Aditya Hridaya Stotra.",
     },
@@ -157,8 +159,9 @@ export default function DashboardPage() {
             </div>
 
             {/* Quick Live Consult Prompt */}
+            {/* PLACEHOLDER: replace with real content */}
             <div className="rounded-2xl border border-[#E8D8C3] bg-[#FAF1E4] p-6 shadow-sm">
-              <h4 className="text-sm font-bold font-temple text-[#7B2D26] mb-1">Speak with Acharya Rajesh Sharma</h4>
+              <h4 className="text-sm font-bold font-temple text-[#7B2D26] mb-1">Speak with {PLACEHOLDER_ASTROLOGER.displayName}</h4>
               <p className="text-xs text-[#6B5A4E] leading-relaxed mb-4 font-body">
                 Acharya Ji is currently available. Have questions about an upcoming decision?
               </p>

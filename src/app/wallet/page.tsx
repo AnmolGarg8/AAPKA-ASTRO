@@ -10,6 +10,7 @@ import {
   Clock,
   QrCode,
 } from "lucide-react";
+import { PLACEHOLDER_ASTROLOGER, ADMIN_CONFIGURABLE_PRICING } from "@/config/placeholderContent";
 
 export const WalletPage: React.FC = () => {
   const [balance, setBalance] = useState(250);
@@ -99,10 +100,11 @@ export const WalletPage: React.FC = () => {
               <div className="text-4xl sm:text-5xl font-bold font-temple text-[#7B2D26] mt-1">
                 ₹{balance.toLocaleString("en-IN")}
               </div>
+              {/* PLACEHOLDER: replace with real content */}
               <div className="text-xs text-[#6B5A4E] mt-2 flex items-center gap-2 font-body">
                 <Clock className="h-4 w-4 text-[#6B8E5A]" />
                 <span>
-                  Valid for ~<strong>{Math.floor(balance / 19)} Minutes</strong> of Live Consultation with Acharya Ji (@ ₹19/min)
+                  Valid for ~<strong>{Math.floor(balance / ADMIN_CONFIGURABLE_PRICING.chat.ratePerMinute)} Minutes</strong> of Live Consultation (@ ₹{ADMIN_CONFIGURABLE_PRICING.chat.ratePerMinute}/min)
                 </span>
               </div>
             </div>

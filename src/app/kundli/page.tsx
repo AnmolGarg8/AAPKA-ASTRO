@@ -16,6 +16,7 @@ import {
   Printer,
   CheckCircle2,
 } from "lucide-react";
+import { PLACEHOLDER_ASTROLOGER, ADMIN_CONFIGURABLE_PRICING } from "@/config/placeholderContent";
 
 export default function KundliPage() {
   const [kundli, setKundli] = useState<KundliData>(() =>
@@ -286,18 +287,19 @@ export default function KundliPage() {
             </div>
 
             {/* Bottom Consultation CTA */}
+            {/* PLACEHOLDER: replace with real content */}
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border border-[#E8A33D]/60 bg-gradient-to-r from-[#7B2D26] via-[#64231D] to-[#3B2A1E] text-white p-5 shadow-lg">
               <div>
                 <h4 className="text-base font-bold font-temple">Have specific questions about this Kundli?</h4>
                 <p className="text-xs text-amber-100/80 mt-0.5 font-body">
-                  Discuss career transitions, love life, child prospects, and health directly with Acharya Rajesh Sharma.
+                  Discuss career transitions, love life, child prospects, and health directly with {PLACEHOLDER_ASTROLOGER.displayName}.
                 </p>
               </div>
               <Link
                 href="/consult"
                 className="shrink-0 rounded-xl bg-[#E8A33D] px-5 py-2.5 text-xs font-bold text-[#3B2A1E] hover:bg-[#d69330] shadow-md transition-all"
               >
-                Consult Acharya Ji (₹19/min)
+                Consult Acharya Ji (From ₹{ADMIN_CONFIGURABLE_PRICING.chat.ratePerMinute}/min)
               </Link>
             </div>
           </div>
