@@ -8,6 +8,8 @@ import {
   ActiveSession,
   ConsultationMessage,
 } from "@/lib/store/astrologerStore";
+import { ClientAccountStore } from "@/lib/store/clientAccountStore";
+import { PLACEHOLDER_ASTROLOGER } from "@/config/placeholderContent";
 import { calculateKundli } from "@/lib/astrology/chartCalculations";
 import { KundliData } from "@/lib/astrology/types";
 import { NorthIndianChart } from "@/components/kundli/NorthIndianChart";
@@ -145,6 +147,20 @@ export default function AstrologerSessionWorkbench({
 
   const handleEndSession = () => {
     if (confirm("End consultation session and finalize client summary?")) {
+      if (activeSession) {
+        ClientAccountStore.addConsultationRecord({
+          id: activeSession.id,
+          date: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
+          duration: `${Math.max(1, Math.ceil(sessionSeconds / 60))} Minutes`,
+          mode: activeSession.type === "chat" ? "Chat" : activeSession.type === "voice" ? "Voice Call" : "Video Call",
+          amount: `₹${totalBilled}`,
+          astrologer: PLACEHOLDER_ASTROLOGER.displayName,
+          topic: activeSession.concern || "Vedic Astrological Guidance",
+          remedy: remedyText || "Personalized satvik remedies and mantra chanting as prescribed during consultation.",
+          notes: activeSession.notes || "Comprehensive Janam Kundli and planetary transit analysis completed.",
+          hasReview: false,
+        });
+      }
       AstrologerStateStore.endSession();
       router.push("/dashboard");
     }

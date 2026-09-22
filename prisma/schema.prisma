@@ -302,10 +302,12 @@ model PanchangEntry {
   nakshatra   String
   yoga        String
   karana      String
-  sunrise     String
-  sunset      String
-  rawDataJson Json     @map("raw_data_json")
-  createdAt   DateTime @default(now()) @map("created_at")
+  sunrise        String
+  sunset         String
+  rahuKaal       String?  @map("rahu_kaal")
+  abhijitMuhurat String?  @map("abhijit_muhurat")
+  rawDataJson    Json     @map("raw_data_json")
+  createdAt      DateTime @default(now()) @map("created_at")
 
   @@index([date])
   @@index([city])

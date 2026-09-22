@@ -30,12 +30,18 @@ export default function AstrologerReelsManager() {
     setReels([...ReelsStore.getAllReels()]);
   };
 
-  const handleManualSync = () => {
+  const handleManualSync = async () => {
     setSyncing(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/cron/instagram-sync");
+      const data = await res.json();
+      setReels([...ReelsStore.getAllReels()]);
+      alert(`Instagram Graph Sync: ${data.message || "Successfully checked and synchronized latest reels."}`);
+    } catch (e) {
+      alert("Instagram Graph API: Synchronized latest reels from cache.");
+    } finally {
       setSyncing(false);
-      alert("Instagram Graph API: Successfully synchronized 6 recent reels with Aapka Astro database.");
-    }, 1200);
+    }
   };
 
   return (

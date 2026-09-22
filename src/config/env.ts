@@ -50,6 +50,12 @@ const envSchema = z.object({
   S3_ACCESS_KEY_ID: z.string().optional(),
   S3_SECRET_ACCESS_KEY: z.string().optional(),
 
+  // Scheduled Automation & Cron Secret
+  CRON_SECRET: z.string().optional().default("aapka_astro_cron_secret_token_change_in_production"),
+
+  // Instagram Graph API
+  INSTAGRAM_ACCESS_TOKEN: z.string().optional(),
+
   // Self-hosted Socket.io Server Port
   SOCKET_PORT: z.coerce.number().default(3001),
 });

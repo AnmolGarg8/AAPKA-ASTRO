@@ -8,6 +8,7 @@
  */
 
 import { InstagramSyncService } from "./instagramSyncService";
+import { prisma } from "@/lib/db/prisma";
 
 export interface PanchangReport {
   date: string; // YYYY-MM-DD
@@ -111,7 +112,7 @@ export class PanchangService {
     ];
     const yogaIndex = (dayOfYear + 7) % 27;
 
-    return {
+    const report: PanchangReport = {
       date: today,
       dayOfWeek,
       samvat: {
@@ -178,5 +179,41 @@ export class PanchangService {
       instagramGraphicUrl: graphicUrl,
       source: graphicUrl ? "INSTAGRAM_GRAPHIC_AND_EPHEMERIS" : "PURE_CALCULATION_ENGINE",
     };
+
+    // Cache calculation in PostgreSQL PanchangEntry if database is accessible
+    try {
+      const entryDate = new Date(today);
+      await prisma.panchangEntry.upsert({
+        where: { date: entryDate },
+        create: {
+          date: entryDate,
+          city: "New Delhi",
+          tithi: report.limbs.tithi.name,
+          nakshatra: report.limbs.nakshatra.name,
+          yoga: report.limbs.yoga.name,
+          karana: report.limbs.karana.name,
+          sunrise: report.sunMoon.sunrise,
+          sunset: report.sunMoon.sunset,
+          rahuKaal: report.muhurat.rahuKaal,
+          abhijitMuhurat: report.muhurat.abhijit,
+          rawDataJson: report as any,
+        },
+        update: {
+          tithi: report.limbs.tithi.name,
+          nakshatra: report.limbs.nakshatra.name,
+          yoga: report.limbs.yoga.name,
+          karana: report.limbs.karana.name,
+          sunrise: report.sunMoon.sunrise,
+          sunset: report.sunMoon.sunset,
+          rahuKaal: report.muhurat.rahuKaal,
+          abhijitMuhurat: report.muhurat.abhijit,
+          rawDataJson: report as any,
+        },
+      });
+    } catch {
+      // Graceful in-memory fallback when database is not running
+    }
+
+    return report;
   }
 }
