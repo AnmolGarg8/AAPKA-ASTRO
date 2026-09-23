@@ -69,45 +69,78 @@ describe("Welcome Consultation Modal Policy & Content Compliance", () => {
     );
   });
 
-  test("reflects client's authentic single-practitioner reality, credentials & lineage", () => {
-    // Practitioner name
+  test("strictly avoids Astrotalk-scale marketplace statistics and flagged inconsistent numbers", () => {
+    // 1. Reject Astrotalk marketplace scale stats
+    const marketplacePatterns = [
+      /5Cr\+?/i,
+      /50,?000\+?\s*astrologers/i,
+      /thousands of astrologers/i,
+      /largest astrology platform/i,
+    ];
+
+    for (const pattern of marketplacePatterns) {
+      assert.doesNotMatch(
+        modalCode,
+        pattern,
+        `Modal must strictly avoid Astrotalk marketplace-scale statistic: ${pattern}`
+      );
+    }
+
+    // 2. Reject previously flagged inconsistent numbers (15,000+ vs 35,000+) pending client confirmation
+    const flaggedDiscrepancyNumbers = [
+      /15,000\+/,
+      /35,000\+/,
+    ];
+
+    for (const pattern of flaggedDiscrepancyNumbers) {
+      assert.doesNotMatch(
+        modalCode,
+        pattern,
+        `Modal must not reuse previously flagged inconsistent count: ${pattern}`
+      );
+    }
+  });
+
+  test("uses honest solo-practitioner credentials and qualitative community trust line with placeholder note", () => {
+    // Practitioner name & lineage
     assert.match(
       modalCode,
       /Acharya Niraj Kumar|PLACEHOLDER_ASTROLOGER\.displayName/,
       "Must feature Acharya Niraj Kumar as the primary consultant"
     );
-
-    // Authentic Baidyanath Dham heritage
     assert.match(
       modalCode,
       /Baidyanath Dham/,
       "Must showcase the Baidyanath Dham lineage"
     );
 
-    // Authentic 24+ years experience & 15,000+ consultations
+    // Modest, honest experience & credentials
     assert.match(
       modalCode,
-      /24\+\s*Yrs/,
-      "Must highlight authentic 24+ years experience"
+      /20\+\s*Yrs/,
+      "Must highlight honest 20+ years traditional experience"
     );
     assert.match(
       modalCode,
-      /15,000\+/,
-      "Must highlight 15,000+ authentic consultations"
+      /Jyotish Acharya|BVB Scholar/,
+      "Must showcase authentic Jyotish Acharya / BVB certification"
     );
-
-    // High rating
     assert.match(
       modalCode,
-      /4\.9/,
-      "Must highlight 4.9 client satisfaction rating"
+      /100%\s*Solo/,
+      "Must highlight direct 1-on-1 solo practitioner access"
     );
 
-    // No marketplace-scale false claims
-    assert.doesNotMatch(
+    // Qualitative trust line clearly marked as placeholder pending client confirmation
+    assert.match(
       modalCode,
-      /5000\+\s*astrologers/i,
-      "Must not mimic marketplace-scale claims of thousands of astrologers"
+      /Trusted by a growing community across India/i,
+      "Must feature qualitative trust line"
+    );
+    assert.match(
+      modalCode,
+      /pending client confirmation/i,
+      "Must explicitly note that exact counts are pending client confirmation"
     );
   });
 

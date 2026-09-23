@@ -878,10 +878,12 @@ To maximize first-time seeker conversion while honoring the client's authentic s
    - **Call-to-Action**: `"Claim 50% Off & Start Consultation"` or `"Claim 50% Off"` — intentionally rejecting Astrotalk's verbatim `"Chat Now"`.
    - **Transparent Rates**: Clear before/after pricing display (Chat: ₹7.5/min [was ₹15], Voice: ₹10/min [was ₹20], Video: ₹12.5/min [was ₹25]) with promo code `FIRST50` auto-applied.
 
-2. **Authentic Single-Practitioner Reality (Not Marketplace Scale)**:
+2. **Authentic Single-Practitioner Reality (Zero Marketplace Claims & No Flagged Discrepancies)**:
    - Features **Acharya Niraj Kumar** directly with verified badge and avatar (`/images/Acharya_Niraj_Kumar.jpg`).
-   - Grounded in authentic credentials: **24+ Years Experience**, **15,000+ Consultations**, **4.9 ★ Rating**, and **Baidyanath Dham Heritage & Bhartiya Vidya Bhawan Certification**.
-   - Strictly omits marketplace claims (no "5000+ astrologers" or "India's largest marketplace").
+   - Grounded in authentic solo-practitioner reality: **20+ Years Experience**, **Jyotish Acharya (Bhartiya Vidya Bhawan)**, **Baidyanath Dham Heritage**, and **100% Solo Direct Access (No Bots or Junior Astrologers)**.
+   - **Zero Astrotalk Marketplace Stats**: Strictly rejects Astrotalk-scale statistics (no "5Cr+ Users guided", no "50,000+ astrologers", no marketplace claims).
+   - **No Flagged Discrepancy Numbers**: Strictly avoids previously-flagged unconfirmed numbers (the "35,000+" vs "15,000+" discrepancy).
+   - **Qualitative Trust Line with Explicit Placeholder Note**: Displays *"Trusted by a growing community across India & abroad"* with a clear note: `*Exact seeker count and metrics pending client confirmation`.
 
 3. **Simulated Vedic Consultation Chat Preview**:
    - Displays a realistic, respectful dialogue between a seeker and Acharya Niraj Kumar discussing career transitions, karmic restructuring, and D1/D9 chart analysis.
@@ -893,7 +895,7 @@ To maximize first-time seeker conversion while honoring the client's authentic s
    - Never pesters returning visitors or existing clients.
 
 5. **Automated Verification**:
-   - `tests/welcomeModal.test.ts` validates 7 automated compliance tests ensuring headline compliance, CTA wording, negative check against "Free" claims, practitioner credentials, pricing calculation, and home page mounting.
+   - `tests/welcomeModal.test.ts` validates 8 automated compliance tests ensuring headline compliance, CTA wording, negative check against "Free" claims, rejection of Astrotalk marketplace stats, rejection of 15k/35k discrepancy counts, honest solo credentials, qualitative trust line, pricing calculation, and home page mounting.
 
 
 

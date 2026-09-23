@@ -143,7 +143,7 @@ export function WelcomeConsultationModal({
                     <CheckCircle2 className="h-3.5 w-3.5 text-[#E8A33D] fill-[#E8A33D]/20 shrink-0" />
                   </div>
                   <p className="text-[11px] text-[#6E5545]">
-                    Baidyanath Dham Lineage • 24+ Yrs Exp
+                    Baidyanath Dham Lineage • 20+ Yrs Experience
                   </p>
                 </div>
               </div>
@@ -198,35 +198,47 @@ export function WelcomeConsultationModal({
             </div>
           </div>
 
-          {/* Authentic Trust Metrics (Client Reality - Not Astrotalk scale) */}
-          <div className="grid grid-cols-4 gap-2 rounded-xl border border-[#E8D8C3] bg-[#FFFDF9] p-2.5 text-center">
-            <div className="space-y-0.5">
-              <div className="flex items-center justify-center text-[#E8A33D]">
-                <Clock className="h-3.5 w-3.5" />
+          {/* Authentic Solo Practitioner Trust Metrics & Qualitative Community Line */}
+          <div className="space-y-2">
+            <div className="grid grid-cols-4 gap-2 rounded-xl border border-[#E8D8C3] bg-[#FFFDF9] p-2.5 text-center">
+              <div className="space-y-0.5">
+                <div className="flex items-center justify-center text-[#E8A33D]">
+                  <Clock className="h-3.5 w-3.5" />
+                </div>
+                <div className="text-xs sm:text-sm font-bold text-[#7B2D26]">20+ Yrs</div>
+                <div className="text-[9px] text-[#6E5545] uppercase tracking-wider">Vedic Mastery</div>
               </div>
-              <div className="text-xs sm:text-sm font-bold text-[#7B2D26]">24+ Yrs</div>
-              <div className="text-[9px] text-[#6E5545] uppercase tracking-wider">Vedic Mastery</div>
+              <div className="space-y-0.5 border-l border-[#E8D8C3]">
+                <div className="flex items-center justify-center text-[#E8A33D]">
+                  <Award className="h-3.5 w-3.5" />
+                </div>
+                <div className="text-xs sm:text-sm font-bold text-[#7B2D26]">BVB Scholar</div>
+                <div className="text-[9px] text-[#6E5545] uppercase tracking-wider">Jyotish Acharya</div>
+              </div>
+              <div className="space-y-0.5 border-l border-[#E8D8C3]">
+                <div className="flex items-center justify-center text-[#E8A33D]">
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                </div>
+                <div className="text-xs sm:text-sm font-bold text-[#7B2D26]">100% Solo</div>
+                <div className="text-[9px] text-[#6E5545] uppercase tracking-wider">Direct Access</div>
+              </div>
+              <div className="space-y-0.5 border-l border-[#E8D8C3]">
+                <div className="flex items-center justify-center text-[#E8A33D]">
+                  <Star className="h-3.5 w-3.5 fill-[#E8A33D]" />
+                </div>
+                <div className="text-xs sm:text-sm font-bold text-[#7B2D26]">Private</div>
+                <div className="text-[9px] text-[#6E5545] uppercase tracking-wider">Confidential</div>
+              </div>
             </div>
-            <div className="space-y-0.5 border-l border-[#E8D8C3]">
-              <div className="flex items-center justify-center text-[#E8A33D]">
-                <Award className="h-3.5 w-3.5" />
-              </div>
-              <div className="text-xs sm:text-sm font-bold text-[#7B2D26]">15,000+</div>
-              <div className="text-[9px] text-[#6E5545] uppercase tracking-wider">Consultations</div>
-            </div>
-            <div className="space-y-0.5 border-l border-[#E8D8C3]">
-              <div className="flex items-center justify-center text-[#E8A33D]">
-                <Star className="h-3.5 w-3.5 fill-[#E8A33D]" />
-              </div>
-              <div className="text-xs sm:text-sm font-bold text-[#7B2D26]">4.9 ★</div>
-              <div className="text-[9px] text-[#6E5545] uppercase tracking-wider">Rating</div>
-            </div>
-            <div className="space-y-0.5 border-l border-[#E8D8C3]">
-              <div className="flex items-center justify-center text-[#E8A33D]">
-                <ShieldCheck className="h-3.5 w-3.5" />
-              </div>
-              <div className="text-xs sm:text-sm font-bold text-[#7B2D26]">100%</div>
-              <div className="text-[9px] text-[#6E5545] uppercase tracking-wider">Confidential</div>
+
+            {/* Qualitative Trust Line (Clearly marked pending client confirmation) */}
+            <div className="rounded-lg bg-[#FBF3E7]/80 border border-[#E8D8C3] px-3 py-1.5 text-center">
+              <p className="text-[11px] font-semibold text-[#7B2D26]">
+                Trusted by a growing community across India &amp; abroad
+              </p>
+              <p className="text-[9px] text-[#6E5545]/70 italic mt-0.5">
+                *Exact seeker count and metrics pending client confirmation
+              </p>
             </div>
           </div>
 
