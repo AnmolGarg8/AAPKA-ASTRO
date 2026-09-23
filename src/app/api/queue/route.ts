@@ -25,11 +25,12 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { userId, userName, userPhone, consultationType, concern, birthDetails } = body;
+    const { userId, userName, userIdentifier, userPhone, consultationType, concern, birthDetails } = body;
+    const identifier = userIdentifier || userPhone;
 
-    if (!userId || !userName || !userPhone) {
+    if (!userId || !userName || !identifier) {
       return NextResponse.json(
-        { success: false, message: "Missing required client fields" },
+        { success: false, message: "Missing required client fields (userId, userName, userIdentifier)" },
         { status: 400 }
       );
     }
@@ -37,7 +38,8 @@ export async function POST(req: NextRequest) {
     const queueStatus = await LiveQueueService.enqueue({
       userId,
       userName,
-      userPhone,
+      userIdentifier: identifier,
+      userPhone: userPhone || identifier,
       consultationType: consultationType || "chat",
       concern: concern || "General Vedic life guidance",
       birthDetails: birthDetails || {

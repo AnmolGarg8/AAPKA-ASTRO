@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PresenceService } from "@/lib/redis/presence";
+import { getAuthFromRequest } from "@/lib/auth/serverAuth";
 
 export async function GET() {
   const presence = await PresenceService.getPresence();
@@ -8,6 +9,18 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    // Server-Side RBAC Enforcement: Only Astrologer or Admin can mutate status
+    const authState = getAuthFromRequest(req);
+    if (!authState.isAuthenticated || !authState.isAstrologer) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Forbidden: Astrologer or Admin role required to update presence.",
+        },
+        { status: 403 }
+      );
+    }
+
     const body = await req.json();
     const { status, statusMessage, nextAvailableAt } = body;
 

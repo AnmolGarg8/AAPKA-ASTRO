@@ -6,6 +6,7 @@ import { MandalaDivider } from "@/components/ui/MandalaDivider";
 import { DiyaIcon } from "@/components/ui/DiyaIcon";
 import { PersonJsonLd, LocalBusinessJsonLd } from "@/components/seo/JsonLd";
 import { GallerySection } from "@/components/about/GallerySection";
+import { TrustCredentialsSection } from "@/components/home/TrustCredentialsSection";
 import {
   ShieldCheck,
   Award,
@@ -261,7 +262,10 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* 5. Certificates & Gallery Section */}
+      {/* 5. Trust, Credentials & Press Authority */}
+      <TrustCredentialsSection />
+
+      {/* 5.1 Certificates & Gallery Section */}
       <GallerySection />
 
       {/* 6. Four Pillars of Practice */}

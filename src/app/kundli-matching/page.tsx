@@ -4,7 +4,8 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { calculateGunMilan } from "@/lib/astrology/gunMilan";
 import { GunMilanResult } from "@/lib/astrology/types";
-import { INDIAN_CITIES } from "@/lib/astrology/indianCities";
+import { LocationResult } from "@/lib/services/locationService";
+import { LocationAutocomplete } from "@/components/kundli/LocationAutocomplete";
 import {
   HeartHandshake,
   PhoneCall,
@@ -19,13 +20,35 @@ export default function KundliMatchingPage() {
   const [boyName, setBoyName] = useState("Aarav Sharma");
   const [boyDate, setBoyDate] = useState("1995-10-24");
   const [boyTime, setBoyTime] = useState("14:35");
-  const [boyCity, setBoyCity] = useState("New Delhi");
+  const [boyLocation, setBoyLocation] = useState<LocationResult>({
+    id: "in-new-delhi",
+    name: "New Delhi",
+    displayName: "New Delhi, Delhi, India",
+    state: "Delhi",
+    country: "India",
+    countryCode: "IN",
+    latitude: 28.6139,
+    longitude: 77.209,
+    timezone: 5.5,
+    timezoneId: "Asia/Kolkata",
+  });
 
   // Girl State
   const [girlName, setGirlName] = useState("Meera Kapoor");
   const [girlDate, setGirlDate] = useState("1997-04-12");
   const [girlTime, setGirlTime] = useState("09:15");
-  const [girlCity, setGirlCity] = useState("Jaipur");
+  const [girlLocation, setGirlLocation] = useState<LocationResult>({
+    id: "in-jaipur",
+    name: "Jaipur",
+    displayName: "Jaipur, Rajasthan, India",
+    state: "Rajasthan",
+    country: "India",
+    countryCode: "IN",
+    latitude: 26.9124,
+    longitude: 75.7873,
+    timezone: 5.5,
+    timezoneId: "Asia/Kolkata",
+  });
 
   // Calculation Result
   const [result, setResult] = useState<GunMilanResult>(() =>
@@ -34,7 +57,7 @@ export default function KundliMatchingPage() {
         name: "Aarav Sharma",
         birthDate: "1995-10-24",
         birthTime: "14:35",
-        birthPlace: "New Delhi",
+        birthPlace: "New Delhi, Delhi, India",
         latitude: 28.6139,
         longitude: 77.209,
         timezone: 5.5,
@@ -43,7 +66,7 @@ export default function KundliMatchingPage() {
         name: "Meera Kapoor",
         birthDate: "1997-04-12",
         birthTime: "09:15",
-        birthPlace: "Jaipur",
+        birthPlace: "Jaipur, Rajasthan, India",
         latitude: 26.9124,
         longitude: 75.7873,
         timezone: 5.5,
@@ -57,28 +80,25 @@ export default function KundliMatchingPage() {
     e.preventDefault();
     setIsCalculating(true);
 
-    const bCityObj = INDIAN_CITIES.find((c) => c.name.toLowerCase() === boyCity.toLowerCase()) || INDIAN_CITIES[0];
-    const gCityObj = INDIAN_CITIES.find((c) => c.name.toLowerCase() === girlCity.toLowerCase()) || INDIAN_CITIES[5];
-
     setTimeout(() => {
       const res = calculateGunMilan(
         {
           name: boyName,
           birthDate: boyDate,
           birthTime: boyTime,
-          birthPlace: bCityObj.name,
-          latitude: bCityObj.latitude,
-          longitude: bCityObj.longitude,
-          timezone: bCityObj.timezone,
+          birthPlace: boyLocation.displayName,
+          latitude: boyLocation.latitude,
+          longitude: boyLocation.longitude,
+          timezone: boyLocation.timezone,
         },
         {
           name: girlName,
           birthDate: girlDate,
           birthTime: girlTime,
-          birthPlace: gCityObj.name,
-          latitude: gCityObj.latitude,
-          longitude: gCityObj.longitude,
-          timezone: gCityObj.timezone,
+          birthPlace: girlLocation.displayName,
+          latitude: girlLocation.latitude,
+          longitude: girlLocation.longitude,
+          timezone: girlLocation.timezone,
         }
       );
       setResult(res);
@@ -157,14 +177,11 @@ export default function KundliMatchingPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-[#3B2A1E] mb-1">Birth City</label>
-                  <input
-                    type="text"
-                    required
-                    value={boyCity}
-                    onChange={(e) => setBoyCity(e.target.value)}
-                    placeholder="e.g. New Delhi, Mumbai"
-                    className="w-full rounded-xl border border-[#D4C3B3] bg-[#FAF5EE] px-3.5 py-2 text-xs text-[#3B2A1E] focus:border-[#7B2D26] focus:outline-none"
+                  <LocationAutocomplete
+                    value={boyLocation.displayName}
+                    onSelect={setBoyLocation}
+                    label="Groom's Birth Place"
+                    placeholder="Search any city or town worldwide..."
                   />
                 </div>
               </div>
@@ -210,14 +227,11 @@ export default function KundliMatchingPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-[#3B2A1E] mb-1">Birth City</label>
-                  <input
-                    type="text"
-                    required
-                    value={girlCity}
-                    onChange={(e) => setGirlCity(e.target.value)}
-                    placeholder="e.g. Jaipur, Bengaluru"
-                    className="w-full rounded-xl border border-[#D4C3B3] bg-[#FAF5EE] px-3.5 py-2 text-xs text-[#3B2A1E] focus:border-[#7B2D26] focus:outline-none"
+                  <LocationAutocomplete
+                    value={girlLocation.displayName}
+                    onSelect={setGirlLocation}
+                    label="Bride's Birth Place"
+                    placeholder="Search any city or town worldwide..."
                   />
                 </div>
               </div>
@@ -266,27 +280,55 @@ export default function KundliMatchingPage() {
             </div>
           </div>
 
-          {/* Dosha Highlights */}
-          {(result.nadiDosha || result.bhakootDosha) && (
-            <div className="mt-6 rounded-xl border border-[#C1662F]/40 bg-[#FAF1E4] p-4 text-xs">
-              <div className="flex items-center gap-2 font-bold text-[#7B2D26] mb-1 font-temple">
+          {/* Dosha & Manglik Highlights */}
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Manglik Compatibility Card */}
+            <div className={`rounded-xl border p-4 text-xs ${result.manglikMatch.compatible ? "border-emerald-200 bg-emerald-50/60" : "border-[#C1662F]/40 bg-[#FAF1E4]"}`}>
+              <div className="flex items-center gap-2 font-bold mb-2 font-temple text-[#7B2D26]">
+                <Heart className="h-4 w-4 text-[#C1662F]" />
+                <span>Manglik Compatibility Analysis:</span>
+              </div>
+              <div className="flex items-center gap-2 mb-2">
+                <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${result.manglikMatch.boyManglik ? "bg-amber-100 text-amber-900 border border-amber-300" : "bg-emerald-100 text-emerald-800"}`}>
+                  Boy: {result.manglikMatch.boyManglik ? "Manglik" : "Non-Manglik"}
+                </span>
+                <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${result.manglikMatch.girlManglik ? "bg-amber-100 text-amber-900 border border-amber-300" : "bg-emerald-100 text-emerald-800"}`}>
+                  Girl: {result.manglikMatch.girlManglik ? "Manglik" : "Non-Manglik"}
+                </span>
+              </div>
+              <p className="text-[#6B5A4E] font-body leading-relaxed">
+                {result.manglikMatch.verdict}
+              </p>
+            </div>
+
+            {/* Critical Dosha Card */}
+            <div className="rounded-xl border border-[#C1662F]/40 bg-[#FAF1E4] p-4 text-xs">
+              <div className="flex items-center gap-2 font-bold text-[#7B2D26] mb-2 font-temple">
                 <AlertTriangle className="h-4 w-4 text-[#C1662F]" />
-                <span>Critical Astrological Factors Detected:</span>
+                <span>Critical Koota Dosha Assessment:</span>
               </div>
               <ul className="list-disc list-inside text-[#6B5A4E] space-y-1 pl-1 font-body">
-                {result.nadiDosha && (
+                {result.nadiDosha ? (
                   <li>
-                    <strong className="text-[#7B2D26]">Nadi Dosha Active:</strong> Both have the same physiological energy classification (0/8 points). Navamsha cancellation and personalized consultation are advised.
+                    <strong className="text-[#7B2D26]">Nadi Dosha Active:</strong> Both share the same physiological Nadi energy classification (0/8 points). Navamsha cancellation and personalized consultation are advised.
+                  </li>
+                ) : (
+                  <li className="text-emerald-800 font-medium">
+                    <strong>Nadi Koota Favorable:</strong> No physiological incompatibility detected ({result.nadi.points}/8 points).
                   </li>
                 )}
-                {result.bhakootDosha && (
+                {result.bhakootDosha ? (
                   <li>
                     <strong className="text-[#C1662F]">Bhakoot Disparity:</strong> Relative moon signs require domestic maturity and mutual communication balancing.
+                  </li>
+                ) : (
+                  <li className="text-emerald-800 font-medium">
+                    <strong>Bhakoot Harmonious:</strong> Auspicious moon sign axis promoting emotional bonding ({result.bhakoot.points}/7 points).
                   </li>
                 )}
               </ul>
             </div>
-          )}
+          </div>
 
           {/* Ashta Koota Points Breakdown Table */}
           <div className="mt-8">

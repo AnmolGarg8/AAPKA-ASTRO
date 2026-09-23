@@ -51,21 +51,27 @@ export interface CallbackRequest {
 }
 
 export interface ClientProfile {
+  id?: string;
   name: string;
-  phone: string;
-  email: string;
+  identifier: string; // email, username, or future phone
+  phone?: string;
+  email?: string;
   isLoggedIn: boolean;
   walletBalance: number;
   joinedDate: string;
+  role?: "CLIENT" | "ASTROLOGER" | "ADMIN";
 }
 
 let memoryClientProfile: ClientProfile = {
+  id: "client-preview-1",
   name: "Aarav Sharma",
+  identifier: "aarav.sharma@example.com",
   phone: "+91 98765 43210",
   email: "aarav.sharma@example.com",
   isLoggedIn: true,
   walletBalance: 250,
   joinedDate: "14 Aug 2026",
+  role: "CLIENT",
 };
 
 let memorySavedKundlis: SavedKundli[] = [
@@ -145,9 +151,10 @@ let memoryCallbacks: CallbackRequest[] = [];
 export const ClientAccountStore = {
   getProfile: (): ClientProfile => ({ ...memoryClientProfile }),
 
-  setLoggedIn: (status: boolean, phone: string = "+91 98765 43210") => {
+  setLoggedIn: (status: boolean, identifier: string = "aarav.sharma@example.com", phone?: string) => {
     memoryClientProfile.isLoggedIn = status;
-    memoryClientProfile.phone = phone;
+    memoryClientProfile.identifier = identifier;
+    if (phone) memoryClientProfile.phone = phone;
   },
 
   getSavedKundlis: (): SavedKundli[] => [...memorySavedKundlis],

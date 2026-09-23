@@ -6,7 +6,8 @@ const QUEUE_META_PREFIX = "astro:queue:meta:";
 export interface EnqueuedClientData {
   userId: string;
   userName: string;
-  userPhone: string;
+  userIdentifier?: string;
+  userPhone?: string;
   consultationType: "chat" | "call";
   concern: string;
   birthDetails: {

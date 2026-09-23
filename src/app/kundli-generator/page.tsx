@@ -8,6 +8,9 @@ import { SouthIndianChart } from "@/components/kundli/SouthIndianChart";
 import { PlanetaryTable } from "@/components/kundli/PlanetaryTable";
 import { DashaTimeline } from "@/components/kundli/DashaTimeline";
 import { DoshaAnalysis } from "@/components/kundli/DoshaAnalysis";
+import { KPTable } from "@/components/kundli/KPTable";
+import { AshtakvargaTable } from "@/components/kundli/AshtakvargaTable";
+import { KundliPrintDossier } from "@/components/kundli/KundliPrintDossier";
 import { calculateKundli } from "@/lib/astrology/chartCalculations";
 import { KundliData } from "@/lib/astrology/types";
 import { MandalaDivider } from "@/components/ui/MandalaDivider";
@@ -20,6 +23,8 @@ import {
   CheckCircle2,
   Lock,
   ArrowRight,
+  Printer,
+  Layers,
 } from "lucide-react";
 
 export default function KundliGeneratorPage() {
@@ -37,8 +42,19 @@ export default function KundliGeneratorPage() {
   );
 
   const [chartType, setChartType] = useState<"north" | "south">("north");
-  const [activeTab, setActiveTab] = useState<"chart" | "planets" | "dasha" | "dosha">("chart");
+  const [selectedVarga, setSelectedVarga] = useState<"D1" | "D9">("D1");
+  const [activeTab, setActiveTab] = useState<
+    "chart" | "planets" | "kp" | "ashtakvarga" | "dasha" | "dosha" | "report"
+  >("chart");
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
+
+  const handleDownloadPdf = () => {
+    if (typeof window !== "undefined") {
+      window.print();
+    }
+  };
+
+  const d9Houses = kundli.divisionalCharts?.["D9"]?.houses;
 
   return (
     <div className="bg-[#FBF3E7] text-[#3B2A1E]">
@@ -123,18 +139,21 @@ export default function KundliGeneratorPage() {
                 </div>
 
                 {/* Tabs */}
-                <div className="flex border-b border-[#E8D8C3] gap-2 pt-4">
+                <div className="flex border-b border-[#E8D8C3] gap-2 pt-4 overflow-x-auto pb-1">
                   {[
-                    { id: "chart", label: "Lagna Chakra" },
-                    { id: "planets", label: "Planetary Degrees" },
-                    { id: "dasha", label: "Vimshottari Dasha" },
+                    { id: "chart", label: "Lagna & D9 Charts" },
+                    { id: "planets", label: "Planets" },
+                    { id: "kp", label: "KP System" },
+                    { id: "ashtakvarga", label: "Ashtakvarga" },
+                    { id: "dasha", label: "4-Tier Dasha" },
                     { id: "dosha", label: "Dosha Diagnosis" },
+                    { id: "report", label: "Free PDF Report" },
                   ].map((tab) => (
                     <button
                       key={tab.id}
                       type="button"
                       onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                      className={`pb-2.5 px-3 text-xs font-bold transition-all border-b-2 ${
+                      className={`pb-2.5 px-3 text-xs font-bold transition-all border-b-2 shrink-0 ${
                         activeTab === tab.id
                           ? "border-[#7B2D26] text-[#7B2D26]"
                           : "border-transparent text-[#6E5545] hover:text-[#3B2A1E]"
@@ -148,18 +167,59 @@ export default function KundliGeneratorPage() {
                 {/* Tab Content */}
                 <div className="pt-4">
                   {activeTab === "chart" && (
-                    <div className="flex justify-center py-4">
-                      {chartType === "north" ? (
-                        <NorthIndianChart kundli={kundli} size={360} />
-                      ) : (
-                        <SouthIndianChart kundli={kundli} size={360} />
-                      )}
+                    <div className="space-y-4">
+                      {/* D1 vs D9 Selector */}
+                      <div className="flex items-center justify-center gap-2 bg-[#FBF3E7] p-1.5 rounded-xl border border-[#E8D8C3] max-w-md mx-auto">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedVarga("D1")}
+                          className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all ${
+                            selectedVarga === "D1"
+                              ? "bg-[#7B2D26] text-white shadow-xs"
+                              : "text-[#6E5545] hover:text-[#3B2A1E]"
+                          }`}
+                        >
+                          D1 Lagna (Rashi Chakra)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedVarga("D9")}
+                          className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all ${
+                            selectedVarga === "D9"
+                              ? "bg-[#7B2D26] text-white shadow-xs"
+                              : "text-[#6E5545] hover:text-[#3B2A1E]"
+                          }`}
+                        >
+                          D9 Navamsha (Spouse &amp; Dharma)
+                        </button>
+                      </div>
+
+                      <div className="flex justify-center py-4">
+                        {chartType === "north" ? (
+                          <NorthIndianChart
+                            kundli={kundli}
+                            customHouses={selectedVarga === "D9" && d9Houses ? d9Houses : undefined}
+                            chartTitle={selectedVarga === "D9" ? "Navamsha Chakra (D9)" : "Lagna Chakra (D1)"}
+                            size={360}
+                          />
+                        ) : (
+                          <SouthIndianChart
+                            kundli={kundli}
+                            customHouses={selectedVarga === "D9" && d9Houses ? d9Houses : undefined}
+                            chartTitle={selectedVarga === "D9" ? "Navamsha Chakra (D9)" : "Lagna Chakra (D1)"}
+                            size={360}
+                          />
+                        )}
+                      </div>
                     </div>
                   )}
 
                   {activeTab === "planets" && <PlanetaryTable kundli={kundli} />}
+                  {activeTab === "kp" && <KPTable kpData={kundli.kpSystem} />}
+                  {activeTab === "ashtakvarga" && <AshtakvargaTable ashtakvarga={kundli.ashtakvarga} />}
                   {activeTab === "dasha" && <DashaTimeline dashas={kundli.dashas} />}
                   {activeTab === "dosha" && <DoshaAnalysis doshas={kundli.doshas} />}
+                  {activeTab === "report" && <KundliPrintDossier kundli={kundli} isPreview={true} />}
                 </div>
 
                 {/* Lead-Gen Action Strip */}
@@ -176,11 +236,11 @@ export default function KundliGeneratorPage() {
 
                     <button
                       type="button"
-                      onClick={() => setShowSignupPrompt(true)}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-[#E8D8C3] bg-[#FBF3E7] px-4 py-2 text-xs font-bold text-[#3B2A1E] hover:bg-[#E8D8C3] transition-all"
+                      onClick={handleDownloadPdf}
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-[#E8A33D] hover:bg-[#D5912C] px-4 py-2 text-xs font-bold text-[#3B2A1E] transition-all shadow-sm cursor-pointer"
                     >
-                      <Download className="h-4 w-4 text-[#6E5545]" />
-                      <span>Download PDF Report</span>
+                      <Download className="h-4 w-4 text-[#3B2A1E]" />
+                      <span>Download PDF Report (Free)</span>
                     </button>
                   </div>
 
@@ -219,7 +279,7 @@ export default function KundliGeneratorPage() {
                 href="/signup"
                 className="block w-full rounded-xl bg-[#7B2D26] py-3 text-xs font-bold text-[#FBF3E7] hover:bg-[#96372E] transition-all shadow-sm"
               >
-                Sign Up with Phone &amp; OTP
+                Sign Up with Google or Email
               </Link>
               <Link
                 href="/login"
@@ -239,6 +299,9 @@ export default function KundliGeneratorPage() {
           </div>
         </div>
       )}
+
+      {/* Printable PDF Dossier (Active on Window.Print) */}
+      <KundliPrintDossier kundli={kundli} />
     </div>
   );
 }

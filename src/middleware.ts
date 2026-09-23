@@ -1,110 +1,162 @@
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
+import { isClerkConfigured } from "@/lib/auth/clerkConfig";
+import { evaluateRouteAccess, UserRole } from "@/lib/auth/roles";
+import { getAuthFromRequest } from "@/lib/auth/serverAuth";
+import {
+  isOwnerEmail,
+  StaffPermissionService,
+  STAFF_SECTIONS,
+  StaffSection,
+} from "@/lib/auth/staffPermissions";
 
-interface JWTPayload {
-  userId: string;
-  phone: string;
-  role: "CLIENT" | "ASTROLOGER" | "ADMIN" | "USER";
-  exp?: number;
-}
+const isAccountRoute = createRouteMatcher(["/account(.*)"]);
+const isDashboardRoute = createRouteMatcher(["/dashboard(.*)"]);
+const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
+const isAstrologerRoute = createRouteMatcher(["/astrologer(.*)"]);
+
+const isProduction = process.env.NODE_ENV === "production";
+const isSatelliteDomain = isProduction && process.env.NEXT_PUBLIC_CLERK_IS_SATELLITE === "true";
+const clerkDomain = isProduction ? (process.env.NEXT_PUBLIC_CLERK_DOMAIN || "aapkaastro.com") : undefined;
+const signInPath = process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL || "/login";
+const signUpPath = process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL || "/signup";
+
+const isClerkActive = isClerkConfigured();
 
 /**
- * Server-side JWT decoding & expiration check (Edge runtime compatible)
+ * Fallback middleware when Clerk credentials are unconfigured or in local preview.
+ * Strictly enforces RBAC against session cookies rather than passing through unconditionally.
  */
-function parseTokenPayload(token: string): JWTPayload | null {
-  try {
-    const parts = token.split(".");
-    if (parts.length !== 3) return null;
+function fallbackMiddleware(req: NextRequest) {
+  const pathname = req.nextUrl.pathname;
+  const isProtected =
+    isAccountRoute(req) ||
+    isDashboardRoute(req) ||
+    isAdminRoute(req) ||
+    isAstrologerRoute(req);
 
-    const base64Url = parts[1];
-    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-    const jsonStr = atob(base64);
-    const payload: JWTPayload = JSON.parse(jsonStr);
+  if (isProtected) {
+    const authState = getAuthFromRequest(req);
+    const access = evaluateRouteAccess(
+      pathname,
+      authState.role,
+      authState.isAuthenticated,
+      authState.permissions,
+      authState.email
+    );
 
-    // Check expiry if exp claim is present
-    if (payload.exp && Date.now() >= payload.exp * 1000) {
-      return null;
+    if (!access.allowed) {
+      return NextResponse.redirect(new URL(access.redirectUrl, req.url));
     }
-
-    return payload;
-  } catch {
-    return null;
   }
+
+  return NextResponse.next();
 }
 
-export function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
+const liveClerkMiddleware = clerkMiddleware(
+  async (auth, req) => {
+    const pathname = req.nextUrl.pathname;
+    const isProtected =
+      isAccountRoute(req) ||
+      isDashboardRoute(req) ||
+      isAdminRoute(req) ||
+      isAstrologerRoute(req);
 
-  // Only protect /account, /dashboard, and /admin routes
-  const isAccountRoute = pathname.startsWith("/account");
-  const isDashboardRoute = pathname.startsWith("/dashboard");
-  const isAdminRoute = pathname.startsWith("/admin");
+    // Development bypass flag for preview testing
+    const isDevPreview =
+      process.env.NODE_ENV !== "production" &&
+      (req.nextUrl.searchParams.get("preview") === "true" ||
+        req.cookies.get("aapka_astro_dev_preview")?.value === "true");
 
-  if (!isAccountRoute && !isDashboardRoute && !isAdminRoute) {
+    // Non-protected routes can pass immediately in dev preview
+    if (isDevPreview && !isProtected) {
+      return NextResponse.next();
+    }
+
+    if (isProtected) {
+      try {
+        const session = await auth();
+
+        if (!session.userId) {
+          // If in dev preview, check mock auth cookie before redirecting
+          if (isDevPreview) {
+            const mockAuth = getAuthFromRequest(req);
+            const access = evaluateRouteAccess(
+              pathname,
+              mockAuth.role,
+              mockAuth.isAuthenticated,
+              mockAuth.permissions,
+              mockAuth.email
+            );
+            if (!access.allowed) {
+              return NextResponse.redirect(new URL(access.redirectUrl, req.url));
+            }
+            return NextResponse.next();
+          }
+
+          const signInUrl = new URL(signInPath, req.url);
+          signInUrl.searchParams.set("redirect_url", req.url);
+          return NextResponse.redirect(signInUrl);
+        }
+
+        const sessionClaims = session.sessionClaims as any;
+        const email =
+          sessionClaims?.email || sessionClaims?.primaryEmailAddress || null;
+        const isOwner = isOwnerEmail(email);
+
+        const rawRole = isOwner
+          ? "ADMIN"
+          : sessionClaims?.metadata?.role ||
+            sessionClaims?.publicMetadata?.role ||
+            sessionClaims?.unsafeMetadata?.role ||
+            "CLIENT";
+        const userRole = String(rawRole).toUpperCase() as UserRole;
+
+        const permissions = isOwner
+          ? (STAFF_SECTIONS.map((s) => s.id) as StaffSection[])
+          : StaffPermissionService.getPermissionsSync(email || "");
+
+        const access = evaluateRouteAccess(
+          pathname,
+          userRole,
+          true,
+          permissions,
+          email
+        );
+        if (!access.allowed) {
+          return NextResponse.redirect(new URL(access.redirectUrl, req.url));
+        }
+      } catch (err: any) {
+        console.warn("Clerk authentication verification notice:", err?.message || err);
+        // CRITICAL DEFENSE: If auth resolution errors on a protected route, never pass through!
+        const signInUrl = new URL(signInPath, req.url);
+        signInUrl.searchParams.set("redirect_url", req.url);
+        return NextResponse.redirect(signInUrl);
+      }
+    }
+
     return NextResponse.next();
+  },
+  {
+    domain: clerkDomain,
+    isSatellite: isSatelliteDomain,
+    signInUrl: signInPath,
+    signUpUrl: signUpPath,
   }
+);
 
-  // 1. Retrieve session token from cookie or Authorization header
-  const sessionCookie = req.cookies.get("aapka_astro_session")?.value;
-  const authHeader = req.headers.get("authorization");
-  const bearerToken = authHeader?.startsWith("Bearer ") ? authHeader.substring(7) : null;
-  const token = sessionCookie || bearerToken;
-
-  // Development bypass flag for preview testing
-  const isDevPreview =
-    process.env.NODE_ENV !== "production" &&
-    (req.nextUrl.searchParams.get("preview") === "true" ||
-      req.cookies.get("aapka_astro_dev_preview")?.value === "true");
-
-  if (isDevPreview) {
-    return NextResponse.next();
+export default function middleware(req: NextRequest, event: any) {
+  if (isClerkActive) {
+    return (liveClerkMiddleware as any)(req, event);
   }
-
-  // 2. Unauthenticated check
-  if (!token) {
-    const loginUrl = new URL("/login", req.url);
-    loginUrl.searchParams.set("redirect", pathname);
-    return NextResponse.redirect(loginUrl);
-  }
-
-  // 3. Parse and validate token claims
-  const payload = parseTokenPayload(token);
-  if (!payload || !payload.userId) {
-    const loginUrl = new URL("/login", req.url);
-    loginUrl.searchParams.set("redirect", pathname);
-    return NextResponse.redirect(loginUrl);
-  }
-
-  const userRole = (payload.role || "CLIENT").toUpperCase();
-
-  // 4. Role-based Server-Side Access Control (RBAC)
-  // Admin routes: STRICTLY ADMIN
-  if (isAdminRoute && userRole !== "ADMIN") {
-    const dashboardUrl = new URL("/dashboard", req.url);
-    return NextResponse.redirect(dashboardUrl);
-  }
-
-  // Astrologer Workbench routes: ASTROLOGER or ADMIN
-  if (isDashboardRoute && userRole !== "ASTROLOGER" && userRole !== "ADMIN") {
-    const accountUrl = new URL("/account", req.url);
-    return NextResponse.redirect(accountUrl);
-  }
-
-  // Forward authenticated request with security user headers
-  const requestHeaders = new Headers(req.headers);
-  requestHeaders.set("x-user-id", payload.userId);
-  requestHeaders.set("x-user-role", userRole);
-
-  return NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  });
+  return fallbackMiddleware(req);
 }
 
 export const config = {
   matcher: [
-    "/account/:path*",
-    "/dashboard/:path*",
-    "/admin/:path*",
+    // Skip Next.js internals and all static files, unless found in search params
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    // Always run for API routes
+    "/(api|trpc)(.*)",
   ],
 };

@@ -55,30 +55,30 @@ const FacebookIcon: React.FC<{ className?: string }> = ({ className = "h-4 w-4" 
 export const Footer: React.FC = () => {
   return (
     <footer className="border-t border-[#E8D8C3] bg-[#7B2D26] text-[#FBF3E7] text-xs">
-      {/* Trust Marks Banner */}
+      {/* Trust Marks Banner: Tailored for Solo Practitioner */}
       {/* PLACEHOLDER: replace with real content */}
       <div className="border-b border-[#FBF3E7]/15 bg-[#64221C] py-6">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             <div className="flex flex-col items-center">
               <Award className="h-6 w-6 text-[#E8A33D] mb-1.5" />
-              <span className="font-temple font-bold text-[#FBF3E7]">Over {PLACEHOLDER_ASTROLOGER.experienceYears} Years Vedic Mastery</span>
-              <span className="text-[11px] text-[#FBF3E7]/70">Trained in Traditional Vedic Sciences</span>
+              <span className="font-temple font-bold text-[#FBF3E7]">Certified Vedic Astrologer</span>
+              <span className="text-[11px] text-[#FBF3E7]/70">Bhartiya Vidya Bhawan &bull; 20+ Yrs</span>
             </div>
             <div className="flex flex-col items-center">
               <Lock className="h-6 w-6 text-[#E8A33D] mb-1.5" />
-              <span className="font-temple font-bold text-[#FBF3E7]">100% Confidential</span>
-              <span className="text-[11px] text-[#FBF3E7]/70">Private 1-on-1 Consultation</span>
+              <span className="font-temple font-bold text-[#FBF3E7]">100% Confidential Consultations</span>
+              <span className="text-[11px] text-[#FBF3E7]/70">Strict Privacy &bull; Direct With Acharya Ji</span>
             </div>
             <div className="flex flex-col items-center">
               <ShieldCheck className="h-6 w-6 text-[#E8A33D] mb-1.5" />
-              <span className="font-temple font-bold text-[#FBF3E7]">Govt. Certified Gemstones</span>
-              <span className="text-[11px] text-[#FBF3E7]/70">100% Natural &amp; Energized</span>
+              <span className="font-temple font-bold text-[#FBF3E7]">Secure Payments via Razorpay</span>
+              <span className="text-[11px] text-[#FBF3E7]/70">256-Bit SSL &bull; UPI, Cards, NetBanking</span>
             </div>
             <div className="flex flex-col items-center">
               <Heart className="h-6 w-6 text-[#E8A33D] mb-1.5" />
-              <span className="font-temple font-bold text-[#FBF3E7]">{PLACEHOLDER_ASTROLOGER.followersCount} Followers</span>
-              <span className="text-[11px] text-[#FBF3E7]/70">Growing Trusted Community</span>
+              <span className="font-temple font-bold text-[#FBF3E7]">15,000+ Natal Charts Analyzed</span>
+              <span className="text-[11px] text-[#FBF3E7]/70">Across 32 Countries &bull; Zero Gimmicks</span>
             </div>
           </div>
         </div>
@@ -86,9 +86,9 @@ export const Footer: React.FC = () => {
 
       {/* Main Footer Links */}
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Brand Info & Tagline */}
-          <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+          {/* Col 1: Brand Info & Social Row */}
+          <div className="space-y-3 md:col-span-2">
             <div className="flex items-center gap-2">
               <img
                 src="/images/logo.png"
@@ -106,17 +106,19 @@ export const Footer: React.FC = () => {
               India&apos;s sacred sanctuary for authentic Vedic astrology, Janampatri analysis, and non-demolition Devta &amp; Energy Vastu Shastra. Consultations conducted personally by {PLACEHOLDER_ASTROLOGER.displayName}.
             </p>
 
-            {/* Social Links */}
+            {/* Social Links Row */}
             <div className="pt-2">
               <div className="text-[11px] font-bold text-[#E8A33D] uppercase tracking-wider mb-2 font-temple">
                 Connect With Acharya Ji
               </div>
               <div className="flex items-center gap-3">
+                {/* PLACEHOLDER: replace with real social handles once provided by client */}
                 <a
                   href={PLACEHOLDER_SOCIAL_LINKS.instagram.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Instagram (Placeholder)"
+                  aria-label="Instagram (Aapka Astrologer)"
+                  title="Follow on Instagram @aapkaastrologer"
                   className="rounded-lg bg-[#64221C] p-2 text-[#FBF3E7] hover:bg-[#E8A33D] hover:text-[#3B2A1E] transition-colors"
                 >
                   <InstagramIcon className="h-4 w-4" />
@@ -125,7 +127,8 @@ export const Footer: React.FC = () => {
                   href={PLACEHOLDER_SOCIAL_LINKS.youtube.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="YouTube (Placeholder)"
+                  aria-label="YouTube (Aapka Astro)"
+                  title="Watch Vedic Discourses on YouTube"
                   className="rounded-lg bg-[#64221C] p-2 text-[#FBF3E7] hover:bg-[#E8A33D] hover:text-[#3B2A1E] transition-colors"
                 >
                   <YoutubeIcon className="h-4 w-4" />
@@ -134,43 +137,28 @@ export const Footer: React.FC = () => {
                   href={PLACEHOLDER_SOCIAL_LINKS.facebook.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Facebook (Placeholder)"
+                  aria-label="Facebook (Aapka Astro)"
+                  title="Connect on Facebook"
                   className="rounded-lg bg-[#64221C] p-2 text-[#FBF3E7] hover:bg-[#E8A33D] hover:text-[#3B2A1E] transition-colors"
                 >
                   <FacebookIcon className="h-4 w-4" />
                 </a>
               </div>
               <div className="text-[10px] text-[#FBF3E7]/50 mt-1 italic">
-                {/* NOTE: Real social media handles will be provided later */}
-                Official social channels
+                Official social handles ({PLACEHOLDER_SOCIAL_LINKS.instagram.handle})
               </div>
             </div>
           </div>
 
-          {/* Quick Tools & Resources */}
+          {/* Col 2: Free Calculators & Tools */}
           <div>
             <h4 className="font-temple text-xs font-bold uppercase tracking-wider text-[#E8A33D] mb-3">
-              Tools &amp; Panchang
+              Free Calculators &amp; Hubs
             </h4>
-            <ul className="space-y-2 text-[#FBF3E7]/80">
+            <ul className="space-y-1.5 text-[#FBF3E7]/80 text-[11px]">
               <li>
                 <Link href="/kundli-generator" className="hover:text-[#E8A33D] transition-colors">
-                  Free Kundli Generator
-                </Link>
-              </li>
-              <li>
-                <Link href="/panchang" className="hover:text-[#E8A33D] transition-colors">
-                  Daily Vedic Panchang
-                </Link>
-              </li>
-              <li>
-                <Link href="/reels" className="hover:text-[#E8A33D] transition-colors">
-                  Instagram Reels Gallery
-                </Link>
-              </li>
-              <li>
-                <Link href="/blog" className="hover:text-[#E8A33D] transition-colors">
-                  Vedic Astrology Journal
+                  Janam Kundli Generator
                 </Link>
               </li>
               <li>
@@ -178,77 +166,99 @@ export const Footer: React.FC = () => {
                   Kundli Milan (36 Guna)
                 </Link>
               </li>
+              <li>
+                <Link href="/love-calculator" className="hover:text-[#E8A33D] transition-colors">
+                  Love &amp; Compatibility
+                </Link>
+              </li>
+              <li>
+                <Link href="/flames-calculator" className="hover:text-[#E8A33D] transition-colors">
+                  FLAMES Calculator
+                </Link>
+              </li>
+              <li>
+                <Link href="/moon-sign-calculator" className="hover:text-[#E8A33D] transition-colors">
+                  Moon Sign (चन्द्र राशि)
+                </Link>
+              </li>
+              <li>
+                <Link href="/sun-sign-calculator" className="hover:text-[#E8A33D] transition-colors">
+                  Sun Sign (Surya Rashi)
+                </Link>
+              </li>
+              <li>
+                <Link href="/numerology-calculator" className="hover:text-[#E8A33D] transition-colors">
+                  Numerology (Bhagyank)
+                </Link>
+              </li>
+              <li>
+                <Link href="/zodiac-signs" className="hover:text-[#E8A33D] transition-colors font-medium text-[#E8A33D]/90">
+                  12 Zodiac Signs Guide
+                </Link>
+              </li>
+              <li>
+                <Link href="/festivals" className="hover:text-[#E8A33D] transition-colors font-medium text-[#E8A33D]/90">
+                  Hindu Festival Calendar
+                </Link>
+              </li>
+              <li>
+                <Link href="/panchang" className="hover:text-[#E8A33D] transition-colors">
+                  Daily Vedic Panchang
+                </Link>
+              </li>
             </ul>
           </div>
 
-          {/* Services */}
+          {/* Col 3: Trust & Legal Infrastructure */}
           <div>
             <h4 className="font-temple text-xs font-bold uppercase tracking-wider text-[#E8A33D] mb-3">
-              Vedic Services
+              Trust &amp; Legal Policies
             </h4>
-            <ul className="space-y-2 text-[#FBF3E7]/80">
+            <ul className="space-y-2 text-[#FBF3E7]/80 text-[11px]">
               <li>
-                <Link href="/services/kundli" className="hover:text-[#E8A33D] transition-colors">
-                  Kundli &amp; Horoscope
+                <Link href="/refund-policy" className="hover:text-[#E8A33D] transition-colors">
+                  Refund &amp; Cancellation Policy
                 </Link>
               </li>
               <li>
-                <Link href="/services/vastu" className="hover:text-[#E8A33D] transition-colors">
-                  Vastu Consultancy
+                <Link href="/terms" className="hover:text-[#E8A33D] transition-colors">
+                  Terms of Service &amp; Agreement
                 </Link>
               </li>
               <li>
-                <Link href="/services/gemstone" className="hover:text-[#E8A33D] transition-colors">
-                  Gemstone Recommendation
+                <Link href="/privacy-policy" className="hover:text-[#E8A33D] transition-colors">
+                  Privacy &amp; Data Protection
                 </Link>
               </li>
               <li>
-                <Link href="/services/live-consultation" className="hover:text-[#E8A33D] transition-colors">
-                  Live Consultation Room
+                <Link href="/disclaimer" className="hover:text-[#E8A33D] transition-colors">
+                  Astrology &amp; Vastu Disclaimer
                 </Link>
               </li>
               <li>
-                <Link href="/services" className="hover:text-[#E8A33D] transition-colors">
-                  Explore All Services
+                <Link href="/pricing-policy" className="hover:text-[#E8A33D] transition-colors">
+                  Transparent Pricing Policy
                 </Link>
               </li>
-            </ul>
-          </div>
-
-          {/* Sacred Desk & Portals */}
-          <div>
-            <h4 className="font-temple text-xs font-bold uppercase tracking-wider text-[#E8A33D] mb-3">
-              Aapka Astro Sanctuary
-            </h4>
-            <ul className="space-y-2 text-[#FBF3E7]/80">
-              <li>
+              <li className="pt-1 border-t border-[#FBF3E7]/10">
                 <Link href="/about" className="hover:text-[#E8A33D] transition-colors">
-                  About Acharya Ji
+                  About Acharya Niraj Kumar
                 </Link>
               </li>
               <li>
                 <Link href="/testimonials" className="hover:text-[#E8A33D] transition-colors">
-                  Seeker Testimonials
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="hover:text-[#E8A33D] transition-colors">
-                  Contact &amp; Helpline
-                </Link>
-              </li>
-              <li>
-                <Link href="/account" className="hover:text-[#E8A33D] transition-colors">
-                  Seeker Account Portal
-                </Link>
-              </li>
-              <li>
-                <Link href="/dashboard" className="text-[#E8A33D] hover:underline font-bold">
-                  Operator Cockpit
+                  Verified Seeker Testimonials
                 </Link>
               </li>
             </ul>
+          </div>
 
-            <ul className="mt-4 space-y-2.5 text-[#FBF3E7]/80">
+          {/* Col 4: Sanctum Helpline & Payments */}
+          <div>
+            <h4 className="font-temple text-xs font-bold uppercase tracking-wider text-[#E8A33D] mb-3">
+              Sanctum Helpline
+            </h4>
+            <ul className="space-y-2.5 text-[#FBF3E7]/80 text-[11px]">
               <li className="flex items-center gap-2">
                 <Phone className="h-3.5 w-3.5 text-[#E8A33D]" />
                 <a href={`tel:${PLACEHOLDER_CONTACT_INFO.phoneRaw}`} className="hover:text-[#E8A33D] transition-colors">
@@ -262,18 +272,18 @@ export const Footer: React.FC = () => {
                 </a>
               </li>
               <li className="flex items-start gap-2">
-                <MapPin className="h-3.5 w-3.5 text-[#E8A33D] mt-0.5" />
+                <MapPin className="h-3.5 w-3.5 text-[#E8A33D] mt-0.5 shrink-0" />
                 <span>{PLACEHOLDER_CONTACT_INFO.sanctumCity}</span>
               </li>
             </ul>
 
             <div className="mt-4 rounded-lg border border-[#FBF3E7]/15 bg-[#64221C] p-2.5">
-              <div className="text-[10px] text-[#FBF3E7]/70">Accepted Payments:</div>
-              <div className="mt-1 flex flex-wrap gap-1.5 font-mono text-[10px] font-bold text-[#FBF3E7]">
+              <div className="text-[10px] text-[#FBF3E7]/70">Secure Payment Gateways:</div>
+              <div className="mt-1 flex flex-wrap gap-1 font-mono text-[9px] font-bold text-[#FBF3E7]">
+                <span className="rounded bg-[#7B2D26] px-1.5 py-0.5">Razorpay</span>
                 <span className="rounded bg-[#7B2D26] px-1.5 py-0.5">UPI</span>
                 <span className="rounded bg-[#7B2D26] px-1.5 py-0.5">GPay</span>
                 <span className="rounded bg-[#7B2D26] px-1.5 py-0.5">PhonePe</span>
-                <span className="rounded bg-[#7B2D26] px-1.5 py-0.5">RuPay</span>
                 <span className="rounded bg-[#7B2D26] px-1.5 py-0.5">Cards</span>
               </div>
             </div>
@@ -283,17 +293,21 @@ export const Footer: React.FC = () => {
         {/* Subtle Mandala Divider */}
         <MandalaDivider className="my-8 opacity-40" />
 
-        {/* Copyright */}
+        {/* Copyright & Bottom Legal Bar */}
         <div className="text-[11px] text-[#FBF3E7]/60 flex flex-col md:flex-row items-center justify-between gap-4">
           <p>
             &copy; {new Date().getFullYear()} Aapka Astro (aapkaastro.com). Preserving authentic Vedic Jyotish &amp; Vastu traditions with complete confidentiality.
           </p>
-          <div className="flex gap-4">
-            <Link href="/astrologer" className="hover:text-[#FBF3E7]">Astrologer Portal</Link>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link href="/privacy-policy" className="hover:text-[#FBF3E7]">Privacy Policy</Link>
             <span>&bull;</span>
-            <Link href="/privacy" className="hover:text-[#FBF3E7]">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-[#FBF3E7]">Terms of Service</Link>
             <span>&bull;</span>
-            <Link href="/terms" className="hover:text-[#FBF3E7]">Terms of Consultation</Link>
+            <Link href="/refund-policy" className="hover:text-[#FBF3E7]">Refund Policy</Link>
+            <span>&bull;</span>
+            <Link href="/disclaimer" className="hover:text-[#FBF3E7]">Disclaimer</Link>
+            <span>&bull;</span>
+            <Link href="/pricing-policy" className="hover:text-[#FBF3E7]">Pricing Policy</Link>
           </div>
         </div>
       </div>

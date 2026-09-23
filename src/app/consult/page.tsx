@@ -37,8 +37,10 @@ import {
   ConsultationBillingEngine,
   BillingState,
 } from "@/lib/services/consultationBilling";
+import { useCurrentUserRole } from "@/lib/auth/roleContext";
 
 export default function ConsultPage() {
+  const { isAstrologer } = useCurrentUserRole();
   // Live State
   const [status, setStatus] = useState<AstrologerStatus>("AVAILABLE");
   const [queue, setQueue] = useState<QueueItem[]>([]);
@@ -589,12 +591,14 @@ export default function ConsultPage() {
                 Leave Queue
               </button>
 
-              <Link
-                href="/astrologer"
-                className="rounded-xl bg-[#7B2D26] px-5 py-2.5 text-xs font-bold text-white hover:bg-[#64231D] shadow-md transition-all"
-              >
-                Open Astrologer Cockpit (Simulate Accept)
-              </Link>
+              {isAstrologer && (
+                <Link
+                  href="/astrologer"
+                  className="rounded-xl bg-[#7B2D26] px-5 py-2.5 text-xs font-bold text-white hover:bg-[#64231D] shadow-md transition-all"
+                >
+                  Open Astrologer Cockpit (Simulate Accept)
+                </Link>
+              )}
             </div>
 
             <p className="mt-6 text-[11px] text-[#7D6B5D]">

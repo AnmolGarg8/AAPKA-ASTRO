@@ -8,13 +8,24 @@ import { SouthIndianChart } from "@/components/kundli/SouthIndianChart";
 import { PlanetaryTable } from "@/components/kundli/PlanetaryTable";
 import { DashaTimeline } from "@/components/kundli/DashaTimeline";
 import { DoshaAnalysis } from "@/components/kundli/DoshaAnalysis";
+import { AshtakvargaTable } from "@/components/kundli/AshtakvargaTable";
+import { ShadbalaTable } from "@/components/kundli/ShadbalaTable";
+import { KPTable } from "@/components/kundli/KPTable";
+import { KundliPrintDossier } from "@/components/kundli/KundliPrintDossier";
 import { calculateKundli } from "@/lib/astrology/chartCalculations";
-import { KundliData } from "@/lib/astrology/types";
+import { DivisionalChartCode, KundliData } from "@/lib/astrology/types";
 import {
   Sparkles,
   PhoneCall,
   Printer,
   CheckCircle2,
+  Award,
+  Layers,
+  Clock,
+  ShieldCheck,
+  TrendingUp,
+  Compass,
+  FileText,
 } from "lucide-react";
 import { PLACEHOLDER_ASTROLOGER, ADMIN_CONFIGURABLE_PRICING } from "@/config/placeholderContent";
 
@@ -33,13 +44,29 @@ export default function KundliPage() {
   );
 
   const [chartType, setChartType] = useState<"north" | "south">("north");
-  const [activeTab, setActiveTab] = useState<"chart" | "planets" | "dasha" | "dosha" | "remedies">("chart");
+  const [selectedVarga, setSelectedVarga] = useState<DivisionalChartCode>("D1");
+  const [activeTab, setActiveTab] = useState<
+    "chart" | "planets" | "kp" | "dasha" | "ashtakvarga" | "shadbala" | "dosha" | "remedies" | "report"
+  >("chart");
 
   const handlePrint = () => {
     if (typeof window !== "undefined") {
       window.print();
     }
   };
+
+  const vargaOptions: Array<{ code: DivisionalChartCode; label: string; sub: string }> = [
+    { code: "D1", label: "D1 Lagna", sub: "Rashi / Life" },
+    { code: "D9", label: "D9 Navamsha", sub: "Spouse & Dharma" },
+    { code: "D10", label: "D10 Dashamsha", sub: "Career & Power" },
+    { code: "D7", label: "D7 Saptamsha", sub: "Children" },
+    { code: "D3", label: "D3 Drekkana", sub: "Courage & Siblings" },
+    { code: "D12", label: "D12 Dwadasamsha", sub: "Parents & Lineage" },
+    { code: "D2", label: "D2 Hora", sub: "Wealth & Treasury" },
+  ];
+
+  // Active divisional chart data
+  const currentDivisional = kundli.divisionalCharts?.[selectedVarga];
 
   return (
     <div className="bg-[#FBF3E7] py-8 lg:py-12 min-h-screen text-[#3B2A1E]">
@@ -56,7 +83,7 @@ export default function KundliPage() {
               Detailed Vedic Janam Kundli (जन्म पत्रिका)
             </h1>
             <p className="text-xs sm:text-sm text-[#7D6B5D] mt-1 font-body">
-              High-precision planetary degrees and Dasha timing based on authentic Lahiri Ephemeris
+              Classical Lahiri Geocentric Ephemeris &bull; Shodashvarga (D1 to D12) &bull; Ashtakvarga &bull; 6-Fold Shadbala
             </p>
           </div>
 
@@ -74,7 +101,7 @@ export default function KundliPage() {
               className="flex items-center gap-1.5 rounded-xl bg-[#7B2D26] px-4 py-2 text-xs font-bold text-white shadow-md hover:bg-[#64231D] transition-all"
             >
               <PhoneCall className="h-4 w-4 text-[#E8A33D]" />
-              <span>Get Detailed Analysis from Acharya Ji</span>
+              <span>Consult Acharya Ji</span>
             </Link>
           </div>
         </div>
@@ -108,7 +135,11 @@ export default function KundliPage() {
                   <span className="font-bold text-[#C1662F]">{kundli.nakshatra} (Pada {kundli.charanPada})</span>
                 </div>
                 <div className="flex justify-between border-b border-[#E8D8C3]/80 pb-2">
-                  <span className="text-[#7D6B5D]">Recommended Gemstone:</span>
+                  <span className="text-[#7D6B5D]">Lahiri Ayanamsa:</span>
+                  <span className="font-bold font-mono text-[#7B2D26]">{kundli.ayanamsa.toFixed(4)}°</span>
+                </div>
+                <div className="flex justify-between border-b border-[#E8D8C3]/80 pb-2">
+                  <span className="text-[#7D6B5D]">Prescribed Gemstone:</span>
                   <span className="font-bold text-[#6B8E5A]">{kundli.luckyGemstone}</span>
                 </div>
                 <div className="flex justify-between border-b border-[#E8D8C3]/80 pb-2">
@@ -132,7 +163,7 @@ export default function KundliPage() {
             {/* Header & Chart Switcher */}
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#E8D8C3] pb-5">
               <div>
-                <h3 className="text-xl font-bold font-temple text-[#7B2D26]">{kundli.name}&apos;s Vedic Chart</h3>
+                <h3 className="text-xl font-bold font-temple text-[#7B2D26]">{kundli.name}&apos;s Horoscope</h3>
                 <div className="text-xs text-[#7D6B5D] mt-0.5">
                   Born {kundli.birthDate} at {kundli.birthTime} ({kundli.birthPlace})
                 </div>
@@ -164,84 +195,174 @@ export default function KundliPage() {
               </div>
             </div>
 
-            {/* Navigation Tabs */}
-            <div className="flex border-b border-[#E8D8C3] my-5 text-xs font-semibold gap-3 overflow-x-auto">
+            {/* Navigation Tabs (Astrotalk Tool Depth) */}
+            <div className="flex border-b border-[#E8D8C3] my-5 text-xs font-semibold gap-3 overflow-x-auto pb-1">
               <button
                 type="button"
                 onClick={() => setActiveTab("chart")}
-                className={`pb-3 border-b-2 transition-all shrink-0 ${
+                className={`pb-2.5 border-b-2 transition-all shrink-0 flex items-center gap-1.5 ${
                   activeTab === "chart"
                     ? "border-[#7B2D26] text-[#7B2D26] font-bold"
                     : "border-transparent text-[#7D6B5D] hover:text-[#3B2A1E]"
                 }`}
               >
-                Kundli Chart (D1)
+                <Layers className="h-3.5 w-3.5" />
+                <span>Charts &amp; Vargas ({selectedVarga})</span>
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("planets")}
-                className={`pb-3 border-b-2 transition-all shrink-0 ${
+                className={`pb-2.5 border-b-2 transition-all shrink-0 flex items-center gap-1.5 ${
                   activeTab === "planets"
                     ? "border-[#7B2D26] text-[#7B2D26] font-bold"
                     : "border-transparent text-[#7D6B5D] hover:text-[#3B2A1E]"
                 }`}
               >
-                Planetary Degrees
+                <span>Planets &amp; Avasthas</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("kp")}
+                className={`pb-2.5 border-b-2 transition-all shrink-0 flex items-center gap-1.5 ${
+                  activeTab === "kp"
+                    ? "border-[#7B2D26] text-[#7B2D26] font-bold"
+                    : "border-transparent text-[#7D6B5D] hover:text-[#3B2A1E]"
+                }`}
+              >
+                <Compass className="h-3.5 w-3.5 text-[#C1662F]" />
+                <span>KP System</span>
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("dasha")}
-                className={`pb-3 border-b-2 transition-all shrink-0 ${
+                className={`pb-2.5 border-b-2 transition-all shrink-0 flex items-center gap-1.5 ${
                   activeTab === "dasha"
                     ? "border-[#7B2D26] text-[#7B2D26] font-bold"
                     : "border-transparent text-[#7D6B5D] hover:text-[#3B2A1E]"
                 }`}
               >
-                Vimshottari Dasha
+                <Clock className="h-3.5 w-3.5" />
+                <span>4-Tier Dasha</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("ashtakvarga")}
+                className={`pb-2.5 border-b-2 transition-all shrink-0 flex items-center gap-1.5 ${
+                  activeTab === "ashtakvarga"
+                    ? "border-[#7B2D26] text-[#7B2D26] font-bold"
+                    : "border-transparent text-[#7D6B5D] hover:text-[#3B2A1E]"
+                }`}
+              >
+                <Award className="h-3.5 w-3.5" />
+                <span>Ashtakvarga</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("shadbala")}
+                className={`pb-2.5 border-b-2 transition-all shrink-0 flex items-center gap-1.5 ${
+                  activeTab === "shadbala"
+                    ? "border-[#7B2D26] text-[#7B2D26] font-bold"
+                    : "border-transparent text-[#7D6B5D] hover:text-[#3B2A1E]"
+                }`}
+              >
+                <TrendingUp className="h-3.5 w-3.5" />
+                <span>Shadbala</span>
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("dosha")}
-                className={`pb-3 border-b-2 transition-all shrink-0 ${
+                className={`pb-2.5 border-b-2 transition-all shrink-0 flex items-center gap-1.5 ${
                   activeTab === "dosha"
                     ? "border-[#7B2D26] text-[#7B2D26] font-bold"
                     : "border-transparent text-[#7D6B5D] hover:text-[#3B2A1E]"
                 }`}
               >
-                Dosha Diagnosis
+                <span>Doshas</span>
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("remedies")}
-                className={`pb-3 border-b-2 transition-all shrink-0 ${
+                className={`pb-2.5 border-b-2 transition-all shrink-0 flex items-center gap-1.5 ${
                   activeTab === "remedies"
                     ? "border-[#7B2D26] text-[#7B2D26] font-bold"
                     : "border-transparent text-[#7D6B5D] hover:text-[#3B2A1E]"
                 }`}
               >
-                Remedies &amp; Gemstones
+                <span>Remedies</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("report")}
+                className={`pb-2.5 border-b-2 transition-all shrink-0 flex items-center gap-1.5 ${
+                  activeTab === "report"
+                    ? "border-[#7B2D26] text-[#7B2D26] font-bold"
+                    : "border-transparent text-[#7D6B5D] hover:text-[#3B2A1E]"
+                }`}
+              >
+                <FileText className="h-3.5 w-3.5 text-[#E8A33D]" />
+                <span>Free PDF Report</span>
               </button>
             </div>
 
             {/* Tab Views */}
-            <div className="min-h-[420px]">
+            <div className="min-h-[440px]">
               {activeTab === "chart" && (
-                <div className="flex flex-col items-center justify-center py-6">
-                  {chartType === "north" ? (
-                    <NorthIndianChart kundli={kundli} size={420} chartTitle="Lagna Kundli (D1 Chart)" />
-                  ) : (
-                    <SouthIndianChart kundli={kundli} size={420} chartTitle="South Indian Kundli" />
+                <div className="space-y-4">
+                  {/* Divisional Chart Selector Pills */}
+                  <div className="flex flex-wrap items-center gap-1.5 bg-[#FBF3E7] p-2 rounded-xl border border-[#E8D8C3]">
+                    {vargaOptions.map((v) => (
+                      <button
+                        key={v.code}
+                        type="button"
+                        onClick={() => setSelectedVarga(v.code)}
+                        className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+                          selectedVarga === v.code
+                            ? "bg-[#7B2D26] text-white shadow-xs"
+                            : "bg-white text-[#6E5545] border border-[#E8D8C3] hover:border-[#7B2D26]"
+                        }`}
+                      >
+                        <div className="font-bold">{v.label}</div>
+                        <div className="text-[9px] opacity-80">{v.sub}</div>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Varga Significance Card */}
+                  {currentDivisional && (
+                    <div className="text-xs text-[#6E5545] bg-[#FFFDF9] border border-[#E8D8C3]/80 rounded-lg p-2.5 flex items-center gap-2">
+                      <span className="font-bold text-[#7B2D26]">{currentDivisional.name} ({currentDivisional.sanskritName}):</span>
+                      <span>{currentDivisional.significance}</span>
+                    </div>
                   )}
-                  <p className="text-xs text-[#7D6B5D] mt-4 text-center max-w-lg font-body">
-                    House 1 represents the physical self, health, and innate vitality. The Ascendant sign
-                    governs life trajectory and overall personality.
-                  </p>
+
+                  {/* Render Chart */}
+                  <div className="flex flex-col items-center justify-center py-4">
+                    {chartType === "north" ? (
+                      <NorthIndianChart
+                        kundli={kundli}
+                        customHouses={selectedVarga !== "D1" ? currentDivisional?.houses : undefined}
+                        size={420}
+                        chartTitle={`${currentDivisional?.name || "Lagna"} (${selectedVarga})`}
+                      />
+                    ) : (
+                      <SouthIndianChart
+                        kundli={kundli}
+                        customHouses={selectedVarga !== "D1" ? currentDivisional?.houses : undefined}
+                        size={420}
+                        chartTitle={`${currentDivisional?.name || "Lagna"} (${selectedVarga})`}
+                      />
+                    )}
+                  </div>
                 </div>
               )}
 
               {activeTab === "planets" && <PlanetaryTable kundli={kundli} />}
+              {activeTab === "kp" && <KPTable kpData={kundli.kpSystem} />}
               {activeTab === "dasha" && <DashaTimeline dashas={kundli.dashas} />}
+              {activeTab === "ashtakvarga" && <AshtakvargaTable ashtakvarga={kundli.ashtakvarga} />}
+              {activeTab === "shadbala" && <ShadbalaTable shadbala={kundli.shadbala} />}
               {activeTab === "dosha" && <DoshaAnalysis doshas={kundli.doshas} />}
+              {activeTab === "report" && <KundliPrintDossier kundli={kundli} isPreview={true} />}
 
               {activeTab === "remedies" && (
                 <div className="space-y-4">
@@ -305,6 +426,9 @@ export default function KundliPage() {
           </div>
         </div>
       </div>
+
+      {/* Printable PDF Dossier (Active on Window.Print) */}
+      <KundliPrintDossier kundli={kundli} />
     </div>
   );
 }

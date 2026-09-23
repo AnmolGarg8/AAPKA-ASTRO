@@ -10,6 +10,7 @@ import { FAQSection } from "@/components/home/FAQSection";
 import { PanchangWidget } from "@/components/home/PanchangWidget";
 import { InstagramFeedSection } from "@/components/home/InstagramFeedSection";
 import { BlogPreviewSection } from "@/components/home/BlogPreviewSection";
+import { TrustCredentialsSection } from "@/components/home/TrustCredentialsSection";
 import { KundliForm } from "@/components/kundli/KundliForm";
 import { NorthIndianChart } from "@/components/kundli/NorthIndianChart";
 import { SouthIndianChart } from "@/components/kundli/SouthIndianChart";
@@ -257,6 +258,9 @@ export default function HomePage() {
 
       {/* 5. Why Aapka Astro vs Astrotalk */}
       <WhyAapkaAstro />
+
+      {/* 5.1 Trust, Credentials & Press Authority */}
+      <TrustCredentialsSection />
 
       {/* 6. Client Testimonials */}
       <Testimonials />

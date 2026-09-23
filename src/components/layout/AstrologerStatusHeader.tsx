@@ -7,10 +7,14 @@ import { PhoneCall } from "lucide-react";
 import { DiyaIcon } from "@/components/ui/DiyaIcon";
 
 import { PLACEHOLDER_ASTROLOGER, ADMIN_CONFIGURABLE_PRICING } from "@/config/placeholderContent";
+import { CallbackRequestModal } from "@/components/consult/CallbackRequestModal";
+import { useCurrentUserRole } from "@/lib/auth/roleContext";
 
 export const AstrologerStatusHeader: React.FC = () => {
+  const { isAstrologer } = useCurrentUserRole();
   const [status, setStatus] = useState<AstrologerStatus>("AVAILABLE");
   const [queue, setQueue] = useState<QueueItem[]>([]);
+  const [callbackModalOpen, setCallbackModalOpen] = useState(false);
 
   const syncState = () => {
     setStatus(AstrologerStateStore.getStatus());
@@ -102,25 +106,51 @@ export const AstrologerStatusHeader: React.FC = () => {
 
         {/* Right: Quick CTA & Astrologer Cockpit Demo Switch */}
         <div className="flex items-center gap-3">
-          <Link
-            href="/consult"
-            className="flex items-center gap-1.5 rounded-lg bg-[#E8A33D] px-3.5 py-1 text-xs font-bold text-[#3B2A1E] hover:bg-[#F6CF86] transition-all shadow-sm"
-          >
-            <PhoneCall className="h-3.5 w-3.5" />
-            <span>
-              {status === "AVAILABLE" ? "Consult Now" : status === "BUSY" ? "Join Queue" : "Book Slot"}
-            </span>
-          </Link>
+          {status === "AVAILABLE" ? (
+            <Link
+              href="/consult"
+              className="flex items-center gap-1.5 rounded-lg bg-[#E8A33D] px-3.5 py-1 text-xs font-bold text-[#3B2A1E] hover:bg-[#F6CF86] transition-all shadow-sm"
+            >
+              <PhoneCall className="h-3.5 w-3.5" />
+              <span>Consult Now</span>
+            </Link>
+          ) : status === "BUSY" ? (
+            <Link
+              href="/consult"
+              className="flex items-center gap-1.5 rounded-lg bg-[#E8A33D] px-3.5 py-1 text-xs font-bold text-[#3B2A1E] hover:bg-[#F6CF86] transition-all shadow-sm"
+            >
+              <PhoneCall className="h-3.5 w-3.5" />
+              <span>Join Queue ({queueCount})</span>
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setCallbackModalOpen(true)}
+              className="flex items-center gap-1.5 rounded-lg bg-[#E8A33D] px-3.5 py-1 text-xs font-bold text-[#3B2A1E] hover:bg-[#F6CF86] transition-all shadow-sm"
+            >
+              <PhoneCall className="h-3.5 w-3.5" />
+              <span>Notify Me</span>
+            </button>
+          )}
 
-          <Link
-            href="/dashboard"
-            className="hidden md:flex items-center gap-1 rounded-lg border border-[#FBF3E7]/30 bg-[#FBF3E7]/10 px-2.5 py-1 text-[11px] font-semibold text-[#FBF3E7] hover:bg-[#FBF3E7]/20 transition-all"
-            title="Operator Cockpit"
-          >
-            <span>Operator Cockpit</span>
-          </Link>
+          {isAstrologer && (
+            <Link
+              href="/dashboard"
+              className="hidden md:flex items-center gap-1 rounded-lg border border-[#FBF3E7]/30 bg-[#FBF3E7]/10 px-2.5 py-1 text-[11px] font-semibold text-[#FBF3E7] hover:bg-[#FBF3E7]/20 transition-all"
+              title="Operator Cockpit"
+            >
+              <span>Operator Cockpit</span>
+            </Link>
+          )}
         </div>
       </div>
+
+      {/* Callback Request Modal */}
+      <CallbackRequestModal
+        isOpen={callbackModalOpen}
+        onClose={() => setCallbackModalOpen(false)}
+        astrologerStatus={status}
+      />
     </aside>
   );
 };

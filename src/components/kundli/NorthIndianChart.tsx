@@ -5,6 +5,11 @@ import { KundliData } from "@/lib/astrology/types";
 
 interface NorthIndianChartProps {
   kundli: KundliData;
+  customHouses?: Array<{
+    houseNumber: number;
+    rashiNumber: number;
+    planets: Array<{ symbol: string; isRetrograde?: boolean; name?: string }>;
+  }>;
   size?: number;
   className?: string;
   chartTitle?: string;
@@ -12,6 +17,7 @@ interface NorthIndianChartProps {
 
 export const NorthIndianChart: React.FC<NorthIndianChartProps> = ({
   kundli,
+  customHouses,
   size = 400,
   className = "",
   chartTitle = "Lagna Kundli (D1 Chart)",
@@ -21,8 +27,10 @@ export const NorthIndianChart: React.FC<NorthIndianChartProps> = ({
   const Q_S = S / 4;
   const TQ_S = (3 * S) / 4;
 
+  const housesSource = customHouses || kundli.houses;
+
   const getHouseData = (houseNum: number) => {
-    const house = kundli.houses.find((h) => h.houseNumber === houseNum);
+    const house = housesSource.find((h) => h.houseNumber === houseNum);
     return {
       rashi: house?.rashiNumber ?? 1,
       planets: house?.planets ?? [],
@@ -58,108 +66,91 @@ export const NorthIndianChart: React.FC<NorthIndianChartProps> = ({
         viewBox={`0 0 ${S} ${S}`}
         className="rounded-2xl border-2 border-[#7B2D26] bg-[#FFFDF7] shadow-md"
       >
-        {/* Outer Square Frame */}
-        <rect
-          x="2"
-          y="2"
-          width={S - 4}
-          height={S - 4}
-          fill="#FFFDF7"
-          stroke="#7B2D26"
-          strokeWidth="3"
-        />
+        {/* Outer Square */}
+        <rect x="2" y="2" width={S - 4} height={S - 4} fill="none" stroke="#7B2D26" strokeWidth="2.5" />
 
-        {/* Diagonal Cross Lines */}
-        <line x1="0" y1="0" x2={S} y2={S} stroke="#C1662F" strokeWidth="1.8" />
-        <line x1="0" y1={S} x2={S} y2="0" stroke="#C1662F" strokeWidth="1.8" />
+        {/* Diagonals */}
+        <line x1="0" y1="0" x2={S} y2={S} stroke="#C1662F" strokeWidth="1.5" />
+        <line x1={S} y1="0" x2="0" y2={S} stroke="#C1662F" strokeWidth="1.5" />
 
-        {/* Inner Diamond connecting midpoints */}
+        {/* Inner Diamond (Houses 1, 4, 7, 10 - Kendras) */}
         <polygon
           points={`${H_S},0 ${S},${H_S} ${H_S},${S} 0,${H_S}`}
-          fill="none"
+          fill="#FFF9F0"
+          fillOpacity="0.4"
           stroke="#7B2D26"
-          strokeWidth="2.2"
+          strokeWidth="2"
         />
 
-        {/* Houses data & planets rendering */}
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((hNum) => {
-          const { rashi, planets } = getHouseData(hNum);
-          const coords = houseCoordinates[hNum];
+        {/* Central Lotus Motif / Om */}
+        <circle cx={H_S} cy={H_S} r={18} fill="#7B2D26" fillOpacity="0.1" stroke="#E8A33D" strokeWidth="1" />
+        <text
+          x={H_S}
+          y={H_S + 5}
+          textAnchor="middle"
+          fontSize="14"
+          fill="#7B2D26"
+          fontFamily="Cinzel, serif"
+          fontWeight="bold"
+        >
+          ॐ
+        </text>
+
+        {/* Render 12 Houses: Rashi Numbers and Planets */}
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((houseNum) => {
+          const { rashi, planets } = getHouseData(houseNum);
+          const coords = houseCoordinates[houseNum];
 
           return (
-            <g key={hNum}>
-              {/* Rashi Sign Number */}
+            <g key={houseNum}>
+              {/* Rashi Number in house corner */}
               <text
                 x={coords.rashiX}
                 y={coords.rashiY}
                 textAnchor="middle"
-                dominantBaseline="central"
-                fill="#C1662F"
-                fontSize="11.5"
+                fontSize="11"
                 fontWeight="bold"
-                className="font-mono"
+                fill="#C1662F"
+                fontFamily="sans-serif"
               >
                 {rashi}
               </text>
 
-              {/* Occupying Planets */}
-              {planets.length > 0 && (
-                <g>
-                  {planets.map((p, idx) => {
-                    const offset = (idx - (planets.length - 1) / 2) * 14;
-                    const isExalted = p.dignity === "Exalted";
-                    const isDebilitated = p.dignity === "Debilitated";
+              {/* Planets in this house */}
+              <g transform={`translate(${coords.planetX}, ${coords.planetY})`}>
+                {planets.map((p, pIdx) => {
+                  const total = planets.length;
+                  const cols = total > 3 ? 2 : 1;
+                  const row = Math.floor(pIdx / cols);
+                  const col = pIdx % cols;
+                  const offsetX = cols > 1 ? (col === 0 ? -16 : 16) : 0;
+                  const offsetY = (row - Math.floor(total / (cols * 2))) * 14;
 
-                    return (
-                      <text
-                        key={p.name}
-                        x={coords.planetX}
-                        y={coords.planetY + offset}
-                        textAnchor="middle"
-                        dominantBaseline="central"
-                        fill={
-                          isExalted
-                            ? "#2E7D32"
-                            : isDebilitated
-                            ? "#C62828"
-                            : p.name === "Sun"
-                            ? "#B45309"
-                            : p.name === "Mars"
-                            ? "#7B2D26"
-                            : p.name === "Saturn"
-                            ? "#1E3A8A"
-                            : "#3B2A1E"
-                        }
-                        fontSize="12"
-                        fontWeight="bold"
-                        className="tracking-tight"
-                      >
-                        {p.symbol}
-                        <tspan fontSize="9" fill="#78716C" dx="2">
-                          {p.degreeFormatted.split(" ")[0]}
+                  return (
+                    <text
+                      key={pIdx}
+                      x={offsetX}
+                      y={offsetY}
+                      textAnchor="middle"
+                      fontSize="10.5"
+                      fontWeight="bold"
+                      fill="#7B2D26"
+                      fontFamily="sans-serif"
+                    >
+                      {p.symbol}
+                      {p.isRetrograde && (
+                        <tspan fontSize="8.5" fill="#DC2626" fontWeight="bold">
+                          (R)
                         </tspan>
-                      </text>
-                    );
-                  })}
-                </g>
-              )}
+                      )}
+                    </text>
+                  );
+                })}
+              </g>
             </g>
           );
         })}
       </svg>
-
-      {/* Legend footnote */}
-      <div className="flex items-center gap-4 text-[10px] text-[#6E5545] mt-2 font-medium">
-        <span className="flex items-center gap-1">
-          <span className="w-2 h-2 rounded-full bg-[#2E7D32] inline-block" /> Exalted (उच्च)
-        </span>
-        <span className="flex items-center gap-1">
-          <span className="w-2 h-2 rounded-full bg-[#C62828] inline-block" /> Debilitated (नीच)
-        </span>
-        <span className="flex items-center gap-1">
-          <span className="text-[#C1662F] font-bold font-mono">1-12</span> Signs (राशि)
-        </span>
-      </div>
     </div>
   );
 };

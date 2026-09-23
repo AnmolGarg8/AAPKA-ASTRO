@@ -6,10 +6,11 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(3000),
   APP_URL: z.string().url().default("http://localhost:3000"),
 
-  // PostgreSQL Database
+  // PostgreSQL Database (Neon Serverless PostgreSQL)
   DATABASE_URL: z
     .string()
     .default("postgresql://postgres:postgres@localhost:5432/aapka_astro?schema=public"),
+  DIRECT_URL: z.string().optional(),
 
   // Redis Cache & Presence
   REDIS_URL: z.string().default("redis://localhost:6379"),
@@ -18,16 +19,25 @@ const envSchema = z.object({
   JWT_SECRET: z.string().default("aapka-astro-super-secure-jwt-secret-key-change-in-production"),
   JWT_EXPIRES_IN: z.string().default("30d"),
 
-  // Swappable OTP Provider
-  OTP_PROVIDER: z.enum(["mock", "msg91", "twilio", "firebase"]).default("mock"),
-  // MSG91 Configuration
-  MSG91_AUTH_KEY: z.string().optional(),
-  MSG91_TEMPLATE_ID: z.string().optional(),
-  MSG91_SENDER_ID: z.string().default("APASTRO"),
-  // Twilio Configuration
-  TWILIO_ACCOUNT_SID: z.string().optional(),
-  TWILIO_AUTH_TOKEN: z.string().optional(),
-  TWILIO_SERVICE_SID: z.string().optional(),
+  // Clerk Authentication (Email/Password + Google OAuth, Multi-Domain SSO)
+  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z
+    .string()
+    .default("pk_test_Y2xlcmsuYWFwa2Fhc3Ryby5jb20k"),
+  CLERK_SECRET_KEY: z.string().optional().default("sk_test_clerk_secret_key_change_in_production"),
+  NEXT_PUBLIC_CLERK_SIGN_IN_URL: z.string().default("/login"),
+  NEXT_PUBLIC_CLERK_SIGN_UP_URL: z.string().default("/signup"),
+  NEXT_PUBLIC_CLERK_DOMAIN: z.string().default("aapkaastro.com"),
+  NEXT_PUBLIC_CLERK_IS_SATELLITE: z.string().default("false"),
+  NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL: z.string().default("/account"),
+  NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL: z.string().default("/account"),
+
+  // Configurable Email Signup Policy (Anti-Abuse)
+  SIGNUP_EMAIL_POLICY_MODE: z.enum(["blocklist", "allowlist"]).default("blocklist"),
+  SIGNUP_EMAIL_ALLOWLIST: z.string().optional(),
+  SIGNUP_EMAIL_BLOCKLIST: z.string().optional(),
+
+  // Site Owner Elevation (Comma-separated emails elevated to platform ADMIN)
+  OWNER_EMAIL: z.string().optional().default("anmol@aapkaastro.com,acharya@aapkaastro.com"),
 
   // Swappable Payments (Razorpay)
   PAYMENT_PROVIDER: z.enum(["razorpay", "mock"]).default("mock"),

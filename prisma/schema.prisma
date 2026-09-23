@@ -7,8 +7,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ------------------------------------------------------------------------------
@@ -71,17 +72,22 @@ enum CouponType {
 }
 
 // ------------------------------------------------------------------------------
-// 1. User (role: client/astrologer/admin, phone, name, email, created_at)
+// 1. User (role: client/astrologer/admin, identifier, email, phone, name, created_at)
 // ------------------------------------------------------------------------------
 model User {
   id            String    @id @default(cuid())
-  phone         String    @unique
-  name          String?
+  clerkId       String?   @unique @map("clerk_id")
+  identifier    String?   @unique // Primary user handle (email, username, or future phone)
   email         String?   @unique
+  phone         String?   @unique
+  name          String?
   role          UserRole  @default(CLIENT)
   walletBalance Float     @default(0.0) @map("wallet_balance")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
+  referralCode       String?             @unique @map("referral_code")
+  referredById       String?             @map("referred_by_id")
+  referralEarnings   Float               @default(0.0) @map("referral_earnings")
+  createdAt          DateTime            @default(now()) @map("created_at")
+  updatedAt          DateTime            @updatedAt @map("updated_at")
 
   // Relationships
   wallet             Wallet?
@@ -89,7 +95,14 @@ model User {
   clientSessions     Session[]           @relation("ClientSessions")
   astrologerSessions Session[]           @relation("AstrologerSessions")
   kundliRecords      KundliRecord[]
+  staffPermissions   StaffPermission[]
+  referredBy         User?               @relation("UserReferrals", fields: [referredById], references: [id], onDelete: SetNull)
+  referrals          User[]              @relation("UserReferrals")
 
+  @@index([clerkId])
+  @@index([identifier])
+  @@index([referralCode])
+  @@index([email])
   @@index([phone])
   @@index([role])
   @@index([createdAt])
@@ -336,17 +349,21 @@ model Coupon {
 }
 
 // ------------------------------------------------------------------------------
-// 13. OtpSession (phone verification)
+// 13. StaffPermission (per-site, per-section granular staff access controls)
 // ------------------------------------------------------------------------------
-model OtpSession {
-  id         String    @id @default(cuid())
-  phone      String
-  otpHash    String    @map("otp_hash")
-  expiresAt  DateTime  @map("expires_at")
-  verifiedAt DateTime? @map("verified_at")
-  createdAt  DateTime  @default(now()) @map("created_at")
+model StaffPermission {
+  id        String   @id @default(cuid())
+  userId    String?  @map("user_id")
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  email     String
+  section   String   // "blog" | "reels" | "clients" | "earnings" | "consultations" | "pricing" | "analytics" | "staff" | "*"
+  grantedBy String?  @map("granted_by")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@index([phone])
-  @@index([expiresAt])
-  @@map("otp_sessions")
+  @@unique([email, section])
+  @@index([email])
+  @@index([userId])
+  @@map("staff_permissions")
 }
+

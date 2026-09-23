@@ -5,6 +5,11 @@ import { KundliData } from "@/lib/astrology/types";
 
 interface SouthIndianChartProps {
   kundli: KundliData;
+  customHouses?: Array<{
+    houseNumber: number;
+    rashiNumber: number;
+    planets: Array<{ symbol: string; isRetrograde?: boolean; name?: string }>;
+  }>;
   size?: number;
   className?: string;
   chartTitle?: string;
@@ -12,6 +17,7 @@ interface SouthIndianChartProps {
 
 export const SouthIndianChart: React.FC<SouthIndianChartProps> = ({
   kundli,
+  customHouses,
   size = 400,
   className = "",
   chartTitle = "South Indian Kundli",
@@ -34,6 +40,16 @@ export const SouthIndianChart: React.FC<SouthIndianChartProps> = ({
   };
 
   const getPlanetsInRashi = (rashiNum: number) => {
+    if (customHouses) {
+      const house = customHouses.find((h) => h.rashiNumber === rashiNum);
+      const isAsc = house?.houseNumber === 1;
+      const list = house?.planets || [];
+      if (isAsc) {
+        return [{ symbol: "Asc", name: "Ascendant", isRetrograde: false }, ...list];
+      }
+      return list;
+    }
+
     const list = kundli.planets.filter((p) => p.rashiNumber === rashiNum);
     if (kundli.ascendant.rashiNumber === rashiNum) {
       return [kundli.ascendant, ...list];
@@ -62,16 +78,14 @@ export const SouthIndianChart: React.FC<SouthIndianChartProps> = ({
                 return (
                   <div
                     key={`${row}-${col}`}
-                    className="col-span-2 row-span-2 flex flex-col items-center justify-center border border-[#E8D8C3] bg-[#FBF3E7] p-2 text-center"
+                    style={{ gridColumn: "span 2", gridRow: "span 2" }}
+                    className="flex flex-col items-center justify-center border border-[#7B2D26]/20 bg-[#FAF1E4]/50"
                   >
-                    <div className="font-temple text-[#7B2D26] font-bold text-sm tracking-wide">
-                      {kundli.name}
+                    <div className="font-temple text-3xl font-bold text-[#7B2D26] opacity-30 select-none">
+                      ॐ
                     </div>
-                    <div className="text-[10px] text-[#6E5545] font-semibold mt-0.5">
-                      Lagna: {kundli.ascendant.rashiName}
-                    </div>
-                    <div className="text-[10px] text-[#6E5545]">
-                      Moon: {kundli.moonSign} &bull; {kundli.nakshatra}
+                    <div className="text-[10px] font-bold text-[#7B2D26]/70 uppercase tracking-widest mt-1">
+                      {chartTitle.split(" ")[0]}
                     </div>
                   </div>
                 );
@@ -82,45 +96,41 @@ export const SouthIndianChart: React.FC<SouthIndianChartProps> = ({
             const rashiEntry = Object.entries(rashiGridPos).find(
               ([, pos]) => pos.r === row && pos.c === col
             );
-            if (!rashiEntry) return null;
-
-            const rashiNum = parseInt(rashiEntry[0], 10);
+            const rashiNum = rashiEntry ? parseInt(rashiEntry[0], 10) : 1;
+            const rashiName = rashiEntry ? rashiEntry[1].name : "";
             const planets = getPlanetsInRashi(rashiNum);
-            const isLagnaHouse = kundli.ascendant.rashiNumber === rashiNum;
 
             return (
               <div
                 key={`${row}-${col}`}
-                className={`relative flex flex-col justify-between p-1.5 border border-[#E8D8C3] ${
-                  isLagnaHouse ? "bg-[#E8A33D]/15" : "bg-[#FFFDF7]"
-                }`}
+                className="relative border border-[#7B2D26]/30 p-1 flex flex-col justify-between overflow-hidden bg-[#FFFDF7] hover:bg-[#FAF1E4]/30 transition-colors"
               >
-                <div className="flex items-center justify-between text-[10px] text-[#6E5545]">
-                  <span className="font-bold text-[#C1662F]">{rashiEntry[1].name.slice(0, 3)}</span>
-                  {isLagnaHouse && (
-                    <span className="text-[9px] px-1 py-0.2 bg-[#7B2D26] text-[#FBF3E7] rounded font-bold">
-                      ASC
-                    </span>
-                  )}
+                <div className="flex justify-between items-start">
+                  <span className="text-[9px] font-mono text-[#C1662F] font-bold leading-none">
+                    {rashiNum}
+                  </span>
+                  <span className="text-[8px] text-[#7D6B5D] truncate max-w-[45px] leading-none">
+                    {rashiName}
+                  </span>
                 </div>
 
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {planets.map((p) => (
-                    <span
-                      key={p.name}
-                      className={`text-[10px] font-bold ${
-                        p.name === "Ascendant"
-                          ? "text-[#7B2D26]"
-                          : p.dignity === "Exalted"
-                          ? "text-[#2E7D32]"
-                          : p.dignity === "Debilitated"
-                          ? "text-[#C62828]"
-                          : "text-[#3B2A1E]"
-                      }`}
-                    >
-                      {p.symbol}
-                    </span>
-                  ))}
+                <div className="flex flex-wrap items-center justify-center gap-1 my-auto">
+                  {planets.map((p, pIdx) => {
+                    const isAsc = p.symbol === "Asc";
+                    return (
+                      <span
+                        key={pIdx}
+                        className={`text-[10px] font-bold leading-none ${
+                          isAsc ? "text-[#C1662F] underline" : "text-[#7B2D26]"
+                        }`}
+                      >
+                        {p.symbol}
+                        {p.isRetrograde && (
+                          <span className="text-[8px] text-[#DC2626] font-bold">(R)</span>
+                        )}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             );

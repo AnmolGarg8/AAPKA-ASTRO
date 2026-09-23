@@ -151,8 +151,8 @@ export default function AdminAnalyticsPage() {
 
               <div className="rounded-2xl border border-[#E8D8C3] bg-[#FBF3E7] p-4 flex items-center justify-between">
                 <div>
-                  <span className="font-bold text-[#7B2D26] block">Step 3: Account Signups (OTP)</span>
-                  <span className="text-[#6E5545]">Phone verification completed</span>
+                  <span className="font-bold text-[#7B2D26] block">Step 3: Account Signups (Clerk SSO)</span>
+                  <span className="text-[#6E5545]">Google OAuth &amp; Email verification completed</span>
                 </div>
                 <span className="font-mono text-base font-black text-[#7B2D26]">4,560 (18.4%)</span>
               </div>

@@ -48,3 +48,35 @@ h1, h2, h3, .font-temple {
   background-image: radial-gradient(#C1662F 0.75px, transparent 0.75px);
   background-size: 24px 24px;
 }
+
+/* Printable Kundli Dossier Styles */
+@media print {
+  body {
+    background-color: #ffffff !important;
+    color: #1a1a1a !important;
+    font-size: 10pt !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  header, footer, nav, button, .no-print, [data-no-print] {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .page-break-after {
+    page-break-after: always;
+    break-after: page;
+  }
+  .page-break-inside-avoid {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
+
+@media screen {
+  .print-only {
+    display: none !important;
+  }
+}
+

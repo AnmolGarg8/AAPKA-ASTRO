@@ -9,8 +9,8 @@ export async function GET(req: NextRequest) {
 
     // Attempt to pull real transactions from Prisma DB, with rich fallback for local dev
     let transactions: StatementItem[] = [];
-    let userName = "Devotee Client";
-    let userPhone = "+91 98765 43210";
+    let userName = "Aapka Astro Seeker";
+    let userIdentifier = "seeker@aapkaastro.com";
 
     try {
       const user = await prisma.user.findUnique({
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
 
       if (user) {
         userName = user.name || userName;
-        userPhone = user.phone || userPhone;
+        userIdentifier = user.identifier || user.email || user.phone || userIdentifier;
         transactions = user.walletTransactions.map((tx) => ({
           id: tx.id,
           date: tx.createdAt.toISOString().replace("T", " ").substring(0, 19),
@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    const csvContent = generateWalletStatementCSV(userName, userPhone, transactions);
+    const csvContent = generateWalletStatementCSV(userName, userIdentifier, transactions);
 
     return new NextResponse(csvContent, {
       status: 200,

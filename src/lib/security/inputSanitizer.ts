@@ -28,19 +28,6 @@ export function normalizePhoneNumber(phone: string): string {
 /**
  * Validation Schemas using Zod
  */
-export const SendOtpSchema = z.object({
-  phone: z
-    .string()
-    .min(10, "Phone number must be at least 10 digits")
-    .max(15, "Phone number too long")
-    .regex(/^[+]?[0-9\s-]{10,15}$/, "Invalid mobile number format"),
-});
-
-export const VerifyOtpSchema = z.object({
-  phone: z.string().min(10).max(15),
-  otp: z.string().regex(/^\d{6}$/, "OTP must be exactly 6 digits"),
-  name: z.string().max(100).optional(),
-});
 
 export const KundliInputSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(60),

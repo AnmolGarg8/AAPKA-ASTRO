@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { INDIAN_CITIES, CityLocation } from "@/lib/astrology/indianCities";
+import { LocationResult } from "@/lib/services/locationService";
+import { LocationAutocomplete } from "./LocationAutocomplete";
 import { KundliData } from "@/lib/astrology/types";
 import { calculateKundli } from "@/lib/astrology/chartCalculations";
-import { Calendar, Clock, MapPin, User } from "lucide-react";
+import { Calendar, Clock, User } from "lucide-react";
 import { DiyaIcon } from "@/components/ui/DiyaIcon";
 
 interface KundliFormProps {
@@ -17,16 +18,19 @@ export const KundliForm: React.FC<KundliFormProps> = ({ onCalculated, className 
   const [gender, setGender] = useState<"male" | "female" | "other">("male");
   const [birthDate, setBirthDate] = useState("1995-10-24");
   const [birthTime, setBirthTime] = useState("14:35");
-  const [selectedCity, setSelectedCity] = useState<CityLocation>(INDIAN_CITIES[0]);
-  const [citySearch, setCitySearch] = useState("New Delhi");
-  const [showCityDropdown, setShowCityDropdown] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState<LocationResult>({
+    id: "in-new-delhi",
+    name: "New Delhi",
+    displayName: "New Delhi, Delhi, India",
+    state: "Delhi",
+    country: "India",
+    countryCode: "IN",
+    latitude: 28.6139,
+    longitude: 77.209,
+    timezone: 5.5,
+    timezoneId: "Asia/Kolkata",
+  });
   const [isCalculating, setIsCalculating] = useState(false);
-
-  const filteredCities = INDIAN_CITIES.filter(
-    (c) =>
-      c.name.toLowerCase().includes(citySearch.toLowerCase()) ||
-      c.state.toLowerCase().includes(citySearch.toLowerCase())
-  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,10 +42,10 @@ export const KundliForm: React.FC<KundliFormProps> = ({ onCalculated, className 
         gender,
         birthDate,
         birthTime,
-        birthPlace: `${selectedCity.name}, ${selectedCity.state}`,
-        latitude: selectedCity.latitude,
-        longitude: selectedCity.longitude,
-        timezone: selectedCity.timezone,
+        birthPlace: selectedLocation.displayName,
+        latitude: selectedLocation.latitude,
+        longitude: selectedLocation.longitude,
+        timezone: selectedLocation.timezone,
       });
 
       onCalculated(kundli);
@@ -159,55 +163,13 @@ export const KundliForm: React.FC<KundliFormProps> = ({ onCalculated, className 
           </div>
         </div>
 
-        {/* Birth Place */}
-        <div className="relative">
-          <label className="block text-xs font-bold uppercase tracking-wider text-[#3B2A1E] mb-1.5">
-            Place of Birth
-          </label>
-          <div className="relative">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[#6E5545]">
-              <MapPin className="h-4 w-4" />
-            </div>
-            <input
-              type="text"
-              required
-              value={citySearch}
-              onChange={(e) => {
-                setCitySearch(e.target.value);
-                setShowCityDropdown(true);
-              }}
-              onFocus={() => setShowCityDropdown(true)}
-              placeholder="Search Indian or World city..."
-              className="w-full rounded-xl border border-[#E8D8C3] bg-[#FBF3E7] pl-10 pr-4 py-2.5 text-xs text-[#3B2A1E] focus:border-[#7B2D26] focus:outline-none transition-all font-medium"
-            />
-          </div>
-
-          {showCityDropdown && (
-            <div className="absolute z-30 mt-1 max-h-48 w-full overflow-auto rounded-xl border border-[#E8D8C3] bg-[#FFFDF9] p-1 shadow-lg">
-              {filteredCities.length > 0 ? (
-                filteredCities.map((city) => (
-                  <button
-                    key={`${city.name}-${city.state}`}
-                    type="button"
-                    onClick={() => {
-                      setSelectedCity(city);
-                      setCitySearch(`${city.name}, ${city.state}`);
-                      setShowCityDropdown(false);
-                    }}
-                    className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs text-[#3B2A1E] hover:bg-[#FBF3E7] hover:text-[#7B2D26] transition-all"
-                  >
-                    <span className="font-bold">{city.name}</span>
-                    <span className="text-[11px] text-[#6E5545]">{city.state}</span>
-                  </button>
-                ))
-              ) : (
-                <div className="p-3 text-center text-xs text-[#6E5545]">
-                  Select nearest major Indian city.
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+        {/* Birth Place with Worldwide Geocoding Autocomplete */}
+        <LocationAutocomplete
+          value={selectedLocation.displayName}
+          onSelect={setSelectedLocation}
+          label="Place of Birth (Worldwide Search)"
+          placeholder="Search any city, town, or village (e.g. Noida, London, Ayodhya)..."
+        />
 
         {/* Submit */}
         <button

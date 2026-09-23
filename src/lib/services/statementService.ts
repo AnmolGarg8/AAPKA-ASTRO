@@ -18,7 +18,7 @@ export interface StatementItem {
 
 export function generateWalletStatementCSV(
   userName: string,
-  userPhone: string,
+  userIdentifier: string,
   transactions: StatementItem[]
 ): string {
   const generatedAt = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
@@ -26,7 +26,7 @@ export function generateWalletStatementCSV(
   const headers = [
     "AAPKA ASTRO - ACCOUNT WALLET STATEMENT",
     `Account Holder: ${userName}`,
-    `Phone: ${userPhone}`,
+    `User Identifier: ${userIdentifier}`,
     `Generated On: ${generatedAt} IST`,
     `Currency: INR (₹)`,
     "",

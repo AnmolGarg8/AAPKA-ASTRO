@@ -20,6 +20,7 @@ import {
   ShieldCheck,
   Star,
   CheckCircle2,
+  Gift,
 } from "lucide-react";
 
 export default function ClientAccountDashboard() {
@@ -163,6 +164,30 @@ export default function ClientAccountDashboard() {
               </h3>
               <p className="text-[11px] text-[#6E5545] mt-0.5">Share your experience</p>
             </div>
+          </Link>
+        </div>
+
+        {/* Referral Promo Banner */}
+        <div className="mb-8 rounded-2xl border border-[#E8A33D] bg-gradient-to-r from-[#FFFDF9] via-[#FAF1E4] to-[#FFFDF9] p-5 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#7B2D26] text-[#E8A33D] shrink-0">
+              <Gift className="h-6 w-6" />
+            </div>
+            <div>
+              <h4 className="font-temple text-sm sm:text-base font-bold text-[#7B2D26]">
+                Invite Friends &amp; Earn ₹100 Wallet Credit
+              </h4>
+              <p className="text-xs text-[#6E5545] mt-0.5">
+                Give your friends ₹50 free welcome balance. Earn ₹100 after their first consultation.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/account/referral"
+            className="shrink-0 rounded-xl bg-[#7B2D26] px-5 py-2.5 text-xs font-bold text-[#FBF3E7] hover:bg-[#64221C] transition-all shadow-xs flex items-center gap-1.5"
+          >
+            <span>Invite &amp; Earn</span>
+            <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
 
