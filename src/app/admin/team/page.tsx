@@ -1,19 +1,19 @@
 import { redirect } from "next/navigation";
 import { getServerAuthUser } from "@/lib/auth/serverAuth";
-import StaffManagementClient from "./StaffManagementClient";
+import TeamManagementClient from "./TeamManagementClient";
 
 export const dynamic = "force-dynamic";
 
 /**
- * /admin/staff
+ * /admin/team
  * Strictly Owner-Only.
  * Rejects anyone else, including staff with MANAGE access to other sections, server-side.
  */
-export default async function AdminStaffPage() {
+export default async function AdminTeamPage() {
   const auth = await getServerAuthUser();
 
   if (!auth.isAuthenticated) {
-    redirect("/login?redirect_url=/admin/staff");
+    redirect("/login?redirect_url=/admin/team");
   }
 
   // Strictly Owner-only: reject anyone else, including staff with MANAGE access to other sections
@@ -21,5 +21,10 @@ export default async function AdminStaffPage() {
     redirect("/dashboard");
   }
 
-  return <StaffManagementClient />;
+  return (
+    <TeamManagementClient
+      currentUserEmail={auth.email}
+      currentUserId={auth.userId}
+    />
+  );
 }

@@ -104,13 +104,20 @@ const liveClerkMiddleware = clerkMiddleware(
           sessionClaims?.email || sessionClaims?.primaryEmailAddress || null;
         const isOwner = isOwnerEmail(email);
 
-        const rawRole = isOwner
-          ? "ADMIN"
-          : sessionClaims?.metadata?.role ||
-            sessionClaims?.publicMetadata?.role ||
-            sessionClaims?.unsafeMetadata?.role ||
-            "CLIENT";
-        const userRole = String(rawRole).toUpperCase() as UserRole;
+        let rawRole =
+          sessionClaims?.metadata?.role ||
+          sessionClaims?.publicMetadata?.role ||
+          sessionClaims?.unsafeMetadata?.role ||
+          "CLIENT";
+
+        // Anti-tamper: metadata claiming OWNER without matching OWNER_EMAIL is disallowed
+        if (String(rawRole).toUpperCase() === "OWNER" && !isOwner) {
+          rawRole = "CLIENT";
+        }
+
+        const userRole: UserRole = isOwner
+          ? "OWNER"
+          : (String(rawRole).toUpperCase() as UserRole);
 
         const permissions = isOwner
           ? (STAFF_SECTIONS.map((s) => s.id) as StaffSection[])

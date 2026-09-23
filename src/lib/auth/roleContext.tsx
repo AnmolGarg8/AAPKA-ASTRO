@@ -88,12 +88,16 @@ export const ClerkRoleBridge: React.FC<{ children: React.ReactNode }> = ({ child
   const email = user.primaryEmailAddress?.emailAddress || null;
   const isOwner = isOwnerEmail(email);
 
-  const rawRole = isOwner
-    ? "ADMIN"
-    : (user.publicMetadata as any)?.role ||
-      (user.unsafeMetadata as any)?.role ||
-      "CLIENT";
-  const role = String(rawRole).toUpperCase() as UserRole;
+  let rawRole =
+    (user.publicMetadata as any)?.role ||
+    (user.unsafeMetadata as any)?.role ||
+    "CLIENT";
+
+  if (String(rawRole).toUpperCase() === "OWNER" && !isOwner) {
+    rawRole = "CLIENT";
+  }
+
+  const role: UserRole = isOwner ? "OWNER" : (String(rawRole).toUpperCase() as UserRole);
 
   const permissions = isOwner
     ? (STAFF_SECTIONS.map((s) => s.id) as StaffSection[])
@@ -165,7 +169,9 @@ export const MockRoleBridge: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const email = user.email || null;
   const isOwner = isOwnerEmail(email);
-  const role = isOwner ? "ADMIN" : (String(user.role || "CLIENT").toUpperCase() as UserRole);
+  const rawRole = String(user.role || "CLIENT").toUpperCase();
+  const safeRole = rawRole === "OWNER" && !isOwner ? "CLIENT" : rawRole;
+  const role: UserRole = isOwner ? "OWNER" : (safeRole as UserRole);
 
   const permissions = isOwner
     ? (STAFF_SECTIONS.map((s) => s.id) as StaffSection[])

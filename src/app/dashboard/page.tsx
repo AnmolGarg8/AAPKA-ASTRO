@@ -308,7 +308,7 @@ export default function AstrologerDashboardPage() {
 
           {isOwner && (
             <Link
-              href="/admin/staff"
+              href="/admin/team"
               className="rounded-2xl border-2 border-[#7B2D26]/30 bg-[#FFFDF9] p-5 shadow-sm hover:border-[#7B2D26] hover:shadow-md transition-all group"
             >
               <div className="flex items-center justify-between mb-2">
@@ -320,9 +320,9 @@ export default function AstrologerDashboardPage() {
                 </span>
               </div>
               <h3 className="font-temple text-sm font-bold text-[#7B2D26] group-hover:text-[#C1662F]">
-                Staff Permissions
+                Team Access
               </h3>
-              <p className="text-[11px] text-[#6E5545] mt-0.5">Manage per-section roles</p>
+              <p className="text-[11px] text-[#6E5545] mt-0.5">Manage staff sections &amp; audit</p>
             </Link>
           )}
         </div>

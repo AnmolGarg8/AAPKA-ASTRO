@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
   const auth = getAuthFromRequest(req);
 
   // Strictly gate to Owner
-  if (!auth.isAuthenticated || (!auth.isOwner && auth.role !== "ADMIN")) {
+  if (!auth.isAuthenticated || (!auth.isOwner && auth.role !== "OWNER")) {
     return NextResponse.json(
       {
         success: false,
@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const auth = getAuthFromRequest(req);
 
-  if (!auth.isAuthenticated || (!auth.isOwner && auth.role !== "ADMIN")) {
+  if (!auth.isAuthenticated || (!auth.isOwner && auth.role !== "OWNER")) {
     return NextResponse.json(
       {
         success: false,
@@ -112,7 +112,7 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const auth = getAuthFromRequest(req);
 
-  if (!auth.isAuthenticated || (!auth.isOwner && auth.role !== "ADMIN")) {
+  if (!auth.isAuthenticated || (!auth.isOwner && auth.role !== "OWNER")) {
     return NextResponse.json(
       {
         success: false,

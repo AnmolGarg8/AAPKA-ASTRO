@@ -13,14 +13,14 @@ export default async function AdminLayout({
     redirect("/login?redirect_url=/admin");
   }
 
-  // Admin section requires ADMIN role, Owner, or staff with pricing/analytics permissions
+  // Admin section strictly requires Owner or staff with active pricing/analytics/staff permissions
   const hasAdminSectionPerm =
     auth.permissions.includes("pricing") ||
     auth.permissions.includes("analytics") ||
     auth.permissions.includes("staff");
 
-  if (!auth.isAdmin && !auth.isOwner && !hasAdminSectionPerm) {
-    redirect(auth.isAstrologer ? "/dashboard" : "/account");
+  if (!auth.isOwner && !hasAdminSectionPerm) {
+    redirect(auth.permissions.length > 0 ? "/dashboard" : "/account");
   }
 
   return <>{children}</>;

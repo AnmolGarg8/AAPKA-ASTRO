@@ -29,13 +29,13 @@ interface MockUser {
   name: string;
   email: string;
   imageUrl?: string;
-  role: "CLIENT" | "ASTROLOGER" | "ADMIN";
+  role: "CLIENT" | "ASTROLOGER" | "ADMIN" | "OWNER";
 }
 
 interface MockAuthContextType {
   isSignedIn: boolean;
   user: MockUser | null;
-  signIn: (email?: string, role?: "CLIENT" | "ASTROLOGER" | "ADMIN") => void;
+  signIn: (email?: string, role?: "CLIENT" | "ASTROLOGER" | "ADMIN" | "OWNER") => void;
   signOut: () => void;
 }
 
@@ -66,12 +66,14 @@ export const MockAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, []);
 
-  const signIn = (email: string = "seeker@aapkaastro.com", requestedRole?: "CLIENT" | "ASTROLOGER" | "ADMIN") => {
+  const signIn = (email: string = "seeker@aapkaastro.com", requestedRole?: "CLIENT" | "ASTROLOGER" | "ADMIN" | "OWNER") => {
     const isOwner = isOwnerEmail(email);
-    const determinedRole: "CLIENT" | "ASTROLOGER" | "ADMIN" =
+    // Anti-tamper: if a non-owner attempts to self-assign OWNER, downgrade to CLIENT
+    const safeRequested = requestedRole === "OWNER" && !isOwner ? "CLIENT" : requestedRole;
+    const determinedRole: "CLIENT" | "ASTROLOGER" | "ADMIN" | "OWNER" =
       isOwner
-        ? "ADMIN"
-        : requestedRole ||
+        ? "OWNER"
+        : safeRequested ||
           (email.includes("admin") ? "ADMIN" : email.includes("astrologer") || email.includes("acharya") ? "ASTROLOGER" : "CLIENT");
 
     const mockUserData: MockUser = {

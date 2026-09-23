@@ -10,6 +10,34 @@ export type StaffSection =
   | "analytics"
   | "staff";
 
+export type AccessLevel = "VIEW" | "MANAGE";
+
+export interface StaffGrant {
+  id: string;
+  email: string;
+  section: StaffSection;
+  accessLevel: AccessLevel;
+  grantedByUserId?: string | null;
+  grantedBy?: string | null;
+  grantedAt: string;
+  revokedAt?: string | null;
+  revokedByUserId?: string | null;
+}
+
+export interface StaffAuditLog {
+  id: string;
+  action: "GRANTED" | "REVOKED";
+  targetEmail: string;
+  section: StaffSection;
+  accessLevel: AccessLevel;
+  grantedByUserId?: string | null;
+  grantedBy?: string | null;
+  grantedAt: string;
+  revokedAt?: string | null;
+  revokedByUserId?: string | null;
+  timestamp: string;
+}
+
 export interface StaffSectionMeta {
   id: StaffSection;
   name: string;
@@ -110,8 +138,11 @@ export function hasSectionPermission(
 ): boolean {
   if (!user) return false;
 
-  // 1. Owner email always has unrestricted access to everything
-  if (isOwnerEmail(user.email)) {
+  const role = (user.role || "").toUpperCase();
+  const isOwner = role === "OWNER" || isOwnerEmail(user.email);
+
+  // 1. Platform Owner always has unrestricted access to all sections and is never subject to section restrictions
+  if (isOwner) {
     return true;
   }
 
@@ -119,8 +150,6 @@ export function hasSectionPermission(
   if (section === "staff") {
     return false;
   }
-
-  const role = (user.role || "").toUpperCase();
 
   // 3. Global ADMIN role has access to all platform operations
   if (role === "ADMIN") {
@@ -147,19 +176,89 @@ export function hasSectionPermission(
   return false;
 }
 
+/**
+ * Evaluates whether a user holds authorization for a specific section AND access level (VIEW vs MANAGE).
+ * A MANAGE grant satisfies both VIEW and MANAGE requirements.
+ */
+export function hasSectionAccess(
+  user: {
+    email?: string | null;
+    role?: string | null;
+    permissions?: string[];
+    grants?: { section: StaffSection; accessLevel: AccessLevel }[];
+  } | null | undefined,
+  section: StaffSection,
+  requiredLevel: AccessLevel = "VIEW"
+): boolean {
+  if (!user) return false;
+
+  const role = (user.role || "").toUpperCase();
+  const isOwner = role === "OWNER" || isOwnerEmail(user.email);
+
+  if (isOwner) return true;
+  if (section === "staff") return false; // Strictly Owner-only
+  if (role === "ADMIN") return true;
+
+  if (user.grants && user.grants.length > 0) {
+    const matching = user.grants.find(
+      (g) => g.section === section || (g.section as string) === "*"
+    );
+    if (matching) {
+      if (requiredLevel === "VIEW") return true;
+      return matching.accessLevel === "MANAGE";
+    }
+  }
+
+  const perms = user.permissions || [];
+  if (perms.includes("*") || perms.includes(section)) return true;
+  if (section === "consultations" && role === "ASTROLOGER") return true;
+  return false;
+}
+
 export interface StaffMemberRecord {
   email: string;
   name?: string;
+  userId?: string | null;
   sections: StaffSection[];
+  grants: StaffGrant[];
   isOwner: boolean;
   updatedAt: string;
 }
 
-// In-memory permission cache for development preview / test resilience
-const memoryStaffPermissions = new Map<string, Set<StaffSection>>([
-  ["editor@aapkaastro.com", new Set<StaffSection>(["blog"])],
-  ["curator@aapkaastro.com", new Set<StaffSection>(["reels"])],
-]);
+// In-memory grant store for development preview / test resilience
+const memoryGrants: StaffGrant[] = [
+  {
+    id: "grant_mem_1",
+    email: "editor@aapkaastro.com",
+    section: "blog",
+    accessLevel: "MANAGE",
+    grantedByUserId: "usr_owner_001",
+    grantedBy: "Owner",
+    grantedAt: new Date(Date.now() - 86400000 * 5).toISOString(),
+    revokedAt: null,
+  },
+  {
+    id: "grant_mem_2",
+    email: "curator@aapkaastro.com",
+    section: "reels",
+    accessLevel: "VIEW",
+    grantedByUserId: "usr_owner_001",
+    grantedBy: "Owner",
+    grantedAt: new Date(Date.now() - 86400000 * 3).toISOString(),
+    revokedAt: null,
+  },
+  {
+    id: "grant_mem_3",
+    email: "intern@aapkaastro.com",
+    section: "earnings",
+    accessLevel: "VIEW",
+    grantedByUserId: "usr_owner_001",
+    grantedBy: "Owner",
+    grantedAt: new Date(Date.now() - 86400000 * 10).toISOString(),
+    revokedAt: new Date(Date.now() - 86400000 * 2).toISOString(),
+    revokedByUserId: "usr_owner_001",
+  },
+];
 
 let isDbReachable = true;
 
@@ -177,15 +276,37 @@ export class StaffPermissionService {
     if (isOwnerEmail(normalized)) {
       return STAFF_SECTIONS.map((s) => s.id);
     }
-    const mem = memoryStaffPermissions.get(normalized);
-    if (mem) {
-      return Array.from(mem);
-    }
-    return [];
+    const activeGrants = memoryGrants.filter(
+      (g) => g.email.toLowerCase() === normalized && !g.revokedAt
+    );
+    return activeGrants.map((g) => g.section);
   }
 
   /**
-   * Retrieves all granted sections for a specific user email.
+   * Synchronous helper to get active grants with access levels from memory / fallback.
+   */
+  static getGrantsSync(email: string): StaffGrant[] {
+    if (!email) return [];
+    const normalized = email.trim().toLowerCase();
+    if (isOwnerEmail(normalized)) {
+      return STAFF_SECTIONS.map((s) => ({
+        id: `grant_owner_${s.id}`,
+        email: normalized,
+        section: s.id,
+        accessLevel: "MANAGE" as AccessLevel,
+        grantedBy: "Platform Owner",
+        grantedByUserId: "owner",
+        grantedAt: new Date().toISOString(),
+        revokedAt: null,
+      }));
+    }
+    return memoryGrants.filter(
+      (g) => g.email.toLowerCase() === normalized && !g.revokedAt
+    );
+  }
+
+  /**
+   * Retrieves all active granted sections for a specific user email.
    */
   static async getPermissionsForEmail(email: string): Promise<StaffSection[]> {
     if (!email) return [];
@@ -200,14 +321,12 @@ export class StaffPermissionService {
       try {
         if (prisma && (prisma as any).staffPermission) {
           const rows = await prisma.staffPermission.findMany({
-            where: { email: normalized },
+            where: { email: normalized, revokedAt: null },
             select: { section: true },
           });
 
           if (rows && rows.length > 0) {
-            const perms = rows.map((r) => r.section as StaffSection);
-            memoryStaffPermissions.set(normalized, new Set(perms));
-            return perms;
+            return rows.map((r: any) => r.section as StaffSection);
           }
         }
       } catch {
@@ -215,21 +334,163 @@ export class StaffPermissionService {
       }
     }
 
-    const mem = memoryStaffPermissions.get(normalized);
-    if (mem) {
-      return Array.from(mem);
-    }
-
-    return [];
+    const activeGrants = memoryGrants.filter(
+      (g) => g.email.toLowerCase() === normalized && !g.revokedAt
+    );
+    return activeGrants.map((g) => g.section);
   }
 
   /**
-   * Lists all staff members and their configured permissions for this site.
+   * Retrieves all active grants with access levels for an email.
+   */
+  static async getGrantsForEmail(email: string): Promise<StaffGrant[]> {
+    if (!email) return [];
+    const normalized = email.trim().toLowerCase();
+
+    if (isOwnerEmail(normalized)) {
+      return STAFF_SECTIONS.map((s) => ({
+        id: `grant_owner_${s.id}`,
+        email: normalized,
+        section: s.id,
+        accessLevel: "MANAGE" as AccessLevel,
+        grantedBy: "Platform Owner",
+        grantedByUserId: "owner",
+        grantedAt: new Date().toISOString(),
+        revokedAt: null,
+      }));
+    }
+
+    if (isDbReachable) {
+      try {
+        if (prisma && (prisma as any).staffPermission) {
+          const rows = await prisma.staffPermission.findMany({
+            where: { email: normalized, revokedAt: null },
+            orderBy: { createdAt: "desc" },
+          });
+
+          if (rows && rows.length > 0) {
+            return rows.map((r: any) => ({
+              id: r.id,
+              email: r.email,
+              section: r.section as StaffSection,
+              accessLevel: (r.accessLevel || "MANAGE") as AccessLevel,
+              grantedByUserId: r.grantedByUserId,
+              grantedBy: r.grantedBy,
+              grantedAt: r.grantedAt ? r.grantedAt.toISOString() : r.createdAt.toISOString(),
+              revokedAt: r.revokedAt ? r.revokedAt.toISOString() : null,
+              revokedByUserId: r.revokedByUserId,
+            }));
+          }
+        }
+      } catch {
+        isDbReachable = false;
+      }
+    }
+
+    return memoryGrants.filter(
+      (g) => g.email.toLowerCase() === normalized && !g.revokedAt
+    );
+  }
+
+  /**
+   * Lists all staff members and their active grants/sections for this site.
    */
   static async listStaffMembers(): Promise<StaffMemberRecord[]> {
-    const recordsMap = new Map<string, Set<StaffSection>>();
+    const staffMap = new Map<string, { email: string; grants: StaffGrant[]; updatedAt: string }>();
 
     // Load from database if available
+    if (isDbReachable) {
+      try {
+        if (prisma && (prisma as any).staffPermission) {
+          const rows = await prisma.staffPermission.findMany({
+            where: { revokedAt: null },
+            orderBy: { createdAt: "desc" },
+          });
+
+          for (const row of rows) {
+            const email = row.email.toLowerCase();
+            if (!staffMap.has(email)) {
+              staffMap.set(email, {
+                email,
+                grants: [],
+                updatedAt: row.updatedAt ? row.updatedAt.toISOString() : new Date().toISOString(),
+              });
+            }
+            staffMap.get(email)!.grants.push({
+              id: row.id,
+              email,
+              section: row.section as StaffSection,
+              accessLevel: (row.accessLevel || "MANAGE") as AccessLevel,
+              grantedByUserId: row.grantedByUserId,
+              grantedBy: row.grantedBy,
+              grantedAt: row.grantedAt ? row.grantedAt.toISOString() : row.createdAt.toISOString(),
+              revokedAt: null,
+            });
+          }
+        }
+      } catch {
+        isDbReachable = false;
+      }
+    }
+
+    // Merge in-memory active grants
+    for (const grant of memoryGrants.filter((g) => !g.revokedAt)) {
+      const email = grant.email.toLowerCase();
+      if (!staffMap.has(email)) {
+        staffMap.set(email, {
+          email,
+          grants: [grant],
+          updatedAt: grant.grantedAt,
+        });
+      } else {
+        const existing = staffMap.get(email)!;
+        if (!existing.grants.some((g) => g.section === grant.section)) {
+          existing.grants.push(grant);
+        }
+      }
+    }
+
+    // Include configured owners
+    const owners = getOwnerEmails();
+    for (const owner of owners) {
+      const ownerGrants: StaffGrant[] = STAFF_SECTIONS.map((s) => ({
+        id: `owner_${s.id}`,
+        email: owner,
+        section: s.id,
+        accessLevel: "MANAGE",
+        grantedBy: "Platform Owner",
+        grantedByUserId: "owner",
+        grantedAt: new Date().toISOString(),
+        revokedAt: null,
+      }));
+      staffMap.set(owner, {
+        email: owner,
+        grants: ownerGrants,
+        updatedAt: new Date().toISOString(),
+      });
+    }
+
+    const result: StaffMemberRecord[] = [];
+    for (const [email, record] of staffMap.entries()) {
+      result.push({
+        email,
+        grants: record.grants,
+        sections: record.grants.map((g) => g.section),
+        isOwner: isOwnerEmail(email),
+        updatedAt: record.updatedAt,
+      });
+    }
+
+    return result;
+  }
+
+  /**
+   * Returns a chronological audit list of all grants and revocations,
+   * pulling directly from grantedByUserId, grantedAt, and revokedAt fields.
+   */
+  static async listAuditLogs(): Promise<StaffAuditLog[]> {
+    const logs: StaffAuditLog[] = [];
+
     if (isDbReachable) {
       try {
         if (prisma && (prisma as any).staffPermission) {
@@ -238,97 +499,35 @@ export class StaffPermissionService {
           });
 
           for (const row of rows) {
-            const email = row.email.toLowerCase();
-            if (!recordsMap.has(email)) {
-              recordsMap.set(email, new Set());
-            }
-            recordsMap.get(email)!.add(row.section as StaffSection);
-          }
-        }
-      } catch {
-        isDbReachable = false;
-      }
-    }
-
-    // Merge in-memory fallback entries
-    for (const [email, perms] of memoryStaffPermissions.entries()) {
-      if (!recordsMap.has(email)) {
-        recordsMap.set(email, new Set(perms));
-      } else {
-        perms.forEach((p) => recordsMap.get(email)!.add(p));
-      }
-    }
-
-    // Include configured owners
-    const owners = getOwnerEmails();
-    for (const owner of owners) {
-      recordsMap.set(owner, new Set(STAFF_SECTIONS.map((s) => s.id)));
-    }
-
-    const result: StaffMemberRecord[] = [];
-    for (const [email, sectionsSet] of recordsMap.entries()) {
-      result.push({
-        email,
-        sections: Array.from(sectionsSet),
-        isOwner: isOwnerEmail(email),
-        updatedAt: new Date().toISOString(),
-      });
-    }
-
-    return result;
-  }
-
-  /**
-   * Grants or updates the per-section permissions for a staff member.
-   */
-  static async setPermissions(
-    email: string,
-    sections: StaffSection[],
-    grantedBy: string = "Owner"
-  ): Promise<boolean> {
-    if (!email) return false;
-    const normalized = email.trim().toLowerCase();
-
-    // Prevent restricting the owner
-    if (isOwnerEmail(normalized)) {
-      return true;
-    }
-
-    // Update in-memory fallback
-    memoryStaffPermissions.set(normalized, new Set(sections));
-
-    // Update database if reachable
-    if (isDbReachable) {
-      try {
-        if (prisma && (prisma as any).staffPermission) {
-          // Find existing user if registered
-          const user = await prisma.user.findUnique({
-            where: { email: normalized },
-          });
-
-          // Delete existing section permissions for this email
-          await prisma.staffPermission.deleteMany({
-            where: { email: normalized },
-          });
-
-          // If sections are provided, insert them
-          if (sections.length > 0) {
-            const createData = sections.map((sec) => ({
-              email: normalized,
-              section: sec,
-              userId: user ? user.id : null,
-              grantedBy,
-            }));
-
-            await prisma.staffPermission.createMany({
-              data: createData,
+            // Log for the grant
+            logs.push({
+              id: `${row.id}_grant`,
+              action: "GRANTED",
+              targetEmail: row.email,
+              section: row.section as StaffSection,
+              accessLevel: (row.accessLevel || "MANAGE") as AccessLevel,
+              grantedByUserId: row.grantedByUserId,
+              grantedBy: row.grantedBy,
+              grantedAt: row.grantedAt ? row.grantedAt.toISOString() : row.createdAt.toISOString(),
+              revokedAt: row.revokedAt ? row.revokedAt.toISOString() : null,
+              revokedByUserId: row.revokedByUserId,
+              timestamp: row.grantedAt ? row.grantedAt.toISOString() : row.createdAt.toISOString(),
             });
 
-            // Elevate user's role to ASTROLOGER/staff if currently CLIENT
-            if (user && user.role === "CLIENT") {
-              await prisma.user.update({
-                where: { id: user.id },
-                data: { role: "ASTROLOGER" },
+            // If revoked, log revocation entry
+            if (row.revokedAt) {
+              logs.push({
+                id: `${row.id}_revoke`,
+                action: "REVOKED",
+                targetEmail: row.email,
+                section: row.section as StaffSection,
+                accessLevel: (row.accessLevel || "MANAGE") as AccessLevel,
+                grantedByUserId: row.grantedByUserId,
+                grantedBy: row.grantedBy,
+                grantedAt: row.grantedAt ? row.grantedAt.toISOString() : row.createdAt.toISOString(),
+                revokedAt: row.revokedAt.toISOString(),
+                revokedByUserId: row.revokedByUserId,
+                timestamp: row.revokedAt.toISOString(),
               });
             }
           }
@@ -338,27 +537,153 @@ export class StaffPermissionService {
       }
     }
 
-    return true; // memory store successfully updated
+    // Merge in-memory grants for audit
+    for (const g of memoryGrants) {
+      if (!logs.some((l) => l.id.startsWith(g.id))) {
+        logs.push({
+          id: `${g.id}_grant`,
+          action: "GRANTED",
+          targetEmail: g.email,
+          section: g.section,
+          accessLevel: g.accessLevel,
+          grantedByUserId: g.grantedByUserId,
+          grantedBy: g.grantedBy,
+          grantedAt: g.grantedAt,
+          revokedAt: g.revokedAt,
+          revokedByUserId: g.revokedByUserId,
+          timestamp: g.grantedAt,
+        });
+
+        if (g.revokedAt) {
+          logs.push({
+            id: `${g.id}_revoke`,
+            action: "REVOKED",
+            targetEmail: g.email,
+            section: g.section,
+            accessLevel: g.accessLevel,
+            grantedByUserId: g.grantedByUserId,
+            grantedBy: g.grantedBy,
+            grantedAt: g.grantedAt,
+            revokedAt: g.revokedAt,
+            revokedByUserId: g.revokedByUserId,
+            timestamp: g.revokedAt,
+          });
+        }
+      }
+    }
+
+    // Sort by timestamp descending
+    return logs.sort(
+      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    );
   }
 
   /**
-   * Revokes all staff permissions for a given email.
+   * Grants a single section + access-level to a staff member email.
+   * Can be used to invite a new staff member or grant a new section to existing staff.
    */
-  static async revokeStaff(email: string): Promise<boolean> {
-    if (!email) return false;
+  static async grantSection(
+    email: string,
+    section: StaffSection,
+    accessLevel: AccessLevel = "MANAGE",
+    grantedByUserId?: string,
+    grantedBy: string = "Owner"
+  ): Promise<StaffGrant | null> {
+    if (!email || !section) return null;
     const normalized = email.trim().toLowerCase();
 
     if (isOwnerEmail(normalized)) {
-      return false; // Cannot revoke owner
+      return null; // Owner already has full unrestricted access
     }
 
-    memoryStaffPermissions.delete(normalized);
+    const grantId = `grant_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const grantedAt = new Date().toISOString();
+
+    const newGrant: StaffGrant = {
+      id: grantId,
+      email: normalized,
+      section,
+      accessLevel,
+      grantedByUserId: grantedByUserId || "Owner",
+      grantedBy,
+      grantedAt,
+      revokedAt: null,
+    };
+
+    // Update in-memory: revoke any existing active grant for this section and push new
+    const existingIdx = memoryGrants.findIndex(
+      (g) => g.email.toLowerCase() === normalized && g.section === section && !g.revokedAt
+    );
+    if (existingIdx >= 0) {
+      memoryGrants[existingIdx].revokedAt = grantedAt;
+      memoryGrants[existingIdx].revokedByUserId = grantedByUserId;
+    }
+    memoryGrants.push(newGrant);
 
     if (isDbReachable) {
       try {
         if (prisma && (prisma as any).staffPermission) {
-          await prisma.staffPermission.deleteMany({
+          const user = await prisma.user.findUnique({
             where: { email: normalized },
+          });
+
+          // Soft-revoke any existing active grant for this section
+          await prisma.staffPermission.updateMany({
+            where: { email: normalized, section, revokedAt: null },
+            data: { revokedAt: new Date(), revokedByUserId: grantedByUserId || null },
+          });
+
+          const created = await prisma.staffPermission.create({
+            data: {
+              email: normalized,
+              section,
+              accessLevel: accessLevel as any,
+              userId: user ? user.id : null,
+              grantedByUserId,
+              grantedBy,
+              grantedAt: new Date(),
+              revokedAt: null,
+            },
+          });
+
+          // Elevate user's role to ASTROLOGER/staff if currently CLIENT
+          if (user && user.role === "CLIENT") {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { role: "ASTROLOGER" },
+            });
+          }
+
+          newGrant.id = created.id;
+        }
+      } catch {
+        isDbReachable = false;
+      }
+    }
+
+    return newGrant;
+  }
+
+  /**
+   * Revokes an existing grant by its unique ID.
+   */
+  static async revokeGrant(grantId: string, revokedByUserId?: string): Promise<boolean> {
+    if (!grantId) return false;
+    const revokedAt = new Date().toISOString();
+
+    // In-memory update
+    const memGrant = memoryGrants.find((g) => g.id === grantId && !g.revokedAt);
+    if (memGrant) {
+      memGrant.revokedAt = revokedAt;
+      memGrant.revokedByUserId = revokedByUserId;
+    }
+
+    if (isDbReachable) {
+      try {
+        if (prisma && (prisma as any).staffPermission) {
+          await prisma.staffPermission.update({
+            where: { id: grantId },
+            data: { revokedAt: new Date(), revokedByUserId },
           });
         }
       } catch {
@@ -367,5 +692,215 @@ export class StaffPermissionService {
     }
 
     return true;
+  }
+
+  /**
+   * Revokes a specific section grant for an email.
+   */
+  static async revokeGrantBySection(
+    email: string,
+    section: StaffSection,
+    revokedByUserId?: string
+  ): Promise<boolean> {
+    if (!email || !section) return false;
+    const normalized = email.trim().toLowerCase();
+    if (isOwnerEmail(normalized)) return false;
+
+    const revokedAt = new Date().toISOString();
+
+    // In-memory update
+    for (const g of memoryGrants) {
+      if (g.email.toLowerCase() === normalized && g.section === section && !g.revokedAt) {
+        g.revokedAt = revokedAt;
+        g.revokedByUserId = revokedByUserId;
+      }
+    }
+
+    if (isDbReachable) {
+      try {
+        if (prisma && (prisma as any).staffPermission) {
+          await prisma.staffPermission.updateMany({
+            where: { email: normalized, section, revokedAt: null },
+            data: { revokedAt: new Date(), revokedByUserId },
+          });
+        }
+      } catch {
+        isDbReachable = false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Automatically assigns and persists the OWNER role to the user's database record
+   * upon sign-up or first login if their authenticated email matches OWNER_EMAIL.
+   */
+  static async ensureOwnerRoleInDatabase(email: string): Promise<boolean> {
+    if (!email || !isOwnerEmail(email)) return false;
+    const normalized = email.trim().toLowerCase();
+
+    if (isDbReachable) {
+      try {
+        if (prisma && (prisma as any).user) {
+          const user = await prisma.user.findUnique({
+            where: { email: normalized },
+            select: { id: true, role: true },
+          });
+
+          if (user && user.role !== ("OWNER" as any)) {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { role: "OWNER" as any },
+            });
+          }
+          return true;
+        }
+      } catch {
+        isDbReachable = false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Sets or updates bulk per-section permissions for a staff member.
+   * Backward-compatible with existing /admin/staff endpoints.
+   */
+  static async setPermissions(
+    email: string,
+    sections: StaffSection[],
+    grantedBy: string = "Owner",
+    grantedByUserId?: string
+  ): Promise<boolean> {
+    if (!email) return false;
+    const normalized = email.trim().toLowerCase();
+
+    if (isOwnerEmail(normalized)) {
+      return true;
+    }
+
+    // In-memory update: revoke existing active grants not in `sections`
+    const now = new Date().toISOString();
+    for (const g of memoryGrants) {
+      if (g.email.toLowerCase() === normalized && !g.revokedAt) {
+        if (!sections.includes(g.section)) {
+          g.revokedAt = now;
+          g.revokedByUserId = grantedByUserId;
+        }
+      }
+    }
+
+    // Grant new sections
+    for (const sec of sections) {
+      const existing = memoryGrants.find(
+        (g) => g.email.toLowerCase() === normalized && g.section === sec && !g.revokedAt
+      );
+      if (!existing) {
+        memoryGrants.push({
+          id: `grant_mem_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+          email: normalized,
+          section: sec,
+          accessLevel: "MANAGE",
+          grantedByUserId,
+          grantedBy,
+          grantedAt: now,
+          revokedAt: null,
+        });
+      }
+    }
+
+    // Database update
+    if (isDbReachable) {
+      try {
+        if (prisma && (prisma as any).staffPermission) {
+          const user = await prisma.user.findUnique({
+            where: { email: normalized },
+          });
+
+          // Soft-revoke existing grants not in `sections`
+          await prisma.staffPermission.updateMany({
+            where: {
+              email: normalized,
+              revokedAt: null,
+              section: { notIn: sections },
+            },
+            data: { revokedAt: new Date(), revokedByUserId: grantedByUserId || null },
+          });
+
+          // Add any new sections
+          for (const sec of sections) {
+            const existing = await prisma.staffPermission.findFirst({
+              where: { email: normalized, section: sec, revokedAt: null },
+            });
+
+            if (!existing) {
+              await prisma.staffPermission.create({
+                data: {
+                  email: normalized,
+                  section: sec,
+                  accessLevel: "MANAGE" as any,
+                  userId: user ? user.id : null,
+                  grantedByUserId,
+                  grantedBy,
+                  grantedAt: new Date(),
+                  revokedAt: null,
+                },
+              });
+            }
+          }
+
+          if (user && user.role === "CLIENT" && sections.length > 0) {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { role: "ASTROLOGER" },
+            });
+          }
+        }
+      } catch {
+        isDbReachable = false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Revokes all active staff permissions for a given email.
+   */
+  static async revokeStaff(email: string, revokedByUserId?: string): Promise<boolean> {
+    if (!email) return false;
+    const normalized = email.trim().toLowerCase();
+
+    if (isOwnerEmail(normalized)) {
+      return false; // Cannot revoke owner
+    }
+
+    const now = new Date().toISOString();
+
+    // Mark in-memory revoked
+    let found = false;
+    for (const g of memoryGrants) {
+      if (g.email.toLowerCase() === normalized && !g.revokedAt) {
+        g.revokedAt = now;
+        g.revokedByUserId = revokedByUserId;
+        found = true;
+      }
+    }
+
+    if (isDbReachable) {
+      try {
+        if (prisma && (prisma as any).staffPermission) {
+          await prisma.staffPermission.updateMany({
+            where: { email: normalized, revokedAt: null },
+            data: { revokedAt: new Date(), revokedByUserId },
+          });
+        }
+      } catch {
+        isDbReachable = false;
+      }
+    }
+
+    return found || true;
   }
 }

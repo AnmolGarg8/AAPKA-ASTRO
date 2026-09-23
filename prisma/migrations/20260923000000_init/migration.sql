@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "UserRole" AS ENUM ('CLIENT', 'ASTROLOGER', 'ADMIN');
+CREATE TYPE "UserRole" AS ENUM ('CLIENT', 'ASTROLOGER', 'ADMIN', 'OWNER');
 
 -- CreateEnum
 CREATE TYPE "AstrologerPresenceStatus" AS ENUM ('AVAILABLE', 'BUSY', 'BREAK', 'OFFLINE');
@@ -24,6 +24,9 @@ CREATE TYPE "BlogPostStatus" AS ENUM ('DRAFT', 'PUBLISHED', 'ARCHIVED');
 
 -- CreateEnum
 CREATE TYPE "CouponType" AS ENUM ('PERCENTAGE', 'FLAT');
+
+-- CreateEnum
+CREATE TYPE "AccessLevel" AS ENUM ('VIEW', 'MANAGE');
 
 -- CreateTable
 CREATE TABLE "users" (
@@ -407,7 +410,12 @@ CREATE TABLE "staff_permissions" (
     "user_id" TEXT,
     "email" TEXT NOT NULL,
     "section" TEXT NOT NULL,
+    "access_level" "AccessLevel" NOT NULL DEFAULT 'MANAGE',
+    "granted_by_user_id" TEXT,
     "granted_by" TEXT,
+    "granted_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "revoked_at" TIMESTAMP(3),
+    "revoked_by_user_id" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -415,13 +423,16 @@ CREATE TABLE "staff_permissions" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "staff_permissions_email_section_key" ON "staff_permissions"("email", "section");
-
--- CreateIndex
 CREATE INDEX "staff_permissions_email_idx" ON "staff_permissions"("email");
 
 -- CreateIndex
 CREATE INDEX "staff_permissions_user_id_idx" ON "staff_permissions"("user_id");
+
+-- CreateIndex
+CREATE INDEX "staff_permissions_granted_by_user_id_idx" ON "staff_permissions"("granted_by_user_id");
+
+-- CreateIndex
+CREATE INDEX "staff_permissions_revoked_at_idx" ON "staff_permissions"("revoked_at");
 
 -- AddForeignKey
 ALTER TABLE "staff_permissions" ADD CONSTRAINT "staff_permissions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

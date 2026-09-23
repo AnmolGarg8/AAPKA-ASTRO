@@ -4,11 +4,14 @@ import {
   UserRole,
   isAstrologerRole,
   isAdminRole,
+  isOwnerRole,
   evaluateRouteAccess,
 } from "../src/lib/auth/roles";
+import { isOwnerEmail } from "../src/lib/auth/staffPermissions";
 import { getAuthFromRequest } from "../src/lib/auth/serverAuth";
 import { NextRequest } from "next/server";
 import { POST as presencePost } from "../src/app/api/astrologer/presence/route";
+import { GET as staffGet } from "../src/app/api/admin/staff/route";
 
 describe("Role-Based Access Control (RBAC) - Layer 1: UI Visibility Primitives", () => {
   test("anonymous visitor cannot qualify for astrologer or admin privilege", () => {
@@ -34,6 +37,14 @@ describe("Role-Based Access Control (RBAC) - Layer 1: UI Visibility Primitives",
     const role: UserRole = "ADMIN";
     assert.strictEqual(isAstrologerRole(role), true);
     assert.strictEqual(isAdminRole(role), true);
+    assert.strictEqual(isOwnerRole(role), false);
+  });
+
+  test("owner role ('OWNER') possesses all operator, admin, and owner privileges", () => {
+    const role: UserRole = "OWNER";
+    assert.strictEqual(isOwnerRole(role), true);
+    assert.strictEqual(isAdminRole(role), true);
+    assert.strictEqual(isAstrologerRole(role), true);
   });
 
   test("case insensitivity and whitespace resilience in role evaluation", () => {
@@ -42,6 +53,9 @@ describe("Role-Based Access Control (RBAC) - Layer 1: UI Visibility Primitives",
     assert.strictEqual(isAstrologerRole("client" as any), false);
     assert.strictEqual(isAdminRole("admin" as any), true);
     assert.strictEqual(isAdminRole("astrologer" as any), false);
+    assert.strictEqual(isOwnerRole("owner" as any), true);
+    assert.strictEqual(isOwnerRole("  OWNER  " as any), true);
+    assert.strictEqual(isOwnerRole("admin" as any), false);
   });
 });
 
@@ -253,3 +267,135 @@ describe("Role-Based Access Control (RBAC) - API Endpoint Role Gating", () => {
     assert.strictEqual(body.presence.status, "AVAILABLE");
   });
 });
+
+describe("Role-Based Access Control (RBAC) - Anti-Tamper & Owner Role Protection", () => {
+  test("non-owner account attempting to pass aapka_astro_role=OWNER cookie is strictly downgraded to CLIENT", () => {
+    const req = new NextRequest("http://localhost:3000/dashboard", {
+      headers: {
+        cookie: "aapka_astro_session=active; aapka_astro_role=OWNER; aapka_astro_email=attacker@malicious.com",
+      },
+    });
+
+    const auth = getAuthFromRequest(req);
+    assert.strictEqual(auth.isAuthenticated, true);
+    // Anti-tamper must strip OWNER and assign CLIENT
+    assert.strictEqual(auth.role, "CLIENT");
+    assert.strictEqual(auth.isOwner, false);
+    assert.strictEqual(auth.isAdmin, false);
+    assert.strictEqual(auth.isAstrologer, false);
+  });
+
+  test("non-owner passing mock user cookie with role='OWNER' is strictly downgraded to CLIENT", () => {
+    const forgedMockUser = {
+      id: "usr_attacker_666",
+      name: "Attacker",
+      email: "attacker@gmail.com",
+      role: "OWNER",
+    };
+
+    const req = new NextRequest("http://localhost:3000/dashboard", {
+      headers: {
+        cookie: `aapka_astro_mock_user=${encodeURIComponent(JSON.stringify(forgedMockUser))}`,
+      },
+    });
+
+    const auth = getAuthFromRequest(req);
+    assert.strictEqual(auth.isAuthenticated, true);
+    assert.strictEqual(auth.role, "CLIENT");
+    assert.strictEqual(auth.isOwner, false);
+    assert.strictEqual(auth.isAdmin, false);
+    assert.strictEqual(auth.isAstrologer, false);
+  });
+
+  test("unauthenticated or email-less user claiming OWNER is downgraded to CLIENT", () => {
+    const req = new NextRequest("http://localhost:3000/dashboard", {
+      headers: {
+        cookie: "aapka_astro_session=active; aapka_astro_role=OWNER",
+      },
+    });
+
+    const auth = getAuthFromRequest(req);
+    assert.strictEqual(auth.isAuthenticated, true);
+    assert.strictEqual(auth.role, "CLIENT");
+    assert.strictEqual(auth.isOwner, false);
+  });
+
+  test("authenticated user with OWNER_EMAIL is recognized as OWNER with isOwner=true", () => {
+    const ownerUser = {
+      id: "usr_owner_real",
+      name: "Anmol Garg",
+      email: "anmol@aapkaastro.com",
+      role: "CLIENT", // Even if client-side session initially said CLIENT
+    };
+
+    const req = new NextRequest("http://localhost:3000/dashboard", {
+      headers: {
+        cookie: `aapka_astro_mock_user=${encodeURIComponent(JSON.stringify(ownerUser))}`,
+      },
+    });
+
+    const auth = getAuthFromRequest(req);
+    assert.strictEqual(auth.isAuthenticated, true);
+    assert.strictEqual(auth.role, "OWNER");
+    assert.strictEqual(auth.isOwner, true);
+    assert.strictEqual(auth.isAdmin, true);
+    assert.strictEqual(auth.isAstrologer, true);
+    assert.ok(auth.permissions.length > 0);
+  });
+
+  test("non-owner attempting to access /api/admin/staff with forged OWNER cookie receives 403 Forbidden", async () => {
+    const req = new NextRequest("http://localhost:3000/api/admin/staff", {
+      headers: {
+        cookie: "aapka_astro_session=active; aapka_astro_role=OWNER; aapka_astro_email=attacker@malicious.com",
+      },
+    });
+
+    const res = await staffGet(req);
+    assert.strictEqual(res.status, 403);
+    const body = await res.json();
+    assert.strictEqual(body.success, false);
+    assert.match(body.message, /Forbidden.*Owner/i);
+  });
+
+  test("admin role without owner email is denied access to /admin/staff in route evaluation", () => {
+    const routeAccess = evaluateRouteAccess(
+      "/admin/staff",
+      "ADMIN",
+      true,
+      [],
+      "generaladmin@vendor.com"
+    );
+    assert.strictEqual(routeAccess.allowed, false);
+    if (!routeAccess.allowed) {
+      assert.strictEqual(routeAccess.redirectUrl, "/dashboard");
+      assert.match(routeAccess.reason, /Owner privilege strictly required/i);
+    }
+  });
+
+  test("owner account has unrestricted route access across /admin/staff, /admin/pricing, /dashboard, and /account", () => {
+    const routes = [
+      "/admin/staff",
+      "/admin/pricing",
+      "/admin/analytics",
+      "/dashboard",
+      "/dashboard/blog",
+      "/dashboard/reels",
+      "/dashboard/clients",
+      "/dashboard/earnings",
+      "/astrologer",
+      "/account",
+    ];
+
+    for (const route of routes) {
+      const access = evaluateRouteAccess(
+        route,
+        "OWNER",
+        true,
+        [],
+        "anmol@aapkaastro.com"
+      );
+      assert.strictEqual(access.allowed, true, `Owner must have access to ${route}`);
+    }
+  });
+});
+

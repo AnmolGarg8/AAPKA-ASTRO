@@ -13,8 +13,10 @@ export default async function DashboardLayout({
     redirect("/login?redirect_url=/dashboard");
   }
 
-  // Operator Cockpit strictly requires ASTROLOGER or ADMIN role
-  if (!auth.isAstrologer) {
+  // Operator Cockpit & Desks require Owner status or at least one active staff section permission
+  const hasAccess = auth.isOwner || auth.permissions.length > 0 || auth.role === "ASTROLOGER";
+
+  if (!hasAccess) {
     redirect("/account");
   }
 

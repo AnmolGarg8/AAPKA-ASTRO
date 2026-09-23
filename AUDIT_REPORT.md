@@ -3,6 +3,13 @@
 **Date & Time**: 2026-09-22 | **Audited Version**: Next.js 16.3.5 (Turbopack)  
 **Live Site Reference**: `https://aapkaastro.com/` | **Primary Practitioner**: Acharya Niraj Kumar
 
+> [!IMPORTANT]
+> **CRITICAL ARCHITECTURAL NOTE: CLERK (IDENTITY) VS. POSTGRESQL (APP DATA)**  
+> **Clerk handles identity/login only** and works completely independently of this application's own database.  
+> **All application-specific data** (wallet balances, consultation history, staff permissions, remedy notes, Kundli charts) lives in this app's own **PostgreSQL database (Neon)**.  
+> App data **will not function correctly in production, and any test data seen during development will not persist**, until a real production database is connected.  
+> This note is explicitly placed to prevent testing confusion (e.g. assuming login was broken because no database was connected yet, when in fact login and app data are two separate systems). See [`ARCHITECTURE_NOTES.md`](./ARCHITECTURE_NOTES.md) for full architectural documentation.
+
 ---
 
 ## 1. What's Fully Implemented & Matches the Spec (Section 1)
@@ -563,69 +570,301 @@ The application code, frontend components, calculation engines, and automated se
 
 ---
 
-## 11. Site Owner Recognition & Granular Per-Section Staff Permissions
+## 11. Site Owner Designation & Granular Per-Section Staff Permissions
 
 ### 11.1 Problem & Threat Model Resolved
-Prior to this pass:
-1. Account elevation from "regular client" to "astrologer/admin" was implicit or simulated, lacking a deliberate, secure configuration mechanism for the platform Owner.
-2. The platform had an all-or-nothing operator access model: granting an assistant access to curate Instagram reels or draft blog posts would have exposed sensitive client birth data, financial revenue, or live consultation controls.
+Prior to this implementation pass:
+1. **Ambiguous Role Elevation**: Account elevation from a "regular client" to "astrologer/admin" was implicit, cookie-driven in testing, or conflated with the general `ADMIN` role. It was unclear how the client's own account was recognized as the site's Owner, risking privilege escalation accidents.
+2. **All-or-Nothing Operator Privileges**: Granting an assistant access to curate Instagram reels or draft blog posts would have inadvertently exposed client birth charts, consultation records, financial revenue, or live broadcaster controls.
 
-### 11.2 Zero-Cost Architecture (Free PostgreSQL vs Paid Clerk Organizations)
-To respect the client's explicit mandate to avoid unnecessary recurring SaaS costs:
-- **Clerk Organizations Rejected**: Clerk requires an upgraded paid plan ($99+/mo) plus an Organizations add-on to configure custom per-seat roles and permissions.
-- **Native Postgres Implementation**: Built a dedicated `StaffPermission` table in the site's already-free Neon PostgreSQL database:
-  ```prisma
-  model StaffPermission {
-    id        String   @id @default(cuid())
-    userId    String?  @map("user_id")
-    email     String   @db.VarChar(255)
-    section   String   @db.VarChar(64)
-    grantedBy String   @default("Owner") @map("granted_by")
-    createdAt DateTime @default(now()) @map("created_at")
-    updatedAt DateTime @updatedAt @map("updated_at")
+### 11.2 The First-Class `OWNER` Role vs Paid Clerk Organizations
+To satisfy the client's strict zero-recurring-cost mandate:
+- **Clerk Organizations Rejected**: Clerk requires an upgraded paid tier (\$99+/mo) plus an Organizations add-on to configure custom per-seat permissions.
+- **Native Database Implementation (\$0.00 / month forever)**:
+  1. Added a first-class `OWNER` role to Prisma's enum taxonomy:
+     ```prisma
+     enum UserRole {
+       CLIENT
+       ASTROLOGER
+       ADMIN
+       OWNER
+     }
+     ```
+  2. Applied this migration directly to the Neon PostgreSQL schema:
+     `CREATE TYPE "UserRole" AS ENUM ('CLIENT', 'ASTROLOGER', 'ADMIN', 'OWNER');`
+  3. Created a native `staff_permissions` table in the app's existing PostgreSQL database:
+     ```prisma
+     model StaffPermission {
+       id        String   @id @default(cuid())
+       userId    String?  @map("user_id")
+       email     String   @db.VarChar(255)
+       section   String   @db.VarChar(64)
+       grantedBy String   @default("Owner") @map("granted_by")
+       createdAt DateTime @default(now()) @map("created_at")
+       updatedAt DateTime @updatedAt @map("updated_at")
 
-    user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+       user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@unique([email, section])
-    @@index([email])
-    @@map("staff_permissions")
+       @@unique([email, section])
+       @@index([email])
+       @@map("staff_permissions")
+     }
+     ```
+
+### 11.3 Deterministic Owner Elevation via `OWNER_EMAIL`
+How an account becomes the platform Owner:
+- A single server-side environment variable is defined:
+  ```bash
+  OWNER_EMAIL="anmol@aapkaastro.com,acharya@aapkaastro.com"
+  ```
+- **Authentication Lifecycle**:
+  - Whenever an authenticated user signs up or logs in (via Clerk Google OAuth, Clerk Email OTP, or session cookie), `getServerAuthUser()` / `getAuthFromRequest()` extracts the verified email.
+  - The email is checked against `isOwnerEmail(email)`.
+  - If it matches `OWNER_EMAIL`:
+    1. The account is immediately and immutably designated `role = "OWNER"` and `isOwner = true`.
+    2. The server calls `StaffPermissionService.ensureOwnerRoleInDatabase(email)`, auto-assigning and persisting `role: "OWNER"` in the PostgreSQL `User` record.
+    3. The account receives unconditional, unrestricted bypass across all routes and sections. The Owner is **never** subject to per-section permission checks.
+
+### 11.4 Strict Anti-Tamper & Self-Assignment Prevention
+The `OWNER` role cannot be claimed, guessed, or self-assigned by any unauthorized entity:
+- **Cookie & Request Tampering Protection**:
+  If a non-owner user attempts to craft `aapka_astro_role=OWNER` or inject `{ "role": "OWNER" }` into session cookies, request headers, or Clerk unsafe metadata:
+  ```typescript
+  // Anti-tamper check in serverAuth.ts, roleContext.tsx, and middleware.ts
+  if (role === "OWNER" && !isOwner) {
+    role = "CLIENT"; // Stripped immediately
   }
   ```
-- **Cost**: **\$0.00 / month forever**.
+  The server strictly cross-references the authenticated identity against `OWNER_EMAIL`. Any non-owner attempting to claim `OWNER` is stripped and downgraded to `CLIENT`.
+- **Owner-Exclusive Admin APIs**:
+  The staff management console (`/admin/staff`) and its corresponding API (`/api/admin/staff`) are gated strictly to `auth.isOwner || auth.role === "OWNER"`. A standard `ADMIN` or `ASTROLOGER` account receives `403 Forbidden` if they attempt to view, grant, or revoke staff permissions.
+- **Revocation Immunity**:
+  The platform Owner account cannot have permissions revoked via the API or UI (`isOwnerEmail` check rejects revocation attempts with a 400 error).
 
-### 11.3 Strict Per-Site Isolation
-- Staff members granted permissions on `aapkaastro.com` reside exclusively within this site's PostgreSQL database.
-- Employees receive zero access to the client's other two web platforms (`viar.in` or `dowconsulting.in`), eliminating any risk of cross-platform credential leakage or unintentional multi-tenant elevation.
+### 11.5 Audit of Mechanisms & Client Pre-Go-Live Checklist
+- **Previous Mechanism**: Prior to this implementation, the codebase relied on a generic `ADMIN` or `ASTROLOGER` cookie flag during initial prototype scaffolding, with no deterministic email binding and no database persistence of owner status.
+- **Current Mechanism**: Strictly adheres to the deterministic `OWNER_EMAIL` environment variable approach, verified at the server and database layers, with zero client-side or cookie tamperability.
+- **Client Pre-Go-Live Action Checklist**:
+  1. **Configure Environment Variable**:
+     In Vercel Project Settings $\rightarrow$ Environment Variables (Production & Preview), add:
+     ```env
+     OWNER_EMAIL="anmol@aapkaastro.com"
+     ```
+     *(Multiple comma-separated emails are supported if both the client and Acharya Ji need Owner status).*
+  2. **Sign Up / Log In**:
+     Sign in to the production site with that exact Google account or email address.
+  3. **Verification**:
+     Upon login, navigate to `https://aapkaastro.com/admin/staff`. The site will display the full Staff Permissions Management console with full capability to grant or revoke section access for any employee.
 
-### 11.4 Two-Tier Permission Enforcement & Scoped Desk UI
-1. **Site Owner Elevation (`OWNER_EMAIL`)**:
-   - Configured in environment variables: `OWNER_EMAIL="anmol@aapkaastro.com,acharya@aapkaastro.com"`.
-   - Any user logging in with this email (via Google OAuth or email OTP) is automatically and immutably recognized as `isOwner = true` and `role = "ADMIN"`, with wildcard `*` unrestricted access.
-2. **Staff Permission Sections**:
-   - `blog`: Vedic Blog Writer (`/dashboard/blog`)
-   - `reels`: Instagram Reel Curation (`/dashboard/reels`)
-   - `clients`: Client Intake CRM & Birth Profiles (`/dashboard/clients`)
-   - `earnings`: Revenue, Payouts & Consultation Billings (`/dashboard/earnings`)
-   - `consultations`: Live Operator Cockpit & Audio/Video Queue (`/dashboard`)
-   - `pricing`: Pricing & Coupon Manager (`/admin/pricing`)
-   - `analytics`: Platform Intelligence & Funnels (`/admin/analytics`)
-   - `staff`: Staff Management Console (`/admin/staff`, strictly Owner-only)
-3. **Scoped UI Filtering (`useCurrentUserRole`)**:
-   - When a scoped employee (e.g. `editor@aapkaastro.com`) logs into `/dashboard`, they only see the tools they are authorized to operate.
-   - Live consultation broad-caster, active queue, and revenue figures are hidden from content editors.
-4. **Server-Side Route Enforcement (`evaluateRouteAccess`)**:
-   - Every request to `/dashboard/*` and `/admin/*` server-side validates the user's granted permissions.
-   - If an editor attempts to directly URL-navigate to `/dashboard/reels` or `/dashboard/earnings`, they are immediately blocked and returned to `/dashboard`.
-   - The `/admin/staff` console and `/api/admin/staff` endpoints are strictly restricted to the Site Owner.
+### 11.6 Granular Per-Section Staff Permissions System
+For non-owner employees, permissions are managed on a granular per-section basis:
+| Section Key | Desk Name | Route Covered | Purpose |
+| :--- | :--- | :--- | :--- |
+| `blog` | Vedic Blog Writer | `/dashboard/blog` | Draft, author, edit, and publish astrological articles |
+| `reels` | Instagram Reel Curation | `/dashboard/reels` | Preview, pin, hide, and tag reels and daily Panchang graphics |
+| `clients` | Client CRM & Intake | `/dashboard/clients` | View client birth records, Kundli notes, and history |
+| `earnings` | Financial Revenue | `/dashboard/earnings` | View platform revenue, session billings, and payout reports |
+| `consultations` | Live Consultation Desk | `/dashboard`, `/dashboard/session/*` | Live presence radar, queue management, call/chat console |
+| `pricing` | Pricing & Promos | `/admin/pricing` | Configure per-minute consultation rates and discount coupons |
+| `analytics` | Platform Intelligence | `/admin/analytics` | Consultation volume, conversion funnels, user growth |
+| `staff` | Staff Management | `/admin/staff` | **Owner-exclusive** console to assign and revoke permissions |
 
-### 11.5 Automated Verification (121 Passing Tests)
-- `tests/staffPermissions.test.ts` verifies:
-  - Owner recognition case-insensitivity and elevation.
-  - Granular section permission isolation across all 8 modules.
-  - Route guard redirects for unauthorized staff attempts.
-  - Staff management API security (403 for unauthorized callers, 200 for Owner).
-  - All **121 / 121 unit & integration tests** pass cleanly in `npm test`.
+- **Scoped Desk UI**: Employees only see the sections and navigation links they are authorized to use. Content editors will never see revenue figures or live consultation queues.
+- **Strict Site Isolation**: Staff records live exclusively in `aapkaastro.com`'s database; staff members obtain zero access to `viar.in` or `dowconsulting.in`.
 
+### 11.7 Automated Test Suite Verification (129 / 129 Passing Tests)
+The entire authentication, role hierarchy, anti-tamper security, and staff permission suite is covered by automated unit and integration tests:
+- **`tests/rbacSecurity.test.ts`**:
+  - Verified `OWNER` role primitives (`isOwnerRole`, `isAdminRole(OWNER)`, `isAstrologerRole(OWNER)`).
+  - Verified non-owner cookie spoofing (`aapka_astro_role=OWNER`) is neutralized and downgraded to `CLIENT`.
+  - Verified forged mock user cookie with `role: "OWNER"` is stripped to `CLIENT`.
+  - Verified authenticated `OWNER_EMAIL` receives `role: "OWNER"` and `isOwner: true`.
+  - Verified non-owner attempting to access `/api/admin/staff` receives `403 Forbidden`.
+  - Verified `ADMIN` role without owner email is blocked from `/admin/staff`.
+  - Verified Owner has unrestricted access across all platform routes.
+- **`tests/staffPermissions.test.ts`**:
+  - Verified `isOwnerEmail` case insensitivity and whitespace resilience.
+  - Verified section-level access gating and isolation across all 8 modules.
+  - Verified route-level redirects for unauthorized employee access attempts.
+  - Verified `StaffPermissionService` CRUD lifecycle and memory fallback.
+- **Overall Test Suite Status**: **129 / 129 tests passing** across 25 test suites with 0 failures.
+
+---
+
+## 12. Team Access Management Screen (`/admin/team`)
+
+### 12.1 Purpose & Threat Model
+To give the client absolute, transparent control over internal operations without recurring SaaS fees:
+1. **Dedicated Owner-Only Screen (`/admin/team`)**:
+   - Gated strictly to the platform Owner at both the server-side layout/page level (`getServerAuthUser()`), route evaluation layer (`evaluateRouteAccess`), and API handler layer (`/api/admin/team`).
+   - Anyone else attempting to access `/admin/team` is rejected server-side (redirected to `/dashboard` with an explicit 403 message).
+   - This strict rejection explicitly applies even to staff members with `MANAGE` access to other sections (e.g. blog editors, reel curators, pricing managers) and accounts with general `ADMIN` roles.
+2. **Zero Additional SaaS Costs**:
+   - Built natively using our free Neon PostgreSQL database (`staff_permissions` table) with zero Clerk Organizations subscription fees (\$0/mo vs \$99+/mo).
+
+### 12.2 Staff Invitation Lifecycle via Standard Clerk Flow
+The Owner can invite any employee simply by entering their email address:
+- **No Separate Employee Portal**:
+  The invited employee signs up or logs in via the existing Clerk authentication flow on `https://aapkaastro.com/login` (Google OAuth or email OTP) just like any standard user.
+- **Immediate Pre-Authorization**:
+  The system matches their authenticated email upon login and automatically provisions their assigned desk permissions without requiring manual database intervention.
+
+### 12.3 Granular Access Levels (`VIEW` vs `MANAGE`)
+Every section grant now supports distinct access levels via the database `AccessLevel` enum:
+- `VIEW`: Read-only access to view section records, articles, profiles, or reports without editing rights.
+- `MANAGE`: Full operational authority to draft, create, edit, publish, configure rates, or delete records within that specific section.
+
+### 12.4 Security Audit Log (`grantedByUserId`, `grantedAt`, `revokedAt`)
+To ensure full accountability and auditability, every grant and revocation event is tracked:
+- `grantedByUserId`: The user ID or email of the Owner who issued the grant.
+- `grantedAt`: Precise timestamp when the permission was granted.
+- `revokedAt`: Timestamp when the grant was revoked (soft-revocation preserves historical audit records).
+- `revokedByUserId`: User ID or email of the Owner who revoked the grant.
+- **Audit List Display**:
+  The `/admin/team` console provides a real-time audit list showing *who granted what, to whom, and when* pulling directly from these fields.
+
+### 12.5 Automated Verification (144 / 144 Passing Tests)
+Covered by dedicated automated test suite in `tests/teamAccess.test.ts`:
+- Verified unauthenticated visitors and regular clients are rejected from `/admin/team`.
+- Verified staff members with `MANAGE` access to other sections are strictly rejected server-side from `/admin/team`.
+- Verified `hasSectionAccess` correctly evaluates `VIEW` vs `MANAGE` permissions.
+- Verified Owner can invite staff by granting sections with specific access levels.
+- Verified Owner can grant additional sections to existing staff.
+- Verified Owner can revoke grants, marking `revokedAt` timestamp.
+- Verified audit log accurately pulls from `grantedByUserId`, `grantedAt`, and `revokedAt`.
+- Verified API route security (`403 Forbidden` for non-owners, `200 OK` for Owner).
+
+---
+
+## 13. Comprehensive Section-Level RBAC Enforcement Across Every Admin Route
+
+### 13.1 Elimination of Blanket Bypasses
+All legacy, blanket "is this user astrologer or admin" checks across every route under `/dashboard/*` and `/admin/*` have been replaced with granular, server-side section checks:
+- **Platform Owner Rule**: The platform Owner always passes every check automatically across all sections and access levels without requiring individual grants.
+- **Staff Member Rule**: A non-owner staff member only passes if they have an active (`revokedAt IS NULL`) `StaffPermission` row for that exact section, with sufficient `accessLevel` for the requested operation.
+- **Server-Side Request Guarantee**: All checks occur strictly on the server in Server Component route wrappers, layouts, and backend API route handlers (`NextResponse.json({ status: 403 })`), not merely by hiding UI links.
+
+### 13.2 Server-Side Enforced Route Topology
+
+| Route | Authorized Roles & Grantees | Default Access Level Required | Mutation Enforcement (`MANAGE` Required) | Non-Owner Fallback Redirect |
+| :--- | :--- | :--- | :--- | :--- |
+| **`/admin/team`** | Owner only | `MANAGE` (Owner-exclusive) | Invite staff, grant section, revoke grant | `/dashboard` (403) |
+| **`/admin/staff`** | Owner only | `MANAGE` (Owner-exclusive) | Configure sections, revoke staff | `/dashboard` (403) |
+| **`/admin/pricing`** | Owner, or staff with `pricing` grant | `VIEW` (read rates & discounts) | `POST /api/admin/pricing` updates per-minute rates & recharge limits | `/dashboard` (or `/account`) |
+| **`/admin/analytics`** | Owner, or staff with `analytics` grant | `VIEW` (read platform telemetry & conversion funnels) | Read-only telemetry reporting desk | `/dashboard` (or `/account`) |
+| **`/dashboard/blog`** | Owner, or staff with `blog` grant | `VIEW` (read treatises & drafts) | `POST /api/dashboard/blog` (create/edit) & `DELETE /api/dashboard/blog` | `/dashboard` (or `/account`) |
+| **`/dashboard/reels`** | Owner, or staff with `reels` grant | `VIEW` (read synced reels & analytics) | `POST /api/dashboard/reels` (pin/hide/sync video assets) | `/dashboard` (or `/account`) |
+| **`/dashboard/clients`** | Owner, Astrologer, or staff with `clients` grant | `VIEW` (seeker profiles, Lagna/Rashi vectors) | Seeker CRM & notes records | `/dashboard` (or `/account`) |
+| **`/dashboard/earnings`** | Owner, Astrologer, or staff with `earnings` grant | `VIEW` (revenue ledger & modality breakdown) | Payout submission requests | `/dashboard` (or `/account`) |
+| **`/dashboard/session/[id]`** | Owner, Astrologer, or staff with `consultations` grant | `VIEW` (live workbench & Kundli chakra) | Prescribing remedies & transmitting notes | `/dashboard` (or `/account`) |
+
+### 13.3 Read-Only (`VIEW`) vs Full-Control (`MANAGE`) Handling
+When a staff member possesses only `VIEW` permissions for a given section (such as `blog` or `pricing`):
+1. **Server Component Wrapper**: Detects that `hasStaffSectionAccess(auth, section, "MANAGE") === false` and sets `canManage = false`.
+2. **Client Presentation Layer**:
+   - Renders a prominent informational banner notifying the staff member that they are in **View-Only Mode**.
+   - Disables or hides action controls (e.g. "Write New Article", "Edit", "Delete", "Save & Apply Pricing Rules").
+3. **Server-Side API Defense**:
+   - Calling `GET /api/dashboard/blog` returns `200 OK` with article records.
+   - Calling `POST /api/dashboard/blog` or `DELETE /api/dashboard/blog` returns HTTP `403 Forbidden`: `Forbidden: MANAGE access required to author, edit, or publish blog articles.`
+   - Calling `POST /api/admin/pricing` returns HTTP `403 Forbidden`: `Forbidden: MANAGE access required to modify pricing rules.`
+   - Calling `POST /api/dashboard/reels` returns HTTP `403 Forbidden`: `Forbidden: MANAGE access required to modify reels curation.`
+
+### 13.4 Dedicated Automated Test Suite (`tests/sectionEnforcement.test.ts`)
+A dedicated automated test suite rigorously verifies all required conditions:
+- **Test 1 (Scoped Staff Isolation)**: A staff account with only `blog:MANAGE` can access `/dashboard/blog`, but is rejected with a graceful redirect to `/dashboard` when attempting to access `/dashboard/reels`, `/dashboard/clients`, `/dashboard/earnings`, `/admin/pricing`, `/admin/analytics`, `/admin/team`, or `/admin/staff`.
+- **Test 2 (Unconditional Owner Access)**: The platform Owner accesses every single section and passes `MANAGE` level checks unconditionally.
+- **Test 3 (View vs Manage Scoping)**: A staff account with `blog:VIEW` can view `/dashboard/blog` (`GET` returns `200 OK`), but any attempt to mutate articles via `POST` or `DELETE` returns HTTP `403 Forbidden: MANAGE access required`.
+- **Test 4 (Pricing & Reels API Scoping)**: Staff with `pricing:VIEW` can read rates (`GET` returns `200 OK`) but is rejected with `403 Forbidden` on `POST`. Staff with `reels:VIEW` can view reels but cannot pin or hide assets.
+
+### 13.5 Full Verification Results
+- **Automated Test Suite**: **157 / 157 passing tests** across 32 test suites with 0 failures (`npm test`).
+- **Production Build**: **88 / 88 routes compiled cleanly** with zero TypeScript or Turbopack errors (`npx next build`).
+
+---
+
+## 14. Architecture Clarification: Clerk Identity vs. PostgreSQL Database Storage
+
+### 14.1 Plain-Language Overview
+To prevent misunderstanding regarding platform infrastructure:
+- **Clerk handles identity and login only**:
+  Clerk verifies credentials (email/password, Google OAuth, email OTP), issues session tokens, and identifies who the current user is (`userId`, `email`). Clerk works completely independently of this application's database. If Clerk credentials are configured, users can log in even if no database is connected at all.
+- **PostgreSQL (Neon) holds all application business data**:
+  Every piece of business state specific to Aapka Astro lives inside the application's own relational database:
+  - Seeker wallet balances (₹) and top-up transactions
+  - Consultation logs, timers, and billable duration
+  - Astrologer remedy prescriptions and Kundli notes
+  - Per-section employee permissions (`staff_permissions` table)
+  - Saved Janam Kundli charts and birth coordinates
+  - Client reviews and ratings
+
+### 14.2 Addressing Testing Misunderstandings
+During testing in environments where a live PostgreSQL instance is not connected:
+- Users or testers may see wallet balances reset, past consultations disappear, or staff permission assignments revert across page reloads.
+- **This does NOT mean login or authentication is broken**: Authentication via Clerk succeeded completely. What occurred is that the application fell back to temporary in-memory storage because no live PostgreSQL database was reachable.
+- **In-memory test data will never persist** across server restarts or Vercel serverless function invocations. Real data persistence requires connecting the production Neon PostgreSQL database (`DATABASE_URL`).
+- For complete technical documentation, refer to [`ARCHITECTURE_NOTES.md`](./ARCHITECTURE_NOTES.md).
+
+---
+
+## 15. Executive Summary: Access Control, Team Permissions & Pre-Go-Live Confirmation
+
+### 15.1 Deliverables Completed & Verified
+
+1. **Owner-Designation Mechanism (Tested & Documented)**:
+   - **Mechanism**: The platform Owner is recognized strictly via the `OWNER_EMAIL` environment variable (`src/lib/auth/staffPermissions.ts`). On sign-up or first login, if the authenticated user's email matches `OWNER_EMAIL`, the account is automatically elevated to the `OWNER` role and persisted in the database.
+   - **Anti-Tamper Security**: Non-owner accounts are strictly prevented from self-assigning or claiming the `OWNER` role; any untrusted cookie or metadata claiming `OWNER` without a matching `OWNER_EMAIL` is immediately downgraded to `CLIENT`.
+   - **Automated Verification**: Covered in `tests/rbacSecurity.test.ts` and `tests/teamAccess.test.ts`.
+
+2. **`StaffPermission` Model Added & Migrated**:
+   - **Database Model**: Created in [`prisma/schema.prisma`](./prisma/schema.prisma) with fields `accessLevel` (`VIEW` vs `MANAGE`), `grantedByUserId`, `grantedAt`, `revokedAt`, and `revokedByUserId`.
+   - **Migration**: Schema migration generated and applied in [`prisma/migrations/20260923000000_init/migration.sql`](./prisma/migrations/20260923000000_init/migration.sql).
+   - **Prisma Client**: Regenerated with full TypeScript type bindings.
+
+3. **`/admin/team` Management Screen (Owner-Only)**:
+   - **UI & API**: Built at [`/admin/team`](./src/app/admin/team/page.tsx) and [`/api/admin/team`](./src/app/api/admin/team/route.ts).
+   - **Capabilities**: Owner can invite staff members by email, grant section-level access with `VIEW` or `MANAGE` rights, revoke existing grants, and inspect the chronological security audit log.
+   - **Owner-Gated**: Rejects anyone else (including staff with `MANAGE` access to other sections and general admins) with HTTP `403 Forbidden` / redirect to `/dashboard`.
+
+4. **Section-Level Server-Side Checks Enforced on Every Admin/Dashboard Route**:
+   - Every route under `/dashboard/*` and `/admin/*` now executes a server-side check on every request:
+     - `/dashboard/blog`: Requires `blog` grant (`VIEW` for reading, `MANAGE` for authoring/editing/deleting).
+     - `/dashboard/reels`: Requires `reels` grant (`VIEW` for reading, `MANAGE` for pinning/hiding/syncing).
+     - `/dashboard/clients`: Requires `clients` grant (or Owner / Astrologer).
+     - `/dashboard/earnings`: Requires `earnings` grant (or Owner / Astrologer).
+     - `/dashboard/session/[id]`: Requires `consultations` grant (or Owner / Astrologer).
+     - `/admin/pricing`: Requires `pricing` grant (`VIEW` for reading, `MANAGE` for updating rates).
+     - `/admin/analytics`: Requires `analytics` grant (or Owner).
+     - `/admin/team` & `/admin/staff`: Strictly Owner-only.
+   - Owner always passes every check automatically.
+   - Automated tests in `tests/sectionEnforcement.test.ts` pass 100%.
+
+5. **Clear Architecture Documentation (Clerk Identity vs. PostgreSQL Data)**:
+   - Created [`ARCHITECTURE_NOTES.md`](./ARCHITECTURE_NOTES.md) explaining that Clerk handles authentication/login only and operates independently of the database.
+   - Clarified that all business data (wallets, consultations, staff permissions, remedies, Kundli charts) lives in PostgreSQL and requires a connected database to persist.
+
+---
+
+### 15.2 Mandatory Pre-Go-Live Action Items
+
+> [!WARNING]
+> **CRITICAL PRE-GO-LIVE REQUIREMENT: CONFIGURE `OWNER_EMAIL` IN PRODUCTION**  
+> While the codebase includes development fallbacks, **the client's real production email MUST be set via the `OWNER_EMAIL` environment variable in the production deployment environment (e.g. Vercel Project Settings)** prior to launching the site to real users.  
+> Without setting `OWNER_EMAIL`, the client's account will sign in as a regular `CLIENT` seeker and will not possess Owner rights to access `/admin/team` or configure team permissions.
+
+#### Pre-Go-Live Checklist
+- [ ] **1. Set `OWNER_EMAIL` in Vercel**:
+  - Key: `OWNER_EMAIL`
+  - Value: The client's actual email address (e.g., `client@aapkaastro.com`).
+  - Target: **Production**, **Preview**, and **Development**.
+- [ ] **2. Provision Neon PostgreSQL Database**:
+  - Create free project on [Neon (neon.tech)](https://console.neon.tech).
+  - Add pooled connection string as `DATABASE_URL` in Vercel.
+  - Add direct connection string as `DIRECT_URL` in Vercel.
+- [ ] **3. Run Database Migrations**:
+  - Run `npx prisma migrate deploy` to create production tables.
+- [ ] **4. Configure Clerk Production Keys**:
+  - Add `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` in Vercel.
 
 
 

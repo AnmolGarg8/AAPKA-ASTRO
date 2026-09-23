@@ -20,6 +20,7 @@ enum UserRole {
   CLIENT
   ASTROLOGER
   ADMIN
+  OWNER
 }
 
 enum AstrologerPresenceStatus {
@@ -69,6 +70,11 @@ enum BlogPostStatus {
 enum CouponType {
   PERCENTAGE
   FIXED
+}
+
+enum AccessLevel {
+  VIEW
+  MANAGE
 }
 
 // ------------------------------------------------------------------------------
@@ -352,18 +358,24 @@ model Coupon {
 // 13. StaffPermission (per-site, per-section granular staff access controls)
 // ------------------------------------------------------------------------------
 model StaffPermission {
-  id        String   @id @default(cuid())
-  userId    String?  @map("user_id")
-  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  email     String
-  section   String   // "blog" | "reels" | "clients" | "earnings" | "consultations" | "pricing" | "analytics" | "staff" | "*"
-  grantedBy String?  @map("granted_by")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id              String      @id @default(cuid())
+  userId          String?     @map("user_id")
+  user            User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  email           String
+  section         String      // "blog" | "reels" | "clients" | "earnings" | "consultations" | "pricing" | "analytics" | "staff" | "*"
+  accessLevel     AccessLevel @default(MANAGE) @map("access_level")
+  grantedByUserId String?     @map("granted_by_user_id")
+  grantedBy       String?     @map("granted_by")
+  grantedAt       DateTime    @default(now()) @map("granted_at")
+  revokedAt       DateTime?   @map("revoked_at")
+  revokedByUserId String?     @map("revoked_by_user_id")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
 
-  @@unique([email, section])
   @@index([email])
   @@index([userId])
+  @@index([grantedByUserId])
+  @@index([revokedAt])
   @@map("staff_permissions")
 }
 
