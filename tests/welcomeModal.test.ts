@@ -4,6 +4,10 @@ import fs from "node:fs";
 import path from "node:path";
 import {
   WELCOME_MODAL_STORAGE_KEY,
+  WELCOME_MODAL_SESSION_KEY,
+  WELCOME_MODAL_COOKIE_NAME,
+  isRouteExcludedFromWelcomeModal,
+  isUserInActiveSessionOrConsultation,
 } from "../src/components/home/WelcomeConsultationModal";
 import {
   PLACEHOLDER_ASTROLOGER,
@@ -18,11 +22,11 @@ describe("Welcome Consultation Modal Policy & Content Compliance", () => {
   );
   const modalCode = fs.readFileSync(modalFilePath, "utf8");
 
-  const homePageFilePath = path.join(
+  const layoutFilePath = path.join(
     process.cwd(),
-    "src/app/page.tsx"
+    "src/app/layout.tsx"
   );
-  const homePageCode = fs.readFileSync(homePageFilePath, "utf8");
+  const layoutCode = fs.readFileSync(layoutFilePath, "utf8");
 
   test("headline strictly adheres to client policy: 50% Off First Consultation (no free claims)", () => {
     // 1. Headline must state 50% Off Your First Consultation
@@ -228,31 +232,148 @@ describe("Welcome Consultation Modal Policy & Content Compliance", () => {
       ADMIN_CONFIGURABLE_PRICING.voice.ratePerMinute * 0.5
     );
   });
+});
 
-  test("persists dismissal in localStorage to avoid recurring intrusive popups", () => {
+describe("Welcome Consultation Modal Behavioral Controls", () => {
+  const modalFilePath = path.join(
+    process.cwd(),
+    "src/components/home/WelcomeConsultationModal.tsx"
+  );
+  const modalCode = fs.readFileSync(modalFilePath, "utf8");
+
+  const layoutFilePath = path.join(
+    process.cwd(),
+    "src/app/layout.tsx"
+  );
+  const layoutCode = fs.readFileSync(layoutFilePath, "utf8");
+
+  test("enforces once per visitor per session using sessionStorage & session cookie flags", () => {
     assert.equal(WELCOME_MODAL_STORAGE_KEY, "aapka_welcome_modal_dismissed");
+    assert.equal(WELCOME_MODAL_SESSION_KEY, "aapka_welcome_modal_session_seen");
+    assert.equal(WELCOME_MODAL_COOKIE_NAME, "aapka_welcome_seen");
+
+    // Checks session storage and session cookie before opening
     assert.match(
       modalCode,
-      /localStorage\.setItem\(WELCOME_MODAL_STORAGE_KEY,\s*"true"\)/,
-      "Must save dismissal flag to localStorage"
+      /sessionStorage\.getItem\(WELCOME_MODAL_SESSION_KEY\)/,
+      "Must check sessionStorage before triggering modal"
     );
     assert.match(
       modalCode,
-      /localStorage\.getItem\(WELCOME_MODAL_STORAGE_KEY\)/,
-      "Must check localStorage before auto-triggering"
+      /document\.cookie/,
+      "Must check session cookie to prevent reappearance on page navigations"
+    );
+
+    // Sets session flags when triggered
+    assert.match(
+      modalCode,
+      /sessionStorage\.setItem\(WELCOME_MODAL_SESSION_KEY,\s*"true"\)/,
+      "Must flag session as seen so it does not reappear on page navigations"
     );
   });
 
-  test("is mounted on HomePage (src/app/page.tsx)", () => {
+  test("strictly suppresses on /dashboard/* and /admin/* routes", () => {
+    // Operating console routes for staff and owner must be rejected
+    assert.equal(isRouteExcludedFromWelcomeModal("/dashboard"), true);
+    assert.equal(isRouteExcludedFromWelcomeModal("/dashboard/blog"), true);
+    assert.equal(isRouteExcludedFromWelcomeModal("/dashboard/reels"), true);
+    assert.equal(isRouteExcludedFromWelcomeModal("/admin"), true);
+    assert.equal(isRouteExcludedFromWelcomeModal("/admin/pricing"), true);
+    assert.equal(isRouteExcludedFromWelcomeModal("/admin/team"), true);
+    assert.equal(isRouteExcludedFromWelcomeModal("/astrologer"), true);
+
+    // Logged-in / booking flow routes
+    assert.equal(isRouteExcludedFromWelcomeModal("/account"), true);
+    assert.equal(isRouteExcludedFromWelcomeModal("/consult"), true);
+
+    // Public visitor pages must NOT be excluded
+    assert.equal(isRouteExcludedFromWelcomeModal("/"), false);
+    assert.equal(isRouteExcludedFromWelcomeModal("/horoscope"), false);
+    assert.equal(isRouteExcludedFromWelcomeModal("/kundli"), false);
+    assert.equal(isRouteExcludedFromWelcomeModal("/about"), false);
+    assert.equal(isRouteExcludedFromWelcomeModal("/services"), false);
+  });
+
+  test("strictly does not show to a user who is logged in or already mid-consultation", () => {
+    // 1. Logged in user with active session
+    assert.equal(
+      isUserInActiveSessionOrConsultation(true, "/"),
+      true,
+      "Must suppress for authenticated users with an active session"
+    );
+
+    // 2. Mid-consultation route
+    assert.equal(
+      isUserInActiveSessionOrConsultation(false, "/dashboard/session/sess_123"),
+      true,
+      "Must suppress when user is in active session route"
+    );
+    assert.equal(
+      isUserInActiveSessionOrConsultation(false, "/consult"),
+      true,
+      "Must suppress when user is on consultation booking page"
+    );
+
+    // 3. Guest visitor on public page
+    assert.equal(
+      isUserInActiveSessionOrConsultation(false, "/"),
+      false,
+      "Must allow guest visitor on public homepage"
+    );
+    assert.equal(
+      isUserInActiveSessionOrConsultation(false, "/horoscope"),
+      false,
+      "Must allow guest visitor on public horoscope page"
+    );
+  });
+
+  test("is dismissible and unmounts cleanly without blocking the rest of the page", () => {
+    // Close button present
     assert.match(
-      homePageCode,
+      modalCode,
+      /aria-label="Close welcome offer modal"/,
+      "Must provide an accessible close button"
+    );
+
+    // Backdrop dismissal
+    assert.match(
+      modalCode,
+      /onClick={handleDismiss}/,
+      "Must handle backdrop click dismissal"
+    );
+
+    // Escape key listener
+    assert.match(
+      modalCode,
+      /e\.key === "Escape"/,
+      "Must support Escape key dismissal"
+    );
+
+    // Clean unmount to prevent page blockage
+    assert.match(
+      modalCode,
+      /if \(!mounted \|\| !isOpen\) return null;/,
+      "Must unmount completely from DOM when dismissed to avoid blocking page"
+    );
+
+    // Persistent storage on dismiss
+    assert.match(
+      modalCode,
+      /localStorage\.setItem\(WELCOME_MODAL_STORAGE_KEY,\s*"true"\)/,
+      "Must record dismissal to localStorage"
+    );
+  });
+
+  test("is mounted in root layout (src/app/layout.tsx) for whole-site visitor coverage", () => {
+    assert.match(
+      layoutCode,
       /import\s*{\s*WelcomeConsultationModal\s*}\s*from\s*["']@\/components\/home\/WelcomeConsultationModal["']/,
-      "HomePage must import WelcomeConsultationModal"
+      "Root layout must import WelcomeConsultationModal"
     );
     assert.match(
-      homePageCode,
+      layoutCode,
       /<WelcomeConsultationModal\s*\/>/,
-      "HomePage must render WelcomeConsultationModal"
+      "Root layout must render WelcomeConsultationModal"
     );
   });
 });

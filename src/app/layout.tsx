@@ -5,6 +5,7 @@ import "./globals.css";
 import { AstrologerStatusHeader } from "@/components/layout/AstrologerStatusHeader";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { WelcomeConsultationModal } from "@/components/home/WelcomeConsultationModal";
 import { PLACEHOLDER_ASTROLOGER } from "@/config/placeholderContent";
 import { LanguageProvider } from "@/context/LanguageContext";
 
@@ -78,6 +79,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Navbar />
             <main className="flex-1">{children}</main>
             <Footer />
+            <WelcomeConsultationModal />
           </LanguageProvider>
         </body>
       </html>

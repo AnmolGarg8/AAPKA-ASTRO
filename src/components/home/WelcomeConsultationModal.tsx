@@ -3,11 +3,79 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { X, Sparkles, CheckCircle2, ShieldCheck, ArrowRight, Star, Clock, Award } from "lucide-react";
 import { DiyaIcon } from "@/components/ui/DiyaIcon";
 import { PLACEHOLDER_ASTROLOGER, ADMIN_CONFIGURABLE_PRICING, FIRST_CONSULTATION_OFFER } from "@/config/placeholderContent";
+import { useCurrentUserRole } from "@/lib/auth/roleContext";
 
 export const WELCOME_MODAL_STORAGE_KEY = "aapka_welcome_modal_dismissed";
+export const WELCOME_MODAL_SESSION_KEY = "aapka_welcome_modal_session_seen";
+export const WELCOME_MODAL_COOKIE_NAME = "aapka_welcome_seen";
+
+/**
+ * Checks whether a route is excluded from showing the welcome modal.
+ * The modal is a visitor-acquisition tool and should NOT appear on:
+ * - /dashboard/* (astrologer / staff operating console)
+ * - /admin/* (owner / administrative consoles)
+ * - /astrologer/* (astrologer portal)
+ * - /account/* (logged-in seeker portal)
+ * - /consult* (active consultation booking/room flow)
+ */
+export function isRouteExcludedFromWelcomeModal(pathname: string | null): boolean {
+  if (!pathname) return false;
+  const normalized = pathname.toLowerCase();
+  return (
+    normalized.startsWith("/dashboard") ||
+    normalized.startsWith("/admin") ||
+    normalized.startsWith("/astrologer") ||
+    normalized.startsWith("/account") ||
+    normalized.startsWith("/consult")
+  );
+}
+
+/**
+ * Checks whether user has an active session or is mid-consultation.
+ */
+export function isUserInActiveSessionOrConsultation(
+  isAuthenticated: boolean,
+  pathname: string | null
+): boolean {
+  // If user is authenticated with an active session
+  if (isAuthenticated) return true;
+
+  // If path is an active consultation session workbench or room
+  if (pathname && (pathname.includes("/session/") || pathname.startsWith("/consult"))) {
+    return true;
+  }
+
+  // Check client-side storage / cookies if available in browser
+  if (typeof window !== "undefined") {
+    try {
+      // Mid-consultation active session tokens
+      if (
+        sessionStorage.getItem("aapka_active_session_id") ||
+        sessionStorage.getItem("active_consultation_id") ||
+        localStorage.getItem("aapka_active_session_id")
+      ) {
+        return true;
+      }
+
+      // Active auth session cookies or mock user in local storage
+      if (
+        document.cookie.includes("__session") ||
+        document.cookie.includes("aapka_astro_session=active") ||
+        localStorage.getItem("aapka_astro_mock_user")
+      ) {
+        return true;
+      }
+    } catch {
+      // Storage access blocked or restricted
+    }
+  }
+
+  return false;
+}
 
 interface WelcomeConsultationModalProps {
   /** Optional delay in milliseconds before displaying the modal on first visit. Default: 2000ms */
@@ -22,6 +90,8 @@ export function WelcomeConsultationModal({
 }: WelcomeConsultationModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
+  const { isAuthenticated, isLoading: isAuthLoading } = useCurrentUserRole();
 
   useEffect(() => {
     setMounted(true);
@@ -31,24 +101,68 @@ export function WelcomeConsultationModal({
       return;
     }
 
-    // Check if user has already dismissed or interacted with the welcome modal
-    try {
-      const isDismissed = localStorage.getItem(WELCOME_MODAL_STORAGE_KEY);
-      if (!isDismissed) {
-        const timer = setTimeout(() => {
-          setIsOpen(true);
-        }, delayMs);
-        return () => clearTimeout(timer);
-      }
-    } catch {
-      // LocalStorage not available or blocked, skip automatic popup
+    // 1. Route Check: Suppress on /dashboard/*, /admin/*, /astrologer/*, /account/*, /consult*
+    if (isRouteExcludedFromWelcomeModal(pathname)) {
+      setIsOpen(false);
+      return;
     }
-  }, [delayMs, forceOpen]);
+
+    // 2. Active Session / Mid-Consultation Check: Suppress if user is logged in or mid-consultation
+    if (isUserInActiveSessionOrConsultation(isAuthenticated, pathname)) {
+      setIsOpen(false);
+      return;
+    }
+
+    // 3. Visitor Session & Dismissal Check: Show once per visitor per session
+    try {
+      // Check if already dismissed permanently
+      const isDismissed = localStorage.getItem(WELCOME_MODAL_STORAGE_KEY);
+      if (isDismissed) {
+        setIsOpen(false);
+        return;
+      }
+
+      // Check if already shown in this visitor session (sessionStorage or session cookie)
+      const isSeenInSession = sessionStorage.getItem(WELCOME_MODAL_SESSION_KEY);
+      const hasSessionCookie = document.cookie
+        .split(";")
+        .some((c) => c.trim().startsWith(`${WELCOME_MODAL_COOKIE_NAME}=`));
+
+      if (isSeenInSession || hasSessionCookie) {
+        setIsOpen(false);
+        return;
+      }
+
+      // Schedule display for first visit
+      const timer = setTimeout(() => {
+        // Double-check conditions before opening
+        if (
+          !isRouteExcludedFromWelcomeModal(pathname) &&
+          !isUserInActiveSessionOrConsultation(isAuthenticated, pathname)
+        ) {
+          setIsOpen(true);
+          // Mark as shown in this session so it does not reappear on page navigations
+          try {
+            sessionStorage.setItem(WELCOME_MODAL_SESSION_KEY, "true");
+            document.cookie = `${WELCOME_MODAL_COOKIE_NAME}=1; path=/; SameSite=Lax`;
+          } catch {
+            // Ignore storage errors
+          }
+        }
+      }, delayMs);
+
+      return () => clearTimeout(timer);
+    } catch {
+      // LocalStorage / sessionStorage not available or blocked
+    }
+  }, [delayMs, forceOpen, pathname, isAuthenticated, isAuthLoading]);
 
   const handleDismiss = useCallback(() => {
     setIsOpen(false);
     try {
       localStorage.setItem(WELCOME_MODAL_STORAGE_KEY, "true");
+      sessionStorage.setItem(WELCOME_MODAL_SESSION_KEY, "true");
+      document.cookie = `${WELCOME_MODAL_COOKIE_NAME}=1; path=/; SameSite=Lax`;
     } catch {
       // Ignore storage errors
     }
@@ -68,6 +182,7 @@ export function WelcomeConsultationModal({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, handleDismiss]);
 
+  // If not mounted or closed, return null so rest of the page is completely unblocked
   if (!mounted || !isOpen) return null;
 
   return (
@@ -77,9 +192,9 @@ export function WelcomeConsultationModal({
       aria-labelledby="welcome-modal-title"
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto bg-[#3B2A1E]/75 backdrop-blur-xs transition-opacity duration-300 animate-in fade-in"
     >
-      {/* Backdrop overlay dismiss */}
+      {/* Backdrop overlay dismiss - clicking dismisses without blocking */}
       <div
-        className="fixed inset-0"
+        className="fixed inset-0 cursor-pointer"
         onClick={handleDismiss}
         aria-hidden="true"
       />
@@ -89,11 +204,11 @@ export function WelcomeConsultationModal({
         {/* Top Decorative Border Accent in Brand Maroon & Gold */}
         <div className="h-2 w-full bg-gradient-to-r from-[#7B2D26] via-[#E8A33D] to-[#7B2D26]" />
 
-        {/* Close Button */}
+        {/* Close Button (Dismissible) */}
         <button
           type="button"
           onClick={handleDismiss}
-          className="absolute right-3.5 top-4.5 z-20 rounded-full bg-[#FBF3E7] p-1.5 text-[#6E5545] hover:bg-[#E8D8C3] hover:text-[#7B2D26] transition-colors focus:outline-hidden focus:ring-2 focus:ring-[#7B2D26]"
+          className="absolute right-3.5 top-4.5 z-20 rounded-full bg-[#FBF3E7] p-1.5 text-[#6E5545] hover:bg-[#E8D8C3] hover:text-[#7B2D26] transition-colors focus:outline-hidden focus:ring-2 focus:ring-[#7B2D26] cursor-pointer"
           aria-label="Close welcome offer modal"
         >
           <X className="h-5 w-5" />
@@ -276,7 +391,7 @@ export function WelcomeConsultationModal({
             <Link
               href={`/consult?offer=${FIRST_CONSULTATION_OFFER.code}`}
               onClick={handleDismiss}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#7B2D26] hover:bg-[#64221C] py-3.5 px-6 font-bold text-[#FFFDF9] shadow-md hover:shadow-lg border border-[#E8A33D]/40 transition-all focus:outline-hidden focus:ring-2 focus:ring-[#7B2D26] focus:ring-offset-2"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#7B2D26] hover:bg-[#64221C] py-3.5 px-6 font-bold text-[#FFFDF9] shadow-md hover:shadow-lg border border-[#E8A33D]/40 transition-all focus:outline-hidden focus:ring-2 focus:ring-[#7B2D26] focus:ring-offset-2 cursor-pointer"
             >
               <span>Claim 50% Off &amp; Start Consultation</span>
               <ArrowRight className="h-4 w-4 text-[#E8A33D]" />
@@ -286,7 +401,7 @@ export function WelcomeConsultationModal({
               <button
                 type="button"
                 onClick={handleDismiss}
-                className="text-xs text-[#6E5545] hover:text-[#7B2D26] underline underline-offset-4 font-medium transition-colors"
+                className="text-xs text-[#6E5545] hover:text-[#7B2D26] underline underline-offset-4 font-medium transition-colors cursor-pointer"
               >
                 No thanks, continue browsing
               </button>

@@ -893,13 +893,27 @@ To maximize first-time seeker conversion while honoring the client's authentic s
      - **Bubble 3 (Seeker - 10:25 AM)**: *"Understood Acharya Ji. Ready with my exact birth time and Kundli details."*
    - Quick topic tags: `💼 Career & Job`, `💍 Kundli Milan`, `💰 Wealth & Business`, `🏡 Devta Vastu`.
 
-4. **First-Visit Persistence & User Experience**:
-   - Triggers gracefully ~2 seconds after page load.
-   - Saves dismissal to `localStorage` under `aapka_welcome_modal_dismissed` when closed via `X`, background backdrop, "continue browsing" link, or pressing `Escape`.
-   - Never pesters returning visitors or existing clients.
+4. **Visitor Session Tracking & Behavioral Suppression Controls**:
+   - **Once Per Visitor Per Session**: Enforces display once per browser session via `sessionStorage` (`aapka_welcome_modal_session_seen`) and a session cookie (`aapka_welcome_seen=1`), preventing the modal from reappearing on every page navigation within the same visit.
+   - **Active Session Suppression**: Strictly suppresses if the user is already logged into their account (`isAuthenticated === true`, Clerk session cookie, or active session token).
+   - **Mid-Consultation Suppression**: Strictly suppresses if the visitor is already in a consultation workbench (`/dashboard/session/*`), in a consultation room (`/account/consult*`), booking flow (`/consult*`), or has an active consultation token in storage.
+   - **Staff & Owner Console Exclusion**: Strictly suppresses on `/dashboard/*`, `/admin/*`, and `/astrologer/*` routes so working staff and the owner are never disturbed by visitor acquisition popups.
+   - **Non-Blocking Clean Dismissal**: Accessible close button (`X`), backdrop overlay click, and `Escape` key immediately unmount the modal (`return null`), saving dismissal to `localStorage` (`aapka_welcome_modal_dismissed`) and leaving the rest of the page 100% interactive and unblocked.
+   - **Global Layout Integration**: Mounted in `src/app/layout.tsx` for seamless visitor-acquisition coverage across all public routes.
 
 5. **Automated Verification**:
-   - `tests/welcomeModal.test.ts` validates 10 automated compliance tests ensuring headline compliance, CTA wording, brand design tokens (Deep Maroon, Marigold Gold, Warm Ivory, Cinzel/Mukta), rejection of Astrotalk yellow-and-black styling, verified astrologer photo, fresh 3-bubble exchange, elimination of marketplace stats and 15k/35k discrepancy counts, honest solo credentials, qualitative trust line, pricing calculation, and home page mounting.
+   - `tests/welcomeModal.test.ts` validates 14 automated compliance and behavioral tests:
+     - Policy compliance (headline, non-"Free" terms, CTA wording)
+     - Brand design system tokens (Deep Maroon `#7B2D26`, Marigold Gold `#E8A33D`, Warm Ivory `#FBF3E7` / `#FFFDF9`, Cinzel/Mukta)
+     - Rejection of Astrotalk yellow-and-black styling
+     - Fresh 3-bubble consultation dialogue
+     - Verified astrologer photo
+     - Rejection of marketplace stats and 15k/35k discrepancy counts
+     - Honest solo credentials & qualitative trust line
+     - Once-per-session enforcement (`sessionStorage` & session cookie)
+     - Strict suppression on `/dashboard/*`, `/admin/*`, and `/astrologer/*`
+     - Suppression for logged-in and mid-consultation users
+     - Clean, non-blocking dismissal and root layout integration.
 
 
 
