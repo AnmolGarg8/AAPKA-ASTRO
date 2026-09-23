@@ -866,5 +866,35 @@ During testing in environments where a live PostgreSQL instance is not connected
 - [ ] **4. Configure Clerk Production Keys**:
   - Add `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` in Vercel.
 
+---
+
+## 16. First-Visit Welcome Consultation Modal (Astrotalk Format Tailored to Authentic Business Reality)
+
+### 16.1 Design & Strategic Intent
+To maximize first-time seeker conversion while honoring the client's authentic spiritual brand, a high-converting welcome popup modal was implemented (`src/components/home/WelcomeConsultationModal.tsx`), inspired by Astrotalk's engagement format but strictly grounded in the client's genuine single-practitioner practice:
+
+1. **Strict Offer Text Policy (Zero "Free" Claims)**:
+   - **Headline**: `"50% Off Your First Consultation"` — strictly avoiding words like "Free", "First Chat Free", or any implication of zero cost. The client's policy is a confirmed 50% discount on the first paid session.
+   - **Call-to-Action**: `"Claim 50% Off & Start Consultation"` or `"Claim 50% Off"` — intentionally rejecting Astrotalk's verbatim `"Chat Now"`.
+   - **Transparent Rates**: Clear before/after pricing display (Chat: ₹7.5/min [was ₹15], Voice: ₹10/min [was ₹20], Video: ₹12.5/min [was ₹25]) with promo code `FIRST50` auto-applied.
+
+2. **Authentic Single-Practitioner Reality (Not Marketplace Scale)**:
+   - Features **Acharya Niraj Kumar** directly with verified badge and avatar (`/images/Acharya_Niraj_Kumar.jpg`).
+   - Grounded in authentic credentials: **24+ Years Experience**, **15,000+ Consultations**, **4.9 ★ Rating**, and **Baidyanath Dham Heritage & Bhartiya Vidya Bhawan Certification**.
+   - Strictly omits marketplace claims (no "5000+ astrologers" or "India's largest marketplace").
+
+3. **Simulated Vedic Consultation Chat Preview**:
+   - Displays a realistic, respectful dialogue between a seeker and Acharya Niraj Kumar discussing career transitions, karmic restructuring, and D1/D9 chart analysis.
+   - Quick topic tags: Career & Job, Kundli Milan, Wealth & Business, Devta Vastu.
+
+4. **First-Visit Persistence & User Experience**:
+   - Triggers gracefully ~2 seconds after page load.
+   - Saves dismissal to `localStorage` under `aapka_welcome_modal_dismissed` when closed via `X`, background backdrop, "continue browsing" link, or pressing `Escape`.
+   - Never pesters returning visitors or existing clients.
+
+5. **Automated Verification**:
+   - `tests/welcomeModal.test.ts` validates 7 automated compliance tests ensuring headline compliance, CTA wording, negative check against "Free" claims, practitioner credentials, pricing calculation, and home page mounting.
+
+
 
 

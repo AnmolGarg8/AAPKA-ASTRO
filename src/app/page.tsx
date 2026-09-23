@@ -11,6 +11,7 @@ import { PanchangWidget } from "@/components/home/PanchangWidget";
 import { InstagramFeedSection } from "@/components/home/InstagramFeedSection";
 import { BlogPreviewSection } from "@/components/home/BlogPreviewSection";
 import { TrustCredentialsSection } from "@/components/home/TrustCredentialsSection";
+import { WelcomeConsultationModal } from "@/components/home/WelcomeConsultationModal";
 import { KundliForm } from "@/components/kundli/KundliForm";
 import { NorthIndianChart } from "@/components/kundli/NorthIndianChart";
 import { SouthIndianChart } from "@/components/kundli/SouthIndianChart";
@@ -307,6 +308,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Welcome Consultation Popup Modal (Astrotalk-style format with authentic single-practitioner reality & 50% off offer) */}
+      <WelcomeConsultationModal />
     </div>
   );
 }
