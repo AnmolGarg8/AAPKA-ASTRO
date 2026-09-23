@@ -915,6 +915,19 @@ To maximize first-time seeker conversion while honoring the client's authentic s
      - Suppression for logged-in and mid-consultation users
      - Clean, non-blocking dismissal and root layout integration.
 
+### 16.2 Confirmation of Specific Stats, Discrepancy Resolution & Placeholder Status
+
+| Trust Metric / Stat | Rendered In Modal | Status / Source | Client Action Needed Before Go-Live |
+| :--- | :--- | :--- | :--- |
+| **Vedic Mastery Experience** | `20+ Yrs` | **Confirmed Real**: Based on Acharya Niraj Kumar's formal Jyotish Acharya graduation from Bhartiya Vidya Bhawan and senior corporate leadership career spanning two decades. | None (Confirmed). |
+| **Academic Credential** | `BVB Scholar` (Jyotish Acharya) | **Confirmed Real**: Documented certification from Bhartiya Vidya Bhawan (K.N. Rao Institute) in `OFFICIAL_GALLERY_IMAGES`. | None (Confirmed). |
+| **Direct Access Mode** | `100% Solo` (Direct Access) | **Confirmed Real**: Solo practitioner model (no junior astrologers, no bots, no marketplace aggregators). | None (Confirmed). |
+| **Confidentiality** | `Private` (100% Confidential) | **Confirmed Real**: Standard 1-on-1 private reading practice. | None (Confirmed). |
+| **Community Reach Line** | *"Trusted by a growing community across India & abroad"* | **Qualitative Trust Line**: Replaced unconfirmed numbers with this honest qualitative statement. | None (Neutral, honest statement). |
+| **Exact Seeker / Consultation Count** | **EXPLICIT PLACEHOLDER**: Displayed with footnote `*Exact seeker count and metrics pending client confirmation` | **Flagged Discrepancy Removed**: The previously flagged inconsistent numbers (`15,000+` vs `35,000+`) have been **completely excluded** from the modal. | **Client to confirm actual lifetime consultation count** before replacing this placeholder footnote. |
+| **Astrotalk Marketplace Claims** | Strictly excluded (zero mentions of "5Cr+ Users", "50,000+ astrologers", etc.) | **Completely Excluded**: Incompatible with solo practitioner business model. | None. |
+
+
 
 
 
