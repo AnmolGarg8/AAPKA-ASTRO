@@ -69,6 +69,75 @@ describe("Welcome Consultation Modal Policy & Content Compliance", () => {
     );
   });
 
+  test("strictly adheres to the Aapka Astro brand system (not Astrotalk's yellow-and-black)", () => {
+    // Brand Tokens Present:
+    assert.match(modalCode, /#7B2D26/, "Must use Deep Maroon (#7B2D26)");
+    assert.match(modalCode, /#E8A33D/, "Must use Marigold Gold (#E8A33D)");
+    assert.match(modalCode, /#FBF3E7/, "Must use Warm Ivory (#FBF3E7)");
+    assert.match(modalCode, /#FFFDF9/, "Must use Ivory Card (#FFFDF9)");
+    assert.match(modalCode, /#3B2A1E/, "Must use Sandalwood text (#3B2A1E)");
+
+    // Typography:
+    assert.match(modalCode, /font-temple/, "Must use font-temple (Cinzel) for sacred headings");
+    assert.match(modalCode, /font-body/, "Must use font-body (Mukta) for readable body text");
+
+    // Strictly NOT Astrotalk's electric yellow & black theme:
+    const astrotalkColorPatterns = [
+      /#FFD700/i,
+      /#FFF000/i,
+      /bg-yellow-400/i,
+      /text-yellow-400/i,
+    ];
+    for (const pattern of astrotalkColorPatterns) {
+      assert.doesNotMatch(
+        modalCode,
+        pattern,
+        `Modal must not use Astrotalk yellow-black theme: ${pattern}`
+      );
+    }
+  });
+
+  test("includes verified astrologer photo and avatar presentation", () => {
+    assert.match(
+      modalCode,
+      /PLACEHOLDER_ASTROLOGER\.avatarUrl/,
+      "Must render the astrologer's photo via avatarUrl"
+    );
+    assert.match(
+      modalCode,
+      /<Image\b/,
+      "Must use Next.js Image component for optimized portrait rendering"
+    );
+  });
+
+  test("contains a freshly written, realistic 3-message simulated chat preview", () => {
+    // Fresh Q&A exchange (Bubble 1: Seeker Career Query)
+    assert.match(
+      modalCode,
+      /career stagnation|switch jobs or focus on business/i,
+      "Simulated chat must depict a realistic, fresh seeker consultation query"
+    );
+
+    // Bubble 2: Acharya Niraj Kumar Vedic Insight
+    assert.match(
+      modalCode,
+      /10th lord|Saturn transit|karmic turning point|D1 &amp; D9 charts/i,
+      "Acharya's simulated reply must demonstrate fresh authentic Vedic astrological depth"
+    );
+
+    // Bubble 3: Seeker Confirmation
+    assert.match(
+      modalCode,
+      /Ready with my exact birth time and Kundli details/i,
+      "Must show 3-message dialogue completion with seeker confirmation"
+    );
+
+    // Consultation topics
+    assert.match(modalCode, /Career &amp; Job|Career & Job/i);
+    assert.match(modalCode, /Kundli Milan/i);
+    assert.match(modalCode, /Devta Vastu/i);
+  });
+
   test("strictly avoids Astrotalk-scale marketplace statistics and flagged inconsistent numbers", () => {
     // 1. Reject Astrotalk marketplace scale stats
     const marketplacePatterns = [
@@ -142,27 +211,6 @@ describe("Welcome Consultation Modal Policy & Content Compliance", () => {
       /pending client confirmation/i,
       "Must explicitly note that exact counts are pending client confirmation"
     );
-  });
-
-  test("contains simulated Vedic consultation chat dialogue with authentic topics", () => {
-    // Seeker dialogue
-    assert.match(
-      modalCode,
-      /Seeking clarity on my career transition/i,
-      "Simulated chat must depict a realistic seeker consultation topic"
-    );
-
-    // Astrologer response demonstrating Vedic insight
-    assert.match(
-      modalCode,
-      /karmic restructuring|D1 and D9 charts/i,
-      "Acharya's simulated reply must demonstrate authentic Vedic astrological depth"
-    );
-
-    // Consultation topics
-    assert.match(modalCode, /Career & Job/i);
-    assert.match(modalCode, /Kundli Milan/i);
-    assert.match(modalCode, /Devta Vastu/i);
   });
 
   test("includes transparent 50% off pricing breakdown and promo code", () => {

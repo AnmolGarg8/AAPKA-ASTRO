@@ -75,7 +75,7 @@ export function WelcomeConsultationModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="welcome-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto bg-black/65 backdrop-blur-xs transition-opacity duration-300 animate-in fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto bg-[#3B2A1E]/75 backdrop-blur-xs transition-opacity duration-300 animate-in fade-in"
     >
       {/* Backdrop overlay dismiss */}
       <div
@@ -84,9 +84,9 @@ export function WelcomeConsultationModal({
         aria-hidden="true"
       />
 
-      {/* Modal Dialog Card */}
-      <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border-2 border-[#E8A33D]/50 bg-[#FFFDF9] text-[#3B2A1E] shadow-2xl z-10 my-auto transition-all transform animate-in zoom-in-95 duration-200">
-        {/* Top Decorative Border Accent */}
+      {/* Modal Dialog Card - Designed using Aapka Astro's Temple Brand System */}
+      <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border-2 border-[#E8D8C3] bg-[#FFFDF9] text-[#3B2A1E] font-body shadow-2xl z-10 my-auto transition-all transform animate-in zoom-in-95 duration-200">
+        {/* Top Decorative Border Accent in Brand Maroon & Gold */}
         <div className="h-2 w-full bg-gradient-to-r from-[#7B2D26] via-[#E8A33D] to-[#7B2D26]" />
 
         {/* Close Button */}
@@ -102,9 +102,9 @@ export function WelcomeConsultationModal({
         <div className="p-5 sm:p-6 space-y-4 sm:space-y-5">
           {/* Header Badge & Title */}
           <div className="text-center space-y-1.5 pt-1">
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-[#E8A33D]/60 bg-[#FBF3E7] px-3 py-1 text-xs font-bold text-[#7B2D26] shadow-xs">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-[#E8A33D]/60 bg-[#FBF3E7] px-3 py-1 text-xs font-bold text-[#7B2D26] shadow-2xs">
               <DiyaIcon size={13} />
-              <span className="tracking-wide uppercase">First-Visit Welcome Offer</span>
+              <span className="tracking-wide uppercase font-body font-semibold">First-Visit Welcome Privilege</span>
               <Sparkles className="h-3 w-3 text-[#E8A33D]" />
             </div>
 
@@ -115,12 +115,12 @@ export function WelcomeConsultationModal({
             >
               50% Off Your First Consultation
             </h2>
-            <p className="text-xs sm:text-sm text-[#6E5545] font-medium">
+            <p className="text-xs sm:text-sm text-[#6E5545] font-medium font-body">
               Direct 1-on-1 Guidance with {PLACEHOLDER_ASTROLOGER.displayName}
             </p>
           </div>
 
-          {/* Simulated Chat Preview with Acharya Niraj Kumar */}
+          {/* Simulated Chat Preview with Acharya Niraj Kumar (3-bubble fresh exchange) */}
           <div className="rounded-2xl border border-[#E8D8C3] bg-[#FBF3E7] p-3 sm:p-4 space-y-3 shadow-inner">
             {/* Practitioner Status Bar */}
             <div className="flex items-center justify-between border-b border-[#E8D8C3]/80 pb-2.5">
@@ -133,64 +133,76 @@ export function WelcomeConsultationModal({
                     sizes="40px"
                     className="object-cover object-top"
                   />
-                  <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-[#FFFDF9]" />
+                  <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-[#6B8E5A] ring-2 ring-[#FFFDF9]" />
                 </div>
                 <div>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-xs sm:text-sm font-bold text-[#3B2A1E]">
+                    <span className="font-temple text-xs sm:text-sm font-bold text-[#3B2A1E]">
                       {PLACEHOLDER_ASTROLOGER.displayName}
                     </span>
                     <CheckCircle2 className="h-3.5 w-3.5 text-[#E8A33D] fill-[#E8A33D]/20 shrink-0" />
                   </div>
-                  <p className="text-[11px] text-[#6E5545]">
+                  <p className="text-[11px] text-[#6E5545] font-body">
                     Baidyanath Dham Lineage • 20+ Yrs Experience
                   </p>
                 </div>
               </div>
-              <div className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <div className="inline-flex items-center gap-1 rounded-full bg-[#EDF3EB] px-2 py-0.5 text-[10px] font-bold text-[#6B8E5A] border border-[#6B8E5A]/30">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#6B8E5A] animate-pulse" />
                 <span>Available Now</span>
               </div>
             </div>
 
-            {/* Chat Messages Preview */}
-            <div className="space-y-2 text-xs">
-              {/* Seeker Message */}
+            {/* Chat Messages Preview (Realistic, Fresh 3-Message Q&A Exchange) */}
+            <div className="space-y-2 text-xs font-body">
+              {/* Bubble 1: Seeker Consultation Query */}
               <div className="flex justify-end">
                 <div className="max-w-[85%] rounded-2xl rounded-tr-xs bg-[#7B2D26] px-3.5 py-2 text-[#FFFDF9] shadow-xs">
                   <p className="leading-relaxed">
-                    Pranam Acharya Ji! Seeking clarity on my career transition & financial stability.
+                    Pranam Acharya Ji. I am experiencing prolonged career stagnation. Should I switch jobs or focus on business in 2026?
                   </p>
                   <span className="mt-0.5 block text-right text-[10px] text-[#FBF3E7]/70">
-                    Just now
+                    10:24 AM
                   </span>
                 </div>
               </div>
 
-              {/* Acharya Response */}
+              {/* Bubble 2: Acharya Niraj Kumar Vedic Insight */}
               <div className="flex justify-start">
                 <div className="max-w-[88%] rounded-2xl rounded-tl-xs bg-[#FFFDF9] border border-[#E8D8C3] px-3.5 py-2 text-[#3B2A1E] shadow-xs">
                   <p className="leading-relaxed">
-                    Namaskar! Saturn&apos;s transit over your 10th house indicates karmic restructuring. Let us examine your D1 and D9 charts together for an exact turnaround timeline.
+                    Namaskar! Your 10th lord and Saturn transit indicate a crucial karmic turning point. Let us analyze your D1 &amp; D9 charts together to time your breakthrough window.
                   </p>
                   <div className="mt-1 flex items-center justify-between text-[10px] text-[#6E5545]">
                     <span className="font-semibold text-[#7B2D26]">Verified Vedic Scholar</span>
-                    <span>1-on-1 private reading</span>
+                    <span>10:25 AM</span>
                   </div>
+                </div>
+              </div>
+
+              {/* Bubble 3: Seeker Confirmation */}
+              <div className="flex justify-end">
+                <div className="max-w-[80%] rounded-2xl rounded-tr-xs bg-[#7B2D26] px-3.5 py-1.5 text-[#FFFDF9] shadow-xs">
+                  <p className="leading-relaxed text-[11px]">
+                    Understood Acharya Ji. Ready with my exact birth time and Kundli details.
+                  </p>
+                  <span className="mt-0.5 block text-right text-[9px] text-[#FBF3E7]/70">
+                    10:25 AM
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* Quick Consultation Topics */}
-            <div className="pt-1 flex flex-wrap gap-1.5 text-[10px] font-medium text-[#7B2D26]">
+            <div className="pt-1 flex flex-wrap gap-1.5 text-[10px] font-medium text-[#7B2D26] font-body">
               <span className="rounded-md bg-[#FFFDF9] border border-[#E8D8C3] px-2 py-0.5">
-                💼 Career & Job
+                💼 Career &amp; Job
               </span>
               <span className="rounded-md bg-[#FFFDF9] border border-[#E8D8C3] px-2 py-0.5">
                 💍 Kundli Milan
               </span>
               <span className="rounded-md bg-[#FFFDF9] border border-[#E8D8C3] px-2 py-0.5">
-                💰 Wealth & Business
+                💰 Wealth &amp; Business
               </span>
               <span className="rounded-md bg-[#FFFDF9] border border-[#E8D8C3] px-2 py-0.5">
                 🏡 Devta Vastu
@@ -205,45 +217,45 @@ export function WelcomeConsultationModal({
                 <div className="flex items-center justify-center text-[#E8A33D]">
                   <Clock className="h-3.5 w-3.5" />
                 </div>
-                <div className="text-xs sm:text-sm font-bold text-[#7B2D26]">20+ Yrs</div>
-                <div className="text-[9px] text-[#6E5545] uppercase tracking-wider">Vedic Mastery</div>
+                <div className="font-temple text-xs sm:text-sm font-bold text-[#7B2D26]">20+ Yrs</div>
+                <div className="text-[9px] text-[#6E5545] uppercase tracking-wider font-body">Vedic Mastery</div>
               </div>
               <div className="space-y-0.5 border-l border-[#E8D8C3]">
                 <div className="flex items-center justify-center text-[#E8A33D]">
                   <Award className="h-3.5 w-3.5" />
                 </div>
-                <div className="text-xs sm:text-sm font-bold text-[#7B2D26]">BVB Scholar</div>
-                <div className="text-[9px] text-[#6E5545] uppercase tracking-wider">Jyotish Acharya</div>
+                <div className="font-temple text-xs sm:text-sm font-bold text-[#7B2D26]">BVB Scholar</div>
+                <div className="text-[9px] text-[#6E5545] uppercase tracking-wider font-body">Jyotish Acharya</div>
               </div>
               <div className="space-y-0.5 border-l border-[#E8D8C3]">
                 <div className="flex items-center justify-center text-[#E8A33D]">
                   <ShieldCheck className="h-3.5 w-3.5" />
                 </div>
-                <div className="text-xs sm:text-sm font-bold text-[#7B2D26]">100% Solo</div>
-                <div className="text-[9px] text-[#6E5545] uppercase tracking-wider">Direct Access</div>
+                <div className="font-temple text-xs sm:text-sm font-bold text-[#7B2D26]">100% Solo</div>
+                <div className="text-[9px] text-[#6E5545] uppercase tracking-wider font-body">Direct Access</div>
               </div>
               <div className="space-y-0.5 border-l border-[#E8D8C3]">
                 <div className="flex items-center justify-center text-[#E8A33D]">
                   <Star className="h-3.5 w-3.5 fill-[#E8A33D]" />
                 </div>
-                <div className="text-xs sm:text-sm font-bold text-[#7B2D26]">Private</div>
-                <div className="text-[9px] text-[#6E5545] uppercase tracking-wider">Confidential</div>
+                <div className="font-temple text-xs sm:text-sm font-bold text-[#7B2D26]">Private</div>
+                <div className="text-[9px] text-[#6E5545] uppercase tracking-wider font-body">Confidential</div>
               </div>
             </div>
 
             {/* Qualitative Trust Line (Clearly marked pending client confirmation) */}
             <div className="rounded-lg bg-[#FBF3E7]/80 border border-[#E8D8C3] px-3 py-1.5 text-center">
-              <p className="text-[11px] font-semibold text-[#7B2D26]">
+              <p className="text-[11px] font-semibold text-[#7B2D26] font-body">
                 Trusted by a growing community across India &amp; abroad
               </p>
-              <p className="text-[9px] text-[#6E5545]/70 italic mt-0.5">
+              <p className="text-[9px] text-[#6E5545]/70 italic mt-0.5 font-body">
                 *Exact seeker count and metrics pending client confirmation
               </p>
             </div>
           </div>
 
           {/* Transparent 50% Off First-Time Pricing */}
-          <div className="rounded-xl bg-[#FBF3E7] p-2.5 border border-[#E8D8C3] flex items-center justify-between text-xs">
+          <div className="rounded-xl bg-[#FBF3E7] p-2.5 border border-[#E8D8C3] flex items-center justify-between text-xs font-body">
             <div className="flex items-center gap-1.5 font-bold text-[#7B2D26]">
               <span>Special First-Time Rates:</span>
             </div>
@@ -259,15 +271,15 @@ export function WelcomeConsultationModal({
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="space-y-2 pt-1">
+          {/* Action Buttons in Temple Brand Colors */}
+          <div className="space-y-2 pt-1 font-body">
             <Link
               href={`/consult?offer=${FIRST_CONSULTATION_OFFER.code}`}
               onClick={handleDismiss}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#7B2D26] via-[#9E3A31] to-[#7B2D26] py-3.5 px-6 font-bold text-[#FFFDF9] shadow-md hover:from-[#64221C] hover:to-[#64221C] hover:shadow-lg transition-all focus:outline-hidden focus:ring-2 focus:ring-[#7B2D26] focus:ring-offset-2"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#7B2D26] hover:bg-[#64221C] py-3.5 px-6 font-bold text-[#FFFDF9] shadow-md hover:shadow-lg border border-[#E8A33D]/40 transition-all focus:outline-hidden focus:ring-2 focus:ring-[#7B2D26] focus:ring-offset-2"
             >
-              <span>Claim 50% Off & Start Consultation</span>
-              <ArrowRight className="h-4 w-4" />
+              <span>Claim 50% Off &amp; Start Consultation</span>
+              <ArrowRight className="h-4 w-4 text-[#E8A33D]" />
             </Link>
 
             <div className="text-center">
@@ -282,8 +294,8 @@ export function WelcomeConsultationModal({
           </div>
 
           {/* Footer Guarantee */}
-          <div className="flex items-center justify-center gap-1 text-[11px] text-[#6E5545]">
-            <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+          <div className="flex items-center justify-center gap-1 text-[11px] text-[#6E5545] font-body">
+            <ShieldCheck className="h-3.5 w-3.5 text-[#6B8E5A]" />
             <span>Promo code {FIRST_CONSULTATION_OFFER.code} auto-applied • Authentic Vedic Ephemeris</span>
           </div>
         </div>

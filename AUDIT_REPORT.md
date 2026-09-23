@@ -873,9 +873,10 @@ During testing in environments where a live PostgreSQL instance is not connected
 ### 16.1 Design & Strategic Intent
 To maximize first-time seeker conversion while honoring the client's authentic spiritual brand, a high-converting welcome popup modal was implemented (`src/components/home/WelcomeConsultationModal.tsx`), inspired by Astrotalk's engagement format but strictly grounded in the client's genuine single-practitioner practice:
 
-1. **Strict Offer Text Policy (Zero "Free" Claims)**:
+1. **Strict Offer Text Policy & Site Brand System Alignment**:
    - **Headline**: `"50% Off Your First Consultation"` — strictly avoiding words like "Free", "First Chat Free", or any implication of zero cost. The client's policy is a confirmed 50% discount on the first paid session.
-   - **Call-to-Action**: `"Claim 50% Off & Start Consultation"` or `"Claim 50% Off"` — intentionally rejecting Astrotalk's verbatim `"Chat Now"`.
+   - **Brand System Tokens**: Crafted exclusively using the site's established design tokens: Deep Maroon (`#7B2D26`), Marigold Gold (`#E8A33D`), Warm Ivory Parchment (`#FBF3E7`), Ivory Card Surface (`#FFFDF9`), and Deep Temple Brown (`#3B2A1E`), paired with `font-temple` (Cinzel) headings and `font-body` (Mukta) text — completely rejecting Astrotalk's yellow-and-black palette.
+   - **Call-to-Action**: `"Claim 50% Off & Start Consultation"` or `"Claim 50% Off"` styled in deep maroon with gold accents — intentionally rejecting Astrotalk's verbatim `"Chat Now"`.
    - **Transparent Rates**: Clear before/after pricing display (Chat: ₹7.5/min [was ₹15], Voice: ₹10/min [was ₹20], Video: ₹12.5/min [was ₹25]) with promo code `FIRST50` auto-applied.
 
 2. **Authentic Single-Practitioner Reality (Zero Marketplace Claims & No Flagged Discrepancies)**:
@@ -885,9 +886,12 @@ To maximize first-time seeker conversion while honoring the client's authentic s
    - **No Flagged Discrepancy Numbers**: Strictly avoids previously-flagged unconfirmed numbers (the "35,000+" vs "15,000+" discrepancy).
    - **Qualitative Trust Line with Explicit Placeholder Note**: Displays *"Trusted by a growing community across India & abroad"* with a clear note: `*Exact seeker count and metrics pending client confirmation`.
 
-3. **Simulated Vedic Consultation Chat Preview**:
-   - Displays a realistic, respectful dialogue between a seeker and Acharya Niraj Kumar discussing career transitions, karmic restructuring, and D1/D9 chart analysis.
-   - Quick topic tags: Career & Job, Kundli Milan, Wealth & Business, Devta Vastu.
+3. **Fresh 3-Bubble Simulated Vedic Consultation Chat Preview**:
+   - Displays a realistic, newly written 3-message dialogue between a seeker and Acharya Niraj Kumar (never copying Astrotalk's sample conversation):
+     - **Bubble 1 (Seeker - 10:24 AM)**: *"Pranam Acharya Ji. I am experiencing prolonged career stagnation. Should I switch jobs or focus on business in 2026?"*
+     - **Bubble 2 (Acharya Niraj Kumar - 10:25 AM)**: *"Namaskar! Your 10th lord and Saturn transit indicate a crucial karmic turning point. Let us analyze your D1 & D9 charts together to time your breakthrough window."*
+     - **Bubble 3 (Seeker - 10:25 AM)**: *"Understood Acharya Ji. Ready with my exact birth time and Kundli details."*
+   - Quick topic tags: `💼 Career & Job`, `💍 Kundli Milan`, `💰 Wealth & Business`, `🏡 Devta Vastu`.
 
 4. **First-Visit Persistence & User Experience**:
    - Triggers gracefully ~2 seconds after page load.
@@ -895,7 +899,7 @@ To maximize first-time seeker conversion while honoring the client's authentic s
    - Never pesters returning visitors or existing clients.
 
 5. **Automated Verification**:
-   - `tests/welcomeModal.test.ts` validates 8 automated compliance tests ensuring headline compliance, CTA wording, negative check against "Free" claims, rejection of Astrotalk marketplace stats, rejection of 15k/35k discrepancy counts, honest solo credentials, qualitative trust line, pricing calculation, and home page mounting.
+   - `tests/welcomeModal.test.ts` validates 10 automated compliance tests ensuring headline compliance, CTA wording, brand design tokens (Deep Maroon, Marigold Gold, Warm Ivory, Cinzel/Mukta), rejection of Astrotalk yellow-and-black styling, verified astrologer photo, fresh 3-bubble exchange, elimination of marketplace stats and 15k/35k discrepancy counts, honest solo credentials, qualitative trust line, pricing calculation, and home page mounting.
 
 
 
