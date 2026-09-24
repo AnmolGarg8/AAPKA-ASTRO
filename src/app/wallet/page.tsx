@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { PLACEHOLDER_ASTROLOGER, ADMIN_CONFIGURABLE_PRICING } from "@/config/placeholderContent";
 
-export const WalletPage: React.FC = () => {
+const WalletPage: React.FC = () => {
   const [balance, setBalance] = useState(250);
   const [selectedPack, setSelectedPack] = useState<number>(499);
   const [isProcessing, setIsProcessing] = useState(false);

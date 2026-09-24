@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { PLACEHOLDER_ASTROLOGER } from "@/config/placeholderContent";
 
-export const VastuPage: React.FC = () => {
+const VastuPage: React.FC = () => {
   const [propertyType, setPropertyType] = useState<"residential" | "commercial" | "industrial">("residential");
   const [userName, setUserName] = useState("Aarav Sharma");
   const [userPhone, setUserPhone] = useState("+91 93112 15564");

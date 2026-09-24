@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { PLACEHOLDER_ASTROLOGER, ADMIN_CONFIGURABLE_PRICING } from "@/config/placeholderContent";
 
-export const GemstonesPage: React.FC = () => {
+const GemstonesPage: React.FC = () => {
   const [selectedPlanet, setSelectedPlanet] = useState<string>("all");
   const [cartCount, setCartCount] = useState(0);
 
