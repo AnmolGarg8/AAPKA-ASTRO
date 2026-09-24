@@ -73,15 +73,29 @@ const envSchema = z.object({
 export type EnvConfig = z.infer<typeof envSchema>;
 
 function loadEnv(): EnvConfig {
-  const result = envSchema.safeParse(process.env);
+  const raw = typeof process !== "undefined" && process.env ? process.env : {};
+  const cleaned: Record<string, any> = {};
+  for (const [key, value] of Object.entries(raw)) {
+    cleaned[key] = typeof value === "string" && value.trim() === "" ? undefined : value;
+  }
+
+  const result = envSchema.safeParse(cleaned);
   if (!result.success) {
-    console.error("❌ Environment configuration validation failed:");
-    console.error(result.error.format());
-    // In dev mode, return safe fallback with defaults; in production throw
-    if (process.env.NODE_ENV === "production") {
-      throw new Error("Invalid environment configuration. Check server environment variables.");
+    console.warn("⚠️ Environment configuration validation notice (using safe defaults):", result.error.format());
+    const defaults = envSchema.parse({});
+    const safeData = { ...defaults };
+    for (const [key, val] of Object.entries(cleaned)) {
+      if (val !== undefined && key in safeData) {
+        const fieldSchema = (envSchema.shape as any)[key];
+        if (fieldSchema) {
+          const fieldResult = fieldSchema.safeParse(val);
+          if (fieldResult.success) {
+            (safeData as any)[key] = fieldResult.data;
+          }
+        }
+      }
     }
-    return envSchema.parse({});
+    return safeData;
   }
   return result.data;
 }

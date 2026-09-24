@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { PresenceService } from "@/lib/redis/presence";
 import { getAuthFromRequest } from "@/lib/auth/serverAuth";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const presence = await PresenceService.getPresence();
   return NextResponse.json(presence);

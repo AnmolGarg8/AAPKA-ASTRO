@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ClientAccountStore } from "@/lib/store/clientAccountStore";
+
+export const dynamic = "force-dynamic";
 import { sanitizeString } from "@/lib/security/inputSanitizer";
 
 export async function POST(req: NextRequest) {
