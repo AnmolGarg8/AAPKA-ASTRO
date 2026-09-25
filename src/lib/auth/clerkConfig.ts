@@ -6,8 +6,12 @@
  * unconfigured custom domain (clerk.aapkaastro.com) without Clerk DNS CNAME records,
  * which causes browser redirects to 404 on LiteSpeed.
  */
+export const DEFAULT_CLERK_PUBLISHABLE_KEY =
+  "pk_test_cHJvZm91bmQtY2ljYWRhLTk2OTQuY2xlcmsuYWNjb3VudHMuZGV2JA";
+
 export const isClerkConfigured = (): boolean => {
-  const key = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  const key =
+    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || DEFAULT_CLERK_PUBLISHABLE_KEY;
   if (!key) return false;
   if (
     key.includes("Y2xlcmsuYWFwa2Fhc3Ryby5jb20k") ||

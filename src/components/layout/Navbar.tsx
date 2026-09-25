@@ -161,7 +161,7 @@ export const Navbar: React.FC = () => {
           </nav>
 
           {/* Right Actions: Language Toggle, Wallet & Profile */}
-          <div className="flex items-center gap-2.5 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Language Toggle */}
             <button
               type="button"
@@ -188,37 +188,33 @@ export const Navbar: React.FC = () => {
 
             {/* User Account / Auth Actions */}
             <Show when="signed-out">
-              <div className="hidden sm:flex items-center gap-2">
-                <SignInButton mode="modal">
-                  <button
-                    type="button"
-                    className="flex items-center gap-1.5 rounded-lg border border-[#7B2D26] bg-transparent px-2.5 py-1.5 text-xs font-bold text-[#7B2D26] hover:bg-[#7B2D26]/10 transition-all cursor-pointer"
-                  >
-                    <User className="h-3.5 w-3.5" />
-                    <span>{t("nav_sign_in")}</span>
-                  </button>
-                </SignInButton>
-                <SignUpButton mode="modal">
-                  <button
-                    type="button"
-                    className="flex items-center gap-1.5 rounded-lg border border-[#7B2D26] bg-[#7B2D26] px-3 py-1.5 text-xs font-bold text-[#FBF3E7] hover:bg-[#64221C] transition-all shadow-xs cursor-pointer"
-                  >
-                    <Sparkles className="h-3 w-3 text-[#E8A33D]" />
-                    <span>Sign Up</span>
-                  </button>
-                </SignUpButton>
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <Link
+                  href="/login"
+                  className="flex items-center gap-1.5 rounded-lg border border-[#7B2D26] bg-transparent px-2.5 py-1.5 text-xs font-bold text-[#7B2D26] hover:bg-[#7B2D26]/10 transition-all cursor-pointer"
+                >
+                  <User className="h-3.5 w-3.5" />
+                  <span>{t("nav_sign_in")}</span>
+                </Link>
+                <Link
+                  href="/signup"
+                  className="hidden sm:flex items-center gap-1.5 rounded-lg border border-[#7B2D26] bg-[#7B2D26] px-3 py-1.5 text-xs font-bold text-[#FBF3E7] hover:bg-[#64221C] transition-all shadow-xs cursor-pointer"
+                >
+                  <Sparkles className="h-3 w-3 text-[#E8A33D]" />
+                  <span>Sign Up</span>
+                </Link>
               </div>
             </Show>
 
             <Show when="signed-in">
-              <Link
-                href="/account"
-                className="hidden sm:flex items-center gap-1.5 rounded-lg border border-[#E8D8C3] bg-[#FFFDF9] px-2.5 py-1.5 text-xs font-bold text-[#3B2A1E] hover:bg-[#FBF3E7] transition-all"
-              >
-                <User className="h-3.5 w-3.5 text-[#6E5545]" />
-                <span className="hidden md:inline">{t("nav_my_account")}</span>
-              </Link>
-              <div className="hidden sm:block">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <Link
+                  href="/account"
+                  className="flex items-center gap-1.5 rounded-lg border border-[#E8D8C3] bg-[#FFFDF9] px-2.5 py-1.5 text-xs font-bold text-[#3B2A1E] hover:bg-[#FBF3E7] transition-all"
+                >
+                  <User className="h-3.5 w-3.5 text-[#6E5545]" />
+                  <span className="hidden md:inline">{t("nav_my_account")}</span>
+                </Link>
                 <UserButton
                   appearance={{
                     elements: {

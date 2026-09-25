@@ -186,10 +186,38 @@ export const Show: React.FC<{
   const active = isClerkConfigured();
 
   if (active) {
-    return <RealShow when={when}>{children}</RealShow>;
+    return <AdaptiveClerkShow when={when}>{children}</AdaptiveClerkShow>;
   }
 
   return <MockShow when={when}>{children}</MockShow>;
+};
+
+const AdaptiveClerkShow: React.FC<{
+  when: "signed-in" | "signed-out";
+  children: React.ReactNode;
+}> = ({ when, children }) => {
+  const { isSignedIn, isLoaded } = useRealAuth();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // During SSR or before Clerk finishes loading, render signed-out by default
+  // so visitors immediately see "Sign In" and "Sign Up" options with zero blank flash!
+  if (!mounted || !isLoaded) {
+    return when === "signed-out" ? <>{children}</> : null;
+  }
+
+  if (when === "signed-in" && isSignedIn) {
+    return <>{children}</>;
+  }
+
+  if (when === "signed-out" && !isSignedIn) {
+    return <>{children}</>;
+  }
+
+  return null;
 };
 
 const MockShow: React.FC<{
@@ -231,11 +259,6 @@ export const SignInButton: React.FC<{
   signUpForceRedirectUrl?: string;
   signUpFallbackRedirectUrl?: string;
 }> = (props) => {
-  const active = isClerkConfigured();
-  if (active) {
-    return <RealSignInButton {...props} />;
-  }
-
   if (props.children) {
     return (
       <Link href="/login" className="inline-flex">
@@ -263,11 +286,6 @@ export const SignUpButton: React.FC<{
   signInForceRedirectUrl?: string;
   signInFallbackRedirectUrl?: string;
 }> = (props) => {
-  const active = isClerkConfigured();
-  if (active) {
-    return <RealSignUpButton {...props} />;
-  }
-
   if (props.children) {
     return (
       <Link href="/signup" className="inline-flex">

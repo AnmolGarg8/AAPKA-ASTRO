@@ -44,7 +44,9 @@ export const metadata: Metadata = {
 const isProduction = process.env.NODE_ENV === "production";
 const isSatellite = isProduction && process.env.NEXT_PUBLIC_CLERK_IS_SATELLITE === "true";
 const clerkDomain = isSatellite ? (process.env.NEXT_PUBLIC_CLERK_DOMAIN || undefined) : undefined;
-const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || "pk_test_Y2xlcmsuYWFwa2Fhc3Ryby5jb20k";
+const publishableKey =
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
+  "pk_test_cHJvZm91bmQtY2ljYWRhLTk2OTQuY2xlcmsuYWNjb3VudHMuZGV2JA";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
