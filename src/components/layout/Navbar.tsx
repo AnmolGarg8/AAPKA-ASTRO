@@ -21,7 +21,7 @@ import {
   Globe,
 } from "lucide-react";
 import { DiyaIcon } from "@/components/ui/DiyaIcon";
-import { Show, UserButton } from "@/components/auth/ClerkAuthWrapper";
+import { Show, UserButton, SignInButton, SignUpButton } from "@/components/auth/ClerkAuthWrapper";
 import { useLanguage } from "@/context/LanguageContext";
 import { useCurrentUserRole } from "@/lib/auth/roleContext";
 import { CallbackRequestModal } from "@/components/consult/CallbackRequestModal";
@@ -188,13 +188,26 @@ export const Navbar: React.FC = () => {
 
             {/* User Account / Auth Actions */}
             <Show when="signed-out">
-              <Link
-                href="/login"
-                className="hidden sm:flex items-center gap-1.5 rounded-lg border border-[#7B2D26] bg-[#7B2D26] px-3 py-1.5 text-xs font-bold text-[#FBF3E7] hover:bg-[#64221C] transition-all shadow-xs"
-              >
-                <User className="h-3.5 w-3.5" />
-                <span>{t("nav_sign_in")}</span>
-              </Link>
+              <div className="hidden sm:flex items-center gap-2">
+                <SignInButton mode="modal">
+                  <button
+                    type="button"
+                    className="flex items-center gap-1.5 rounded-lg border border-[#7B2D26] bg-transparent px-2.5 py-1.5 text-xs font-bold text-[#7B2D26] hover:bg-[#7B2D26]/10 transition-all cursor-pointer"
+                  >
+                    <User className="h-3.5 w-3.5" />
+                    <span>{t("nav_sign_in")}</span>
+                  </button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <button
+                    type="button"
+                    className="flex items-center gap-1.5 rounded-lg border border-[#7B2D26] bg-[#7B2D26] px-3 py-1.5 text-xs font-bold text-[#FBF3E7] hover:bg-[#64221C] transition-all shadow-xs cursor-pointer"
+                  >
+                    <Sparkles className="h-3 w-3 text-[#E8A33D]" />
+                    <span>Sign Up</span>
+                  </button>
+                </SignUpButton>
+              </div>
             </Show>
 
             <Show when="signed-in">
@@ -282,14 +295,42 @@ export const Navbar: React.FC = () => {
               })}
 
               <div className="border-t border-[#E8D8C3] pt-2 mt-2 flex flex-col gap-2">
-                <Link
-                  href="/account"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 rounded-lg border border-[#E8D8C3] bg-[#FBF3E7] px-3 py-2.5 text-xs font-bold text-[#3B2A1E]"
-                >
-                  <User className="h-4 w-4 text-[#7B2D26]" />
-                  <span>{t("nav_my_account")}</span>
-                </Link>
+                <Show when="signed-out">
+                  <SignInButton mode="modal">
+                    <button
+                      type="button"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="w-full flex items-center justify-center gap-2 rounded-lg border border-[#7B2D26] bg-transparent px-3 py-2 text-xs font-bold text-[#7B2D26]"
+                    >
+                      <User className="h-4 w-4" />
+                      <span>{t("nav_sign_in")}</span>
+                    </button>
+                  </SignInButton>
+                  <SignUpButton mode="modal">
+                    <button
+                      type="button"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="w-full flex items-center justify-center gap-2 rounded-lg bg-[#7B2D26] px-3 py-2 text-xs font-bold text-[#FBF3E7]"
+                    >
+                      <Sparkles className="h-4 w-4 text-[#E8A33D]" />
+                      <span>Sign Up</span>
+                    </button>
+                  </SignUpButton>
+                </Show>
+
+                <Show when="signed-in">
+                  <div className="flex items-center justify-between px-1 py-1">
+                    <Link
+                      href="/account"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-2 text-xs font-bold text-[#3B2A1E]"
+                    >
+                      <User className="h-4 w-4 text-[#7B2D26]" />
+                      <span>{t("nav_my_account")}</span>
+                    </Link>
+                    <UserButton />
+                  </div>
+                </Show>
 
                 {isAstrologer && (
                   <Link

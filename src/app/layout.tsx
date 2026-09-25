@@ -48,33 +48,33 @@ const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || "pk_test
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider
-      publishableKey={publishableKey}
-      domain={clerkDomain}
-      isSatellite={isSatellite}
-      signInUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL || "/login"}
-      signUpUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL || "/signup"}
-      signInForceRedirectUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL || "/account"}
-      signUpForceRedirectUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL || "/account"}
-      appearance={{
-        variables: {
-          colorPrimary: "#7B2D26",
-          colorForeground: "#3B2A1E",
-          colorBackground: "#FFFDF9",
-          borderRadius: "0.5rem",
-        },
-        elements: {
-          card: "border border-[#E8D8C3] shadow-md bg-[#FFFDF9]",
-          formButtonPrimary: "bg-[#7B2D26] hover:bg-[#64221C] text-[#FBF3E7] font-bold text-sm",
-          headerTitle: "font-serif text-[#7B2D26]",
-        },
-      }}
+    <html
+      lang="en"
+      className={`${cinzel.variable} ${mukta.variable} h-full antialiased`}
     >
-      <html
-        lang="en"
-        className={`${cinzel.variable} ${mukta.variable} h-full antialiased`}
-      >
-        <body className="min-h-full flex flex-col bg-[#FBF3E7] text-[#3B2A1E] font-body selection:bg-[#E8A33D] selection:text-[#3B2A1E]">
+      <body className="min-h-full flex flex-col bg-[#FBF3E7] text-[#3B2A1E] font-body selection:bg-[#E8A33D] selection:text-[#3B2A1E]">
+        <ClerkProvider
+          publishableKey={publishableKey}
+          domain={clerkDomain}
+          isSatellite={isSatellite}
+          signInUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL || "/login"}
+          signUpUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL || "/signup"}
+          signInForceRedirectUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL || "/account"}
+          signUpForceRedirectUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL || "/account"}
+          appearance={{
+            variables: {
+              colorPrimary: "#7B2D26",
+              colorForeground: "#3B2A1E",
+              colorBackground: "#FFFDF9",
+              borderRadius: "0.5rem",
+            },
+            elements: {
+              card: "border border-[#E8D8C3] shadow-md bg-[#FFFDF9]",
+              formButtonPrimary: "bg-[#7B2D26] hover:bg-[#64221C] text-[#FBF3E7] font-bold text-sm",
+              headerTitle: "font-serif text-[#7B2D26]",
+            },
+          }}
+        >
           <LanguageProvider>
             <AstrologerStatusHeader />
             <Navbar />
@@ -82,8 +82,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Footer />
             <WelcomeConsultationModal />
           </LanguageProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }

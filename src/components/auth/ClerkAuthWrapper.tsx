@@ -9,6 +9,8 @@ import {
   UserButton as RealUserButton,
   SignIn as RealSignIn,
   SignUp as RealSignUp,
+  SignInButton as RealSignInButton,
+  SignUpButton as RealSignUpButton,
   useUser as useRealUser,
   useAuth as useRealAuth,
 } from "@clerk/nextjs";
@@ -196,6 +198,74 @@ const MockShow: React.FC<{
   }
 
   return null;
+};
+
+// ==============================================================================
+// ADAPTIVE SIGN IN & SIGN UP BUTTONS
+// ==============================================================================
+
+export const SignInButton: React.FC<{
+  children?: React.ReactNode;
+  mode?: "modal" | "redirect";
+  forceRedirectUrl?: string;
+  fallbackRedirectUrl?: string;
+  signUpForceRedirectUrl?: string;
+  signUpFallbackRedirectUrl?: string;
+}> = (props) => {
+  const active = isClerkConfigured();
+  if (active) {
+    return <RealSignInButton {...props} />;
+  }
+
+  if (props.children) {
+    return (
+      <Link href="/login" className="inline-flex">
+        {props.children}
+      </Link>
+    );
+  }
+
+  return (
+    <Link
+      href="/login"
+      className="inline-flex items-center gap-1.5 rounded-lg border border-[#7B2D26] bg-transparent px-3 py-1.5 text-xs font-bold text-[#7B2D26] hover:bg-[#7B2D26]/10 transition-all cursor-pointer"
+    >
+      <LogIn className="h-3.5 w-3.5" />
+      <span>Sign In</span>
+    </Link>
+  );
+};
+
+export const SignUpButton: React.FC<{
+  children?: React.ReactNode;
+  mode?: "modal" | "redirect";
+  forceRedirectUrl?: string;
+  fallbackRedirectUrl?: string;
+  signInForceRedirectUrl?: string;
+  signInFallbackRedirectUrl?: string;
+}> = (props) => {
+  const active = isClerkConfigured();
+  if (active) {
+    return <RealSignUpButton {...props} />;
+  }
+
+  if (props.children) {
+    return (
+      <Link href="/signup" className="inline-flex">
+        {props.children}
+      </Link>
+    );
+  }
+
+  return (
+    <Link
+      href="/signup"
+      className="inline-flex items-center gap-1.5 rounded-lg border border-[#7B2D26] bg-[#7B2D26] px-3 py-1.5 text-xs font-bold text-[#FBF3E7] hover:bg-[#64221C] transition-all shadow-xs cursor-pointer"
+    >
+      <Sparkles className="h-3.5 w-3.5 text-[#E8A33D]" />
+      <span>Sign Up</span>
+    </Link>
+  );
 };
 
 // ==============================================================================
