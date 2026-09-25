@@ -14,11 +14,11 @@ import { PLACEHOLDER_ASTROLOGER } from "@/config/placeholderContent";
 
 const VastuPage: React.FC = () => {
   const [propertyType, setPropertyType] = useState<"residential" | "commercial" | "industrial">("residential");
-  const [userName, setUserName] = useState("Aarav Sharma");
-  const [userPhone, setUserPhone] = useState("+91 93112 15564");
+  const [userName, setUserName] = useState("");
+  const [userPhone, setUserPhone] = useState("");
   const [city, setCity] = useState("New Delhi");
   const [areaSqFt, setAreaSqFt] = useState("1800");
-  const [specificConcern, setSpecificConcern] = useState("Financial stagnation and frequent disputes in North-East area");
+  const [specificConcern, setSpecificConcern] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
   const vastuServices = [
@@ -183,6 +183,7 @@ const VastuPage: React.FC = () => {
                   <input
                     type="text"
                     required
+                    placeholder="e.g. Rahul Verma"
                     value={userName}
                     onChange={(e) => setUserName(e.target.value)}
                     className="w-full rounded-xl border border-[#D4C3B3] bg-[#FAF5EE] p-3 text-[#3B2A1E] focus:border-[#7B2D26] focus:outline-none"
@@ -193,6 +194,7 @@ const VastuPage: React.FC = () => {
                   <input
                     type="tel"
                     required
+                    placeholder="e.g. +91 98765 43210"
                     value={userPhone}
                     onChange={(e) => setUserPhone(e.target.value)}
                     className="w-full rounded-xl border border-[#D4C3B3] bg-[#FAF5EE] p-3 text-[#3B2A1E] focus:border-[#7B2D26] focus:outline-none"

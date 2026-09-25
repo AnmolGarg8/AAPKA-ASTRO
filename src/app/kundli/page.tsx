@@ -32,7 +32,7 @@ import { PLACEHOLDER_ASTROLOGER, ADMIN_CONFIGURABLE_PRICING } from "@/config/pla
 export default function KundliPage() {
   const [kundli, setKundli] = useState<KundliData>(() =>
     calculateKundli({
-      name: "Aarav Sharma",
+      name: "Sample Chart",
       gender: "male",
       birthDate: "1995-10-24",
       birthTime: "14:35",

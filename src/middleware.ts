@@ -17,7 +17,7 @@ const isAstrologerRoute = createRouteMatcher(["/astrologer(.*)"]);
 
 const isProduction = process.env.NODE_ENV === "production";
 const isSatelliteDomain = isProduction && process.env.NEXT_PUBLIC_CLERK_IS_SATELLITE === "true";
-const clerkDomain = isProduction ? (process.env.NEXT_PUBLIC_CLERK_DOMAIN || "aapkaastro.com") : undefined;
+const clerkDomain = isSatelliteDomain ? (process.env.NEXT_PUBLIC_CLERK_DOMAIN || undefined) : undefined;
 const signInPath = process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL || "/login";
 const signUpPath = process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL || "/signup";
 

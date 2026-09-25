@@ -17,7 +17,7 @@ import { PLACEHOLDER_ASTROLOGER } from "@/config/placeholderContent";
 
 export default function KundliMatchingPage() {
   // Boy State
-  const [boyName, setBoyName] = useState("Aarav Sharma");
+  const [boyName, setBoyName] = useState("");
   const [boyDate, setBoyDate] = useState("1995-10-24");
   const [boyTime, setBoyTime] = useState("14:35");
   const [boyLocation, setBoyLocation] = useState<LocationResult>({
@@ -34,7 +34,7 @@ export default function KundliMatchingPage() {
   });
 
   // Girl State
-  const [girlName, setGirlName] = useState("Meera Kapoor");
+  const [girlName, setGirlName] = useState("");
   const [girlDate, setGirlDate] = useState("1997-04-12");
   const [girlTime, setGirlTime] = useState("09:15");
   const [girlLocation, setGirlLocation] = useState<LocationResult>({
@@ -149,6 +149,7 @@ export default function KundliMatchingPage() {
                   <input
                     type="text"
                     required
+                    placeholder="e.g. Rahul Verma"
                     value={boyName}
                     onChange={(e) => setBoyName(e.target.value)}
                     className="w-full rounded-xl border border-[#D4C3B3] bg-[#FAF5EE] px-3.5 py-2 text-xs text-[#3B2A1E] focus:border-[#7B2D26] focus:outline-none"
@@ -199,6 +200,7 @@ export default function KundliMatchingPage() {
                   <input
                     type="text"
                     required
+                    placeholder="e.g. Priya Sharma"
                     value={girlName}
                     onChange={(e) => setGirlName(e.target.value)}
                     className="w-full rounded-xl border border-[#D4C3B3] bg-[#FAF5EE] px-3.5 py-2 text-xs text-[#3B2A1E] focus:border-[#7B2D26] focus:outline-none"

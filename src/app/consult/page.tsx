@@ -38,9 +38,11 @@ import {
   BillingState,
 } from "@/lib/services/consultationBilling";
 import { useCurrentUserRole } from "@/lib/auth/roleContext";
+import { useUser } from "@/components/auth/ClerkAuthWrapper";
 
 export default function ConsultPage() {
   const { isAstrologer } = useCurrentUserRole();
+  const { user } = useUser();
   // Live State
   const [status, setStatus] = useState<AstrologerStatus>("AVAILABLE");
   const [queue, setQueue] = useState<QueueItem[]>([]);
@@ -48,8 +50,8 @@ export default function ConsultPage() {
   const [walletBalance, setWalletBalance] = useState(250);
 
   // Client Consultation Form State
-  const [userName, setUserName] = useState("Aarav Sharma");
-  const [userPhone, setUserPhone] = useState("+91 98765 43210");
+  const [userName, setUserName] = useState("");
+  const [userPhone, setUserPhone] = useState("");
   const [consultType, setConsultType] = useState<"chat" | "voice" | "video">("chat");
   const [birthDate, setBirthDate] = useState("1995-10-24");
   const [birthTime, setBirthTime] = useState("14:35");
@@ -106,6 +108,12 @@ export default function ConsultPage() {
       clearInterval(interval);
     };
   }, []);
+
+  useEffect(() => {
+    if (user?.fullName && !userName) {
+      setUserName(user.fullName);
+    }
+  }, [user, userName]);
 
   // Initialize Billing Engine when active session is established
   useEffect(() => {
@@ -810,6 +818,7 @@ export default function ConsultPage() {
                     <input
                       type="text"
                       required
+                      placeholder="e.g. Rahul Verma"
                       value={userName}
                       onChange={(e) => setUserName(e.target.value)}
                       className="w-full rounded-xl border border-[#D4C3B3] bg-[#FAF5EE] px-3.5 py-2.5 text-xs text-[#3B2A1E] focus:border-[#7B2D26] focus:outline-none"
@@ -820,6 +829,7 @@ export default function ConsultPage() {
                     <input
                       type="tel"
                       required
+                      placeholder="e.g. +91 98765 43210"
                       value={userPhone}
                       onChange={(e) => setUserPhone(e.target.value)}
                       className="w-full rounded-xl border border-[#D4C3B3] bg-[#FAF5EE] px-3.5 py-2.5 text-xs text-[#3B2A1E] focus:border-[#7B2D26] focus:outline-none"

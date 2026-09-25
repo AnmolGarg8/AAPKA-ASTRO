@@ -19,6 +19,7 @@ import { isClerkConfigured } from "@/lib/auth/clerkConfig";
 import { ClerkRoleBridge, MockRoleBridge } from "@/lib/auth/roleContext";
 import { validateSignupEmail } from "@/lib/auth/emailPolicy";
 import { isOwnerEmail } from "@/lib/auth/staffPermissions";
+import { ClientAccountStore } from "@/lib/store/clientAccountStore";
 
 export { isClerkConfigured };
 
@@ -37,7 +38,7 @@ interface MockUser {
 interface MockAuthContextType {
   isSignedIn: boolean;
   user: MockUser | null;
-  signIn: (email?: string, role?: "CLIENT" | "ASTROLOGER" | "ADMIN" | "OWNER") => void;
+  signIn: (email?: string, role?: "CLIENT" | "ASTROLOGER" | "ADMIN" | "OWNER", customName?: string) => void;
   signOut: () => void;
 }
 
@@ -62,13 +63,18 @@ export const MockAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         const parsed = JSON.parse(stored);
         setUser(parsed);
         setIsSignedIn(true);
+        ClientAccountStore.setLoggedIn(true, parsed.email, undefined, parsed.name);
       } catch {
         // ignore parsing error
       }
     }
   }, []);
 
-  const signIn = (email: string = "seeker@aapkaastro.com", requestedRole?: "CLIENT" | "ASTROLOGER" | "ADMIN" | "OWNER") => {
+  const signIn = (
+    email: string = "seeker@aapkaastro.com",
+    requestedRole?: "CLIENT" | "ASTROLOGER" | "ADMIN" | "OWNER",
+    customName?: string
+  ) => {
     const isOwner = isOwnerEmail(email);
     // Anti-tamper: if a non-owner attempts to self-assign OWNER, downgrade to CLIENT
     const safeRequested = requestedRole === "OWNER" && !isOwner ? "CLIENT" : requestedRole;
@@ -78,6 +84,23 @@ export const MockAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         : safeRequested ||
           (email.includes("admin") ? "ADMIN" : email.includes("astrologer") || email.includes("acharya") ? "ASTROLOGER" : "CLIENT");
 
+    const emailPrefix = email.split("@")[0].replace(/[._-]/g, " ");
+    const capitalizedName = emailPrefix
+      .split(" ")
+      .filter(Boolean)
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+      .join(" ");
+
+    const resolvedName =
+      customName?.trim() ||
+      (isOwner
+        ? "Anmol Garg (Owner)"
+        : determinedRole === "ASTROLOGER"
+        ? "Acharya Ji"
+        : determinedRole === "ADMIN"
+        ? "Platform Admin"
+        : capitalizedName || "Seeker");
+
     const mockUserData: MockUser = {
       id: isOwner
         ? "usr_owner_001"
@@ -85,20 +108,15 @@ export const MockAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         ? "usr_astrologer_001"
         : determinedRole === "ADMIN"
         ? "usr_admin_001"
-        : "usr_mock_12345",
-      name: isOwner
-        ? "Anmol Garg (Owner)"
-        : determinedRole === "ASTROLOGER"
-        ? "Acharya Ji"
-        : determinedRole === "ADMIN"
-        ? "Platform Admin"
-        : "Aarav Sharma",
+        : "usr_" + Math.random().toString(36).substring(2, 9),
+      name: resolvedName,
       email: email,
       role: determinedRole,
     };
 
     setUser(mockUserData);
     setIsSignedIn(true);
+    ClientAccountStore.setLoggedIn(true, email, undefined, resolvedName);
     localStorage.setItem("aapka_astro_mock_user", JSON.stringify(mockUserData));
     document.cookie = "aapka_astro_session=active; path=/; max-age=86400";
     document.cookie = `aapka_astro_role=${determinedRole}; path=/; max-age=86400`;
@@ -110,6 +128,7 @@ export const MockAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const signOut = () => {
     setUser(null);
     setIsSignedIn(false);
+    ClientAccountStore.setLoggedIn(false, "", undefined, "Seeker");
     localStorage.removeItem("aapka_astro_mock_user");
     document.cookie = "aapka_astro_session=; path=/; max-age=0";
     document.cookie = "aapka_astro_role=; path=/; max-age=0";
@@ -301,8 +320,8 @@ const MockUserButton: React.FC = () => {
       {dropdownOpen && (
         <div className="absolute right-0 mt-2 w-48 rounded-xl border border-[#E8D8C3] bg-[#FFFDF9] py-2 shadow-lg z-50 animate-in fade-in zoom-in-95 duration-100">
           <div className="px-4 py-2 border-b border-[#E8D8C3]/50">
-            <p className="text-xs font-bold text-[#7B2D26] truncate">{user?.name || "Aarav Sharma"}</p>
-            <p className="text-[10px] text-[#6E5545] truncate">{user?.email || "seeker@aapkaastro.com"}</p>
+            <p className="text-xs font-bold text-[#7B2D26] truncate">{user?.name || "Seeker"}</p>
+            <p className="text-[10px] text-[#6E5545] truncate">{user?.email || ""}</p>
           </div>
           <Link
             href="/account"
@@ -341,6 +360,34 @@ const MockUserButton: React.FC = () => {
 };
 
 // ==============================================================================
+// ADAPTIVE USE USER HOOK
+// ==============================================================================
+
+export const useUser = () => {
+  const active = isClerkConfigured();
+  if (active) {
+    return useRealUser();
+  }
+  const { user, isSignedIn } = useMockAuth();
+  return {
+    isLoaded: true,
+    isSignedIn,
+    user: user
+      ? {
+          id: user.id,
+          fullName: user.name,
+          firstName: user.name.split(" ")[0],
+          lastName: user.name.split(" ").slice(1).join(" "),
+          imageUrl: user.imageUrl,
+          primaryEmailAddress: { emailAddress: user.email },
+          username: user.email.split("@")[0],
+          createdAt: new Date(),
+        }
+      : null,
+  };
+};
+
+// ==============================================================================
 // ADAPTIVE SIGN IN COMPONENT
 // ==============================================================================
 
@@ -357,11 +404,13 @@ export const SignIn: React.FC<any> = (props) => {
 const MockSignInForm: React.FC = () => {
   const { signIn } = useMockAuth();
   const router = useRouter();
-  const [emailInput, setEmailInput] = useState("seeker@aapkaastro.com");
+  const [emailInput, setEmailInput] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleGoogleLogin = () => {
-    signIn("seeker.google@aapkaastro.com");
+    const enteredEmail = window.prompt("Enter your Google Account email to sign in:", "user@gmail.com");
+    if (!enteredEmail || !enteredEmail.includes("@")) return;
+    signIn(enteredEmail.trim());
     router.push("/account");
   };
 
@@ -485,7 +534,15 @@ const MockSignUpForm: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleGoogleSignup = () => {
-    signIn("new.seeker@aapkaastro.com");
+    const enteredEmail = window.prompt("Enter your Google Account email to create account:", "user@gmail.com");
+    if (!enteredEmail || !enteredEmail.includes("@")) return;
+    const derived = enteredEmail.split("@")[0].replace(/[._-]/g, " ");
+    const cap = derived
+      .split(" ")
+      .filter(Boolean)
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+      .join(" ");
+    signIn(enteredEmail.trim(), undefined, cap);
     router.push("/account");
   };
 
@@ -501,7 +558,8 @@ const MockSignUpForm: React.FC = () => {
     }
 
     setErrorMessage(null);
-    signIn(emailInput);
+    const actualName = nameInput.trim() || undefined;
+    signIn(emailInput.trim(), undefined, actualName);
     router.push("/account");
   };
 

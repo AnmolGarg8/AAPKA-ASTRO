@@ -8,16 +8,26 @@ import { calculateKundli } from "@/lib/astrology/chartCalculations";
 import { Calendar, Clock, User } from "lucide-react";
 import { DiyaIcon } from "@/components/ui/DiyaIcon";
 
+import { useUser } from "@/components/auth/ClerkAuthWrapper";
+
 interface KundliFormProps {
   onCalculated: (data: KundliData) => void;
   className?: string;
 }
 
 export const KundliForm: React.FC<KundliFormProps> = ({ onCalculated, className = "" }) => {
-  const [name, setName] = useState("Aarav Sharma");
+  const { user } = useUser();
+  const [name, setName] = useState("");
   const [gender, setGender] = useState<"male" | "female" | "other">("male");
   const [birthDate, setBirthDate] = useState("1995-10-24");
   const [birthTime, setBirthTime] = useState("14:35");
+
+  React.useEffect(() => {
+    if (user?.fullName && !name) {
+      setName(user.fullName);
+    }
+  }, [user, name]);
+
   const [selectedLocation, setSelectedLocation] = useState<LocationResult>({
     id: "in-new-delhi",
     name: "New Delhi",
@@ -38,7 +48,7 @@ export const KundliForm: React.FC<KundliFormProps> = ({ onCalculated, className 
 
     setTimeout(() => {
       const kundli = calculateKundli({
-        name,
+        name: name.trim() || "Seeker",
         gender,
         birthDate,
         birthTime,

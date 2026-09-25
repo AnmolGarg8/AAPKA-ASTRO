@@ -28,7 +28,7 @@ import { LocalBusinessJsonLd, PersonJsonLd } from "@/components/seo/JsonLd";
 export default function HomePage() {
   const [kundli, setKundli] = useState<KundliData>(() =>
     calculateKundli({
-      name: "Aarav Sharma",
+      name: "Sample Chart",
       gender: "male",
       birthDate: "1995-10-24",
       birthTime: "14:35",

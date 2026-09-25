@@ -7,6 +7,7 @@ import { ClientAccountStore } from "@/lib/store/clientAccountStore";
 import { PLACEHOLDER_ASTROLOGER, ADMIN_CONFIGURABLE_PRICING } from "@/config/placeholderContent";
 import { MandalaDivider } from "@/components/ui/MandalaDivider";
 import { DiyaIcon } from "@/components/ui/DiyaIcon";
+import { useUser } from "@/components/auth/ClerkAuthWrapper";
 import {
   User,
   Wallet,
@@ -24,11 +25,21 @@ import {
 } from "lucide-react";
 
 export default function ClientAccountDashboard() {
+  const { user, isLoaded } = useUser();
   const [wallet, setWallet] = useState(250);
   const profile = ClientAccountStore.getProfile();
   const savedKundlis = ClientAccountStore.getSavedKundlis();
   const consultations = ClientAccountStore.getConsultationHistory();
   const astrologerStatus = AstrologerStateStore.getStatus();
+
+  const displayName =
+    user?.fullName ||
+    user?.firstName ||
+    (user as any)?.username ||
+    user?.primaryEmailAddress?.emailAddress?.split("@")[0] ||
+    "Seeker";
+  const displayEmail = user?.primaryEmailAddress?.emailAddress || profile.email;
+  const userInitial = displayName.charAt(0).toUpperCase();
 
   useEffect(() => {
     setWallet(AstrologerStateStore.getWalletBalance());
@@ -44,12 +55,20 @@ export default function ClientAccountDashboard() {
         <div className="rounded-3xl border border-[#E8D8C3] bg-[#FFFDF9] p-6 sm:p-8 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#7B2D26] text-[#E8A33D] font-temple text-2xl font-bold shadow-md">
-              {profile.name.charAt(0)}
+              {user?.imageUrl ? (
+                <img
+                  src={user.imageUrl}
+                  alt={displayName}
+                  className="h-16 w-16 rounded-2xl object-cover"
+                />
+              ) : (
+                userInitial
+              )}
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="font-temple text-2xl font-bold text-[#7B2D26]">
-                  Namaste, {profile.name}
+                  Namaste, {displayName}
                 </h1>
                 <span className="rounded-full bg-[#6B8E5A]/15 border border-[#6B8E5A]/30 px-2.5 py-0.5 text-[10px] font-bold text-[#2A4720] flex items-center gap-1">
                   <ShieldCheck className="h-3 w-3" />
@@ -57,7 +76,7 @@ export default function ClientAccountDashboard() {
                 </span>
               </div>
               <p className="text-xs text-[#6E5545] mt-1">
-                {profile.phone} • Member since {profile.joinedDate}
+                {displayEmail} {(user as any)?.createdAt ? `• Member since ${new Date((user as any).createdAt).toLocaleDateString("en-IN", { month: "short", year: "numeric" })}` : profile.joinedDate ? `• Member since ${profile.joinedDate}` : ""}
               </p>
             </div>
           </div>

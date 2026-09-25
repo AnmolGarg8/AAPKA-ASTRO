@@ -7,22 +7,23 @@ import { Hash, Sparkles, PhoneCall, ArrowRight, Compass, ShieldCheck, RefreshCw 
 import { PLACEHOLDER_ASTROLOGER, ADMIN_CONFIGURABLE_PRICING } from "@/config/placeholderContent";
 
 export default function NumerologyCalculatorPage() {
-  const [fullName, setFullName] = useState("Aarav Sharma");
+  const [fullName, setFullName] = useState("");
   const [birthDate, setBirthDate] = useState("1996-05-14");
 
   const [result, setResult] = useState<NumerologyResult>(() =>
-    calculateNumerology("Aarav Sharma", "1996-05-14")
+    calculateNumerology("Seeker", "1996-05-14")
   );
 
   const [isCalculating, setIsCalculating] = useState(false);
 
   const handleCalculate = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fullName.trim() || !birthDate) return;
+    if (!birthDate) return;
+    const nameToCalc = fullName.trim() || "Seeker";
 
     setIsCalculating(true);
     setTimeout(() => {
-      setResult(calculateNumerology(fullName, birthDate));
+      setResult(calculateNumerology(nameToCalc, birthDate));
       setIsCalculating(false);
     }, 350);
   };
