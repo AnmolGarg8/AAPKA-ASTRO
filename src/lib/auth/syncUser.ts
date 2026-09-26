@@ -53,15 +53,44 @@ export async function syncClerkUserToDatabase(userData: ClerkUserData) {
           }
         }
 
-        // 3. If user still does not exist, create new user and associated wallet
+        // 3. If not found by email, search by phone if available
+        if (!user && userData.phone) {
+          user = await prisma.user.findUnique({
+            where: { phone: userData.phone },
+            include: { wallet: true },
+          });
+
+          if (user) {
+            user = await prisma.user.update({
+              where: { id: user.id },
+              data: {
+                clerkId: userData.clerkId,
+                email: normalizedEmail || user.email,
+                name: userData.name || user.name,
+                role: isOwner ? "OWNER" : user.role,
+              },
+              include: { wallet: true },
+            });
+          }
+        }
+
+        // 4. If user still does not exist, create new user and associated wallet
         if (!user) {
+          let safePhone = userData.phone || null;
+          if (safePhone) {
+            const existingPhoneUser = await prisma.user.findUnique({ where: { phone: safePhone } });
+            if (existingPhoneUser) {
+              safePhone = null;
+            }
+          }
+
           user = await prisma.user.create({
             data: {
               clerkId: userData.clerkId,
               identifier: normalizedEmail || userData.clerkId,
               email: normalizedEmail,
               name: userData.name || null,
-              phone: userData.phone || null,
+              phone: safePhone,
               role: isOwner ? "OWNER" : "CLIENT",
               walletBalance: 0.0,
               wallet: {
@@ -73,7 +102,25 @@ export async function syncClerkUserToDatabase(userData: ClerkUserData) {
             include: { wallet: true },
           });
         } else {
-          // 4. If user exists but is missing wallet, create it
+          // 5. If user exists, update profile details and ensure wallet exists
+          const updateData: any = {};
+          if (userData.name !== undefined) updateData.name = userData.name;
+          if (normalizedEmail !== null) updateData.email = normalizedEmail;
+          if (userData.phone !== undefined) {
+            const existingPhoneUser = userData.phone
+              ? await prisma.user.findUnique({ where: { phone: userData.phone } })
+              : null;
+            if (!existingPhoneUser || existingPhoneUser.id === user.id) {
+              updateData.phone = userData.phone;
+            }
+          }
+
+          user = await prisma.user.update({
+            where: { id: user.id },
+            data: updateData,
+            include: { wallet: true },
+          });
+
           if (!user.wallet && (prisma as any).wallet) {
             try {
               const newWallet = await prisma.wallet.create({
@@ -108,4 +155,21 @@ export async function syncClerkUserToDatabase(userData: ClerkUserData) {
     role: isOwner ? "OWNER" : "CLIENT",
     walletBalance: 0.0,
   };
+}
+
+/**
+ * Removes a user record from the database when deleted in Clerk.
+ */
+export async function deleteClerkUserFromDatabase(clerkId: string) {
+  if (!clerkId) return null;
+  if (isDbReachable && prisma && (prisma as any).user) {
+    try {
+      return await prisma.user.deleteMany({
+        where: { clerkId },
+      });
+    } catch (err: any) {
+      console.warn("User deletion notice:", err?.message || err);
+    }
+  }
+  return null;
 }

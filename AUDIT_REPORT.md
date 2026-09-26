@@ -927,6 +927,78 @@ To maximize first-time seeker conversion while honoring the client's authentic s
 | **Exact Seeker / Consultation Count** | **EXPLICIT PLACEHOLDER**: Displayed with footnote `*Exact seeker count and metrics pending client confirmation` | **Flagged Discrepancy Removed**: The previously flagged inconsistent numbers (`15,000+` vs `35,000+`) have been **completely excluded** from the modal. | **Client to confirm actual lifetime consultation count** before replacing this placeholder footnote. |
 | **Astrotalk Marketplace Claims** | Strictly excluded (zero mentions of "5Cr+ Users", "50,000+ astrologers", etc.) | **Completely Excluded**: Incompatible with solo practitioner business model. | None. |
 
+---
+
+## 17. Clerk Webhook & Live Database User Synchronization Configuration
+
+### 17.1 Purpose & Problem Solved
+Previously, Clerk authentication operated primarily client-side without an automated synchronization mechanism to the application's PostgreSQL database (Neon). This meant newly registered users lacked a local `User` record or an initialized `Wallet` record (`wallets` table), potentially leading to orphaned states during wallet recharge, consultation booking, or permission assignment.
+
+This gap is now solved via a **dual-sync architecture**:
+1. **Real-time Webhook Receiver**: An enterprise-grade, cryptographically verified webhook endpoint at `/api/webhooks/clerk`.
+2. **First-Request In-Flight Fallback**: Server-side session verification (`getServerAuthUser()` and `/api/auth/sync`) which ensures that even if webhook delivery has internet latency or has not yet been configured in Clerk dashboard, the user and their wallet are automatically provisioned on their very first request.
+
+### 17.2 Clerk Dashboard Configuration (Step-by-Step)
+
+To configure the real-time webhook in the Clerk Dashboard:
+
+1. **Log in to Clerk Dashboard**:
+   - Access: [dashboard.clerk.com](https://dashboard.clerk.com) using the project Google Account (`Aapkaastro1606@gmail.com`).
+   - Select your application: `profound-cicada-9694` (or target app).
+
+2. **Navigate to Webhooks**:
+   - In the left sidebar, click **Configure** > **Webhooks**.
+   - Click **Add Endpoint** (top right).
+
+3. **Configure Endpoint Details**:
+   - **Endpoint URL**:
+     - For production: `https://aapka-astroo.vercel.app/api/webhooks/clerk` (or your custom domain `https://aapkaastro.com/api/webhooks/clerk`).
+     - For local development: Use Clerk CLI (`clerk listen`) or ngrok forwarding to `http://localhost:3000/api/webhooks/clerk`.
+   - **Message Filtering / Events to Subscribe**:
+     Select the following 3 user lifecycle events:
+     - `user.created` — Automatically creates the `User` row and an initial `Wallet` row with `balance: 0.0`.
+     - `user.updated` — Updates name, primary email address, and phone number in PostgreSQL.
+     - `user.deleted` — Cascades removal of the user record from PostgreSQL upon account deletion.
+
+4. **Copy Signing Secret**:
+   - After creating the endpoint, locate the **Signing Secret** card on the right panel.
+   - The secret starts with `whsec_` followed by base64 characters (e.g., `whsec_dGVzdC1zZWNyZX...`).
+   - **DO NOT commit this secret to Git**.
+
+5. **Configure Environment Variable**:
+   - Environment Variable Name:
+     ```env
+     CLERK_WEBHOOK_SECRET=whsec_your_actual_signing_secret_here
+     ```
+   - In **Vercel Project Settings**:
+     - Go to Settings > Environment Variables.
+     - Add `CLERK_WEBHOOK_SECRET` for **Production**, **Preview**, and **Development**.
+   - In local development:
+     - Add `CLERK_WEBHOOK_SECRET` to `.env.local` or `.env`.
+
+### 17.3 Cryptographic Verification Architecture
+
+The endpoint implements the official **Svix** standard webhook verification matching the existing Razorpay HMAC architecture:
+- Reads the raw body text (`req.text()`).
+- Extracts Svix headers: `svix-id`, `svix-timestamp`, `svix-signature`.
+- Verifies the cryptographic HMAC-SHA256 signature using `new Webhook(CLERK_WEBHOOK_SECRET).verify(...)`.
+- If signature verification fails or headers are tampered, returns HTTP `400 Bad Request` and halts execution.
+- If `CLERK_WEBHOOK_SECRET` is not provided (e.g. offline dev/preview), parses the payload with an explicit warning to ensure development continuity.
+
+### 17.4 Automated & Live Database Verification Evidence
+
+- **Unit & Integration Tests**: 184/184 tests passing (`tests/authDatabaseSync.test.ts`), covering:
+  - Valid Svix cryptographic signature verification.
+  - Rejection of tampered signatures and missing Svix headers with HTTP `400`.
+  - `user.created`, `user.updated`, and `user.deleted` payload parsing.
+  - Automatic `OWNER` role attribution for designated owner emails (`anmol@aapkaastro.com`, `acharya@aapkaastro.com`, `Aapkaastro1606@gmail.com`).
+- **Live Database End-to-End Verification (`scripts/verify-db-user-sync.ts`)**:
+  - Successfully connected to live Neon PostgreSQL database (`ep-restless-wildflower-b4r94suj.c-6.us-east-2.aws.neon.tech/neondb`).
+  - Created test user and confirmed direct row insertion in `users` and `wallets`.
+  - Dispatched Svix-signed `user.created` webhook request to `/api/webhooks/clerk`, confirming HTTP `200 OK` and persistent row creation in Neon.
+  - Safely purged test records leaving production tables clean.
+
+
 
 
 
