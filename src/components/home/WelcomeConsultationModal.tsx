@@ -61,11 +61,10 @@ export function isUserInActiveSessionOrConsultation(
         return true;
       }
 
-      // Active auth session cookies or mock user in local storage
+      // Active Clerk auth session cookies
       if (
         document.cookie.includes("__session") ||
-        document.cookie.includes("aapka_astro_session=active") ||
-        localStorage.getItem("aapka_astro_mock_user")
+        document.cookie.includes("__client_uat")
       ) {
         return true;
       }

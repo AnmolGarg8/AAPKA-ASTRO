@@ -65,38 +65,11 @@ const liveClerkMiddleware = clerkMiddleware(
       isAdminRoute(req) ||
       isAstrologerRoute(req);
 
-    // Development bypass flag for preview testing
-    const isDevPreview =
-      process.env.NODE_ENV !== "production" &&
-      (req.nextUrl.searchParams.get("preview") === "true" ||
-        req.cookies.get("aapka_astro_dev_preview")?.value === "true");
-
-    // Non-protected routes can pass immediately in dev preview
-    if (isDevPreview && !isProtected) {
-      return NextResponse.next();
-    }
-
     if (isProtected) {
       try {
         const session = await auth();
 
         if (!session.userId) {
-          // If in dev preview, check mock auth cookie before redirecting
-          if (isDevPreview) {
-            const mockAuth = getAuthFromRequest(req);
-            const access = evaluateRouteAccess(
-              pathname,
-              mockAuth.role,
-              mockAuth.isAuthenticated,
-              mockAuth.permissions,
-              mockAuth.email
-            );
-            if (!access.allowed) {
-              return NextResponse.redirect(new URL(access.redirectUrl, req.url));
-            }
-            return NextResponse.next();
-          }
-
           const signInUrl = new URL(signInPath, req.url);
           signInUrl.searchParams.set("redirect_url", req.url);
           return NextResponse.redirect(signInUrl);

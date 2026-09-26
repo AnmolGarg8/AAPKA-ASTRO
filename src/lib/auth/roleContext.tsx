@@ -10,7 +10,6 @@ import {
   hasSectionPermission,
 } from "./staffPermissions";
 import { useUser as useClerkUser } from "@clerk/nextjs";
-import { useMockAuth } from "@/components/auth/ClerkAuthWrapper";
 
 export interface CurrentUserRoleState {
   role: UserRole | null;
@@ -98,80 +97,6 @@ export const ClerkRoleBridge: React.FC<{ children: React.ReactNode }> = ({ child
   }
 
   const role: UserRole = isOwner ? "OWNER" : (String(rawRole).toUpperCase() as UserRole);
-
-  const permissions = isOwner
-    ? (STAFF_SECTIONS.map((s) => s.id) as StaffSection[])
-    : StaffPermissionService.getPermissionsSync(email || "");
-
-  const isAstrologer = isAstrologerRole(role) || permissions.length > 0;
-  const isAdmin = isOwner || isAdminRole(role);
-
-  const hasPermission = (section: StaffSection) =>
-    hasSectionPermission({ email, role, permissions }, section);
-
-  return (
-    <RoleContext.Provider
-      value={{
-        role,
-        isAuthenticated: true,
-        isAstrologer,
-        isAdmin,
-        isOwner,
-        email,
-        permissions,
-        hasPermission,
-        isLoading: false,
-      }}
-    >
-      {children}
-    </RoleContext.Provider>
-  );
-};
-
-/**
- * Bridge for Local Development Mock Auth environment
- */
-export const MockRoleBridge: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isSignedIn, user } = useMockAuth();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return (
-      <RoleContext.Provider value={{ ...defaultRoleState, isLoading: true }}>
-        {children}
-      </RoleContext.Provider>
-    );
-  }
-
-  if (!isSignedIn || !user) {
-    return (
-      <RoleContext.Provider
-        value={{
-          role: null,
-          isAuthenticated: false,
-          isAstrologer: false,
-          isAdmin: false,
-          isOwner: false,
-          email: null,
-          permissions: [],
-          hasPermission: () => false,
-          isLoading: false,
-        }}
-      >
-        {children}
-      </RoleContext.Provider>
-    );
-  }
-
-  const email = user.email || null;
-  const isOwner = isOwnerEmail(email);
-  const rawRole = String(user.role || "CLIENT").toUpperCase();
-  const safeRole = rawRole === "OWNER" && !isOwner ? "CLIENT" : rawRole;
-  const role: UserRole = isOwner ? "OWNER" : (safeRole as UserRole);
 
   const permissions = isOwner
     ? (STAFF_SECTIONS.map((s) => s.id) as StaffSection[])
