@@ -8,6 +8,7 @@ import { Footer } from "@/components/layout/Footer";
 import { WelcomeConsultationModal } from "@/components/home/WelcomeConsultationModal";
 import { PLACEHOLDER_ASTROLOGER } from "@/config/placeholderContent";
 import { LanguageProvider } from "@/context/LanguageContext";
+import { getClerkPublishableKey } from "@/lib/auth/clerkConfig";
 
 const cinzel = Cinzel({
   variable: "--font-cinzel",
@@ -41,12 +42,12 @@ export const metadata: Metadata = {
   ],
 };
 
+const publishableKey = getClerkPublishableKey();
 const isProduction = process.env.NODE_ENV === "production";
-const isSatellite = isProduction && process.env.NEXT_PUBLIC_CLERK_IS_SATELLITE === "true";
+const isSatellite =
+  publishableKey.startsWith("pk_live_") &&
+  process.env.NEXT_PUBLIC_CLERK_IS_SATELLITE === "true";
 const clerkDomain = isSatellite ? (process.env.NEXT_PUBLIC_CLERK_DOMAIN || undefined) : undefined;
-const publishableKey =
-  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
-  "pk_test_cHJvZm91bmQtY2ljYWRhLTk2OTQuY2xlcmsuYWNjb3VudHMuZGV2JA";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

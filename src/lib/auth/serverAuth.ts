@@ -10,6 +10,7 @@ import {
   StaffGrant,
   AccessLevel,
 } from "./staffPermissions";
+import { syncClerkUserToDatabase } from "./syncUser";
 
 export interface ServerAuthResult {
   isAuthenticated: boolean;
@@ -204,6 +205,20 @@ export async function getServerAuthUser(): Promise<ServerAuthResult> {
       // Anti-tamper: metadata claiming OWNER without matching OWNER_EMAIL is disallowed
       if (String(rawRole).toUpperCase() === "OWNER" && !isOwner) {
         rawRole = "CLIENT";
+      }
+
+      if (session.userId) {
+        const uName =
+          claims?.name ||
+          claims?.fullName ||
+          claims?.first_name ||
+          undefined;
+
+        syncClerkUserToDatabase({
+          clerkId: session.userId,
+          email,
+          name: uName,
+        }).catch((err) => console.warn("Background user sync notice:", err?.message || err));
       }
 
       if (isOwner) {

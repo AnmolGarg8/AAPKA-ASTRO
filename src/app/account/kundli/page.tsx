@@ -101,11 +101,41 @@ export default function AccountKundliPage() {
 
         {/* Charts Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {savedKundlis.map((knd) => (
-            <div
-              key={knd.id}
-              className="rounded-3xl border border-[#E8D8C3] bg-[#FFFDF9] p-6 shadow-sm flex flex-col justify-between"
-            >
+          {savedKundlis.length === 0 ? (
+            <div className="md:col-span-2 rounded-3xl border border-[#E8D8C3] bg-[#FFFDF9] p-10 text-center space-y-4">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#7B2D26]/10 text-[#7B2D26]">
+                <FileText className="h-7 w-7 text-[#C1662F]" />
+              </div>
+              <h3 className="font-temple text-xl font-bold text-[#7B2D26]">
+                No Saved Janam Kundlis Yet
+              </h3>
+              <p className="text-xs sm:text-sm text-[#6E5545] max-w-md mx-auto">
+                Maintain charts for yourself and family members. Save birth charts for immediate Vedic lookup during consultations.
+              </p>
+              <div className="flex flex-wrap justify-center gap-3 pt-2">
+                <Link
+                  href="/kundli"
+                  className="rounded-xl bg-[#7B2D26] px-5 py-2.5 text-xs font-bold text-[#FBF3E7] hover:bg-[#64221C] transition-all shadow-sm flex items-center gap-1.5"
+                >
+                  <Sparkles className="h-4 w-4 text-[#E8A33D]" />
+                  <span>Calculate Free Kundli</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(true)}
+                  className="rounded-xl border border-[#E8D8C3] bg-[#FFFDF9] px-5 py-2.5 text-xs font-bold text-[#7B2D26] hover:bg-[#FBF3E7] transition-all shadow-sm flex items-center gap-1.5"
+                >
+                  <Plus className="h-4 w-4 text-[#C1662F]" />
+                  <span>Add Manually</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            savedKundlis.map((knd) => (
+              <div
+                key={knd.id}
+                className="rounded-3xl border border-[#E8D8C3] bg-[#FFFDF9] p-6 shadow-sm flex flex-col justify-between"
+              >
               <div>
                 <div className="flex items-center justify-between gap-2 mb-3">
                   <span className="rounded-md bg-[#FBF3E7] px-2.5 py-0.5 text-[11px] font-bold text-[#7B2D26] border border-[#E8D8C3]">
@@ -173,7 +203,8 @@ export default function AccountKundliPage() {
                 </Link>
               </div>
             </div>
-          ))}
+          ))
+        )}
         </div>
       </div>
 

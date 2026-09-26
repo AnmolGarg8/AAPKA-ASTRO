@@ -45,8 +45,20 @@ export default function ClientAccountDashboard() {
     setWallet(AstrologerStateStore.getWalletBalance());
     const sync = () => setWallet(AstrologerStateStore.getWalletBalance());
     window.addEventListener("astro_state_changed", sync);
+
+    if (isLoaded && user) {
+      fetch("/api/auth/sync")
+        .then((r) => r.json())
+        .then((data) => {
+          if (data?.user?.walletBalance !== undefined && data.user.walletBalance > 0) {
+            setWallet(data.user.walletBalance);
+          }
+        })
+        .catch(() => {});
+    }
+
     return () => window.removeEventListener("astro_state_changed", sync);
-  }, []);
+  }, [isLoaded, user]);
 
   return (
     <div className="bg-[#FBF3E7] text-[#3B2A1E] min-h-screen py-10 px-4 sm:px-6 lg:px-8">
@@ -226,35 +238,48 @@ export default function ClientAccountDashboard() {
               </Link>
             </div>
 
-            <div className="space-y-3">
-              {savedKundlis.slice(0, 2).map((knd) => (
-                <div
-                  key={knd.id}
-                  className="rounded-2xl border border-[#E8D8C3] bg-[#FBF3E7] p-4 flex items-center justify-between"
-                >
-                  <div>
-                    <h4 className="font-temple text-sm font-bold text-[#7B2D26]">
-                      {knd.name}
-                    </h4>
-                    <p className="text-[11px] text-[#6E5545]">
-                      {knd.birthDate} • {knd.birthPlace}
-                    </p>
-                    <div className="mt-1 flex gap-2 text-[10px] font-semibold text-[#7B2D26]">
-                      <span>Lagna: {knd.lagna}</span>
-                      <span>•</span>
-                      <span>Rashi: {knd.rashi}</span>
-                    </div>
-                  </div>
-
-                  <Link
-                    href="/kundli"
-                    className="rounded-lg bg-[#FFFDF9] border border-[#E8D8C3] px-3 py-1.5 text-xs font-bold text-[#7B2D26] hover:bg-[#7B2D26] hover:text-white transition-all shadow-sm"
+            {savedKundlis.length > 0 ? (
+              <div className="space-y-3">
+                {savedKundlis.slice(0, 2).map((knd) => (
+                  <div
+                    key={knd.id}
+                    className="rounded-2xl border border-[#E8D8C3] bg-[#FBF3E7] p-4 flex items-center justify-between"
                   >
-                    Open Chart
-                  </Link>
-                </div>
-              ))}
-            </div>
+                    <div>
+                      <h4 className="font-temple text-sm font-bold text-[#7B2D26]">
+                        {knd.name}
+                      </h4>
+                      <p className="text-[11px] text-[#6E5545]">
+                        {knd.birthDate} • {knd.birthPlace}
+                      </p>
+                      <div className="mt-1 flex gap-2 text-[10px] font-semibold text-[#7B2D26]">
+                        <span>Lagna: {knd.lagna}</span>
+                        <span>•</span>
+                        <span>Rashi: {knd.rashi}</span>
+                      </div>
+                    </div>
+
+                    <Link
+                      href="/kundli"
+                      className="rounded-lg bg-[#FFFDF9] border border-[#E8D8C3] px-3 py-1.5 text-xs font-bold text-[#7B2D26] hover:bg-[#7B2D26] hover:text-white transition-all shadow-sm"
+                    >
+                      Open Chart
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-dashed border-[#E8D8C3] bg-[#FBF3E7]/50 p-6 text-center space-y-2">
+                <p className="text-xs text-[#6E5545]">No saved Janam Kundlis found yet.</p>
+                <Link
+                  href="/kundli"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-[#7B2D26] px-4 py-2 text-xs font-bold text-[#FBF3E7] hover:bg-[#64221C] transition-all shadow-sm"
+                >
+                  <Sparkles className="h-3.5 w-3.5 text-[#E8A33D]" />
+                  <span>Calculate &amp; Save Free Kundli</span>
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Recent Consultation Notes & Remedies */}
@@ -286,7 +311,16 @@ export default function ClientAccountDashboard() {
                 </div>
               </div>
             ) : (
-              <p className="text-xs text-[#6E5545]">No consultation records found.</p>
+              <div className="rounded-2xl border border-dashed border-[#E8D8C3] bg-[#FBF3E7]/50 p-6 text-center space-y-2">
+                <p className="text-xs text-[#6E5545]">No consultation records or prescribed remedies yet.</p>
+                <Link
+                  href="/consult"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-[#E8A33D] px-4 py-2 text-xs font-bold text-[#3B2A1E] hover:bg-[#F6CF86] transition-all shadow-sm"
+                >
+                  <PhoneCall className="h-3.5 w-3.5" />
+                  <span>Consult Acharya Ji (50% Off First Session)</span>
+                </Link>
+              </div>
             )}
           </div>
         </div>

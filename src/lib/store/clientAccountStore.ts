@@ -74,77 +74,11 @@ let memoryClientProfile: ClientProfile = {
   role: "CLIENT",
 };
 
-let memorySavedKundlis: SavedKundli[] = [
-  {
-    id: "knd-1",
-    name: "Aarav Sharma (Self)",
-    relation: "Self",
-    birthDate: "1995-10-24",
-    birthTime: "14:35",
-    birthPlace: "New Delhi",
-    gender: "Male",
-    lagna: "Capricorn (Makar)",
-    rashi: "Libra (Tula)",
-    nakshatra: "Swati (Pada 3)",
-    createdAt: "2026-08-14",
-  },
-  {
-    id: "knd-2",
-    name: "Meera Kapoor (Spouse)",
-    relation: "Spouse",
-    birthDate: "1997-04-12",
-    birthTime: "09:15",
-    birthPlace: "Jaipur, Rajasthan",
-    gender: "Female",
-    lagna: "Gemini (Mithun)",
-    rashi: "Taurus (Vrishabha)",
-    nakshatra: "Rohini (Pada 2)",
-    createdAt: "2026-08-20",
-  },
-];
+let memorySavedKundlis: SavedKundli[] = [];
 
-let memoryConsultations: ConsultationRecord[] = [
-  {
-    id: "CON-8842",
-    date: "18 Sep 2026",
-    duration: "14 Minutes",
-    mode: "Voice Call",
-    amount: "₹210",
-    astrologer: PLACEHOLDER_ASTROLOGER.displayName,
-    topic: "Career Promotion & Foreign Relocation Dasha",
-    remedy: "Chant Brihaspati Beej Mantra 108 times on Thursdays. Wear 6.25 Ratti Yellow Sapphire.",
-    notes:
-      "Client is in Rahu-Jupiter Antardasha. High prospects for international placement by mid-2027. Maintain discipline in speech and avoid speculative investments.",
-    hasReview: true,
-  },
-  {
-    id: "CON-7104",
-    date: "04 Sep 2026",
-    duration: "20 Minutes",
-    mode: "Chat",
-    amount: "₹150",
-    astrologer: PLACEHOLDER_ASTROLOGER.displayName,
-    topic: "Residential Vastu Rectification for North-West Entrance",
-    remedy: "Placed consecrated Brass Helix in Vayavya corner. Lighted white mustard oil diya.",
-    notes:
-      "Vastu dosha in Vayavya (North-West) zone was causing domestic disharmony. Suggested non-demolition brass pyramid installation.",
-    hasReview: false,
-  },
-];
+let memoryConsultations: ConsultationRecord[] = [];
 
-let memoryReviews: ClientReview[] = [
-  {
-    id: "rev-1",
-    consultationId: "CON-8842",
-    clientName: "Aarav Sharma",
-    service: "Voice Call Consultation",
-    rating: 5,
-    comment:
-      "Acharya ji explained the dasha timing with unmatched clarity. Within 2 weeks of performing the recommended Guru remedy, I received a confirmation email from my overseas team!",
-    consentPublic: true,
-    date: "19 Sep 2026",
-  },
-];
+let memoryReviews: ClientReview[] = [];
 
 let memoryCallbacks: CallbackRequest[] = [];
 
