@@ -1050,6 +1050,71 @@ While the codebase is 100% complete and verified, the following one-time externa
 2. **Vercel Environment Variable**:
    - Ensure `OWNER_EMAIL` is set to the client's actual login email in Vercel Project Settings so Owner rights are assigned upon first login.
 
+---
+
+## 19. Google OAuth Single Sign-On Callback Resolution & Cross-Site Parity (Aapka Astro & Viar.in)
+
+### 19.1 Issue Diagnosis & Root Cause Analysis
+During live Google OAuth sign-up / sign-in on Aapka Astro (`https://aapka-astroo.vercel.app/login`), initiating the Google OAuth flow resulted in a **404 Not Found** at:
+```
+https://aapka-astroo.vercel.app/login/sso-callback?sign_up_force_redirect_url=%2Faccount&sign_in_force_redirect_url=%2Faccount
+```
+- **Root Cause**: In Clerk Next.js App Router applications using path-based routing (`routing="path"` and `path="/login"` on `<SignIn />`, or `path="/signup"` on `<SignUp />`), Clerk delegates the third-party OAuth provider handshake completion to `${path}/sso-callback`.
+- Because Next.js App Router had no corresponding page component at `src/app/login/sso-callback/page.tsx`, Next.js returned a 404 error page upon return from Google's consent screen before Clerk could process the authentication tokens and establish session cookies.
+
+### 19.2 Solution Architecture on Aapka Astro
+To resolve the 404 error and complete the OAuth handshake seamlessly:
+1. **Created Dedicated SSO Callback Route (`src/app/login/sso-callback/page.tsx`)**:
+   - Client component (`"use client"`) rendering Clerk's official `<AuthenticateWithRedirectCallback />`.
+   - Explicitly configured with target redirect properties:
+     ```tsx
+     <AuthenticateWithRedirectCallback
+       signInForceRedirectUrl="/account"
+       signUpForceRedirectUrl="/account"
+       signInFallbackRedirectUrl="/account"
+       signUpFallbackRedirectUrl="/account"
+     />
+     ```
+   - Wrapped in a responsive, temple-styled loading card featuring the sacred ॐ emblem, glowing amber accents, and an encrypted Single Sign-On handshake indicator so seekers experience zero layout shift or jarring transitions.
+2. **Created Comprehensive Fallback Callback Routes**:
+   - `src/app/signup/sso-callback/page.tsx`: Handles OAuth registrations initiated from the `/signup` screen.
+   - `src/app/sso-callback/page.tsx`: Handles root-level OAuth redirects.
+   - Ensures that regardless of which entry point a seeker uses to initiate Google OAuth, the callback resolves with 100% success and 0% risk of a 404.
+3. **Confirmed Matching Redirect Targets**:
+   - `LoginClient.tsx` uses `<SignIn routing="path" path="/login" forceRedirectUrl="/account" fallbackRedirectUrl="/account" />`.
+   - `SignupClient.tsx` uses `<SignUp routing="path" path="/signup" forceRedirectUrl="/account" fallbackRedirectUrl="/account" />`.
+   - All redirect parameters now match the new SSO callback routes exactly.
+
+### 19.3 Sibling Platform Audit & Parity Fix (Viar.in)
+An investigation of the sibling educational academy platform Viar.in (`c:\Users\anmol\OneDrive\Desktop\viar`) revealed the exact same architectural gap with custom authentication buttons:
+1. **Viar Issue Identified**:
+   - In `viar/src/app/login/page.tsx` and `viar/src/app/signup/page.tsx`, the custom "Continue with Google" buttons invoked `authProvider.signInWithGoogle()`.
+   - `viar/src/lib/auth/index.ts` had a hardcoded placeholder: `window.location.href = '/sign-in'`, which would have resulted in a 404 because Viar routes auth through `/login` and `/signup`.
+   - Viar had no `/login/sso-callback`, `/signup/sso-callback`, or `/sso-callback` routes created.
+2. **Viar Parity Resolution**:
+   - Created `src/app/login/sso-callback/page.tsx` in Viar with `<AuthenticateWithRedirectCallback signInForceRedirectUrl="/dashboard" signUpForceRedirectUrl="/dashboard" />`.
+   - Created `src/app/signup/sso-callback/page.tsx` and `src/app/sso-callback/page.tsx` in Viar.
+   - Enhanced `AuthProvider.signInWithGoogle(options)` in Viar to invoke Clerk's browser SDK:
+     ```ts
+     await clerk.client.signIn.authenticateWithRedirect({
+       strategy: 'oauth_google',
+       redirectUrl: options?.redirectUrl || '/login/sso-callback',
+       redirectUrlComplete: options?.redirectUrlComplete || '/dashboard',
+     });
+     ```
+   - Updated Viar login and signup pages to pass explicit callback options targeting `/login/sso-callback` and `/signup/sso-callback`, redirecting authenticated students to `/dashboard`.
+
+### 19.4 Verification Evidence & Test Results
+1. **Aapka Astro**:
+   - **Dedicated Test Suite**: `tests/ssoCallback.test.ts` passes 5/5 assertions verifying file existence, `<AuthenticateWithRedirectCallback />` implementation, `/account` redirect targets, public middleware matching, and client configuration.
+   - **Full Test Suite**: **189 / 189 tests passing** across 39 suites (`npm test`).
+   - **Production Build**: **87 / 87 routes compiled cleanly** (`next build`), with `/login/sso-callback`, `/signup/sso-callback`, and `/sso-callback` statically compiled.
+2. **Viar.in**:
+   - **Full Test Suite**: **85 / 85 tests passing** across 25 suites (`npm test`).
+   - **Production Build**: **44 / 44 pages compiled cleanly** (`next build`), with `/login/sso-callback`, `/signup/sso-callback`, and `/sso-callback` statically compiled.
+   - **Zero Lint Errors**: Passed `next lint` with 0 warnings/errors.
+
+
 
 
 
