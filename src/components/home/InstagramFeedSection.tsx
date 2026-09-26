@@ -34,7 +34,7 @@ export const InstagramFeedSection: React.FC = () => {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 rounded-lg border border-[#7B2D26] bg-[#FFFDF9] px-4 py-2 text-xs font-bold text-[#7B2D26] hover:bg-[#7B2D26] hover:text-[#FBF3E7] transition-all"
             >
-              <span>Follow @aapkaastro</span>
+              <span>Follow {PLACEHOLDER_SOCIAL_LINKS.instagram.handle}</span>
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
 

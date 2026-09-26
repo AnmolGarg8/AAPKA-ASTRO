@@ -112,12 +112,11 @@ export const Footer: React.FC = () => {
                 Connect With Acharya Ji
               </div>
               <div className="flex items-center gap-3">
-                {/* PLACEHOLDER: replace with real social handles once provided by client */}
                 <a
                   href={PLACEHOLDER_SOCIAL_LINKS.instagram.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Instagram (Aapka Astrologer)"
+                  aria-label="Instagram (@aapkaastrologer)"
                   title="Follow on Instagram @aapkaastrologer"
                   className="rounded-lg bg-[#64221C] p-2 text-[#FBF3E7] hover:bg-[#E8A33D] hover:text-[#3B2A1E] transition-colors"
                 >
@@ -127,8 +126,8 @@ export const Footer: React.FC = () => {
                   href={PLACEHOLDER_SOCIAL_LINKS.youtube.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="YouTube (Aapka Astro)"
-                  title="Watch Vedic Discourses on YouTube"
+                  aria-label="YouTube (@aapkaastro7900)"
+                  title="Watch Vedic Discourses on YouTube @aapkaastro7900"
                   className="rounded-lg bg-[#64221C] p-2 text-[#FBF3E7] hover:bg-[#E8A33D] hover:text-[#3B2A1E] transition-colors"
                 >
                   <YoutubeIcon className="h-4 w-4" />
@@ -137,15 +136,15 @@ export const Footer: React.FC = () => {
                   href={PLACEHOLDER_SOCIAL_LINKS.facebook.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Facebook (Aapka Astro)"
-                  title="Connect on Facebook"
+                  aria-label="Facebook (@aapkaastro)"
+                  title="Connect on Facebook @aapkaastro"
                   className="rounded-lg bg-[#64221C] p-2 text-[#FBF3E7] hover:bg-[#E8A33D] hover:text-[#3B2A1E] transition-colors"
                 >
                   <FacebookIcon className="h-4 w-4" />
                 </a>
               </div>
               <div className="text-[10px] text-[#FBF3E7]/50 mt-1 italic">
-                Official social handles ({PLACEHOLDER_SOCIAL_LINKS.instagram.handle})
+                Official handles: Instagram ({PLACEHOLDER_SOCIAL_LINKS.instagram.handle}) &bull; YouTube ({PLACEHOLDER_SOCIAL_LINKS.youtube.handle}) &bull; Facebook ({PLACEHOLDER_SOCIAL_LINKS.facebook.handle})
               </div>
             </div>
           </div>

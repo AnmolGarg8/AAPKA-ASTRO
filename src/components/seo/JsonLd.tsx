@@ -93,6 +93,11 @@ export function PersonJsonLd() {
       "Panchang Calculation",
       "Muhurat Shastra",
     ],
+    sameAs: [
+      PLACEHOLDER_SOCIAL_LINKS.instagram.url,
+      PLACEHOLDER_SOCIAL_LINKS.facebook.url,
+      PLACEHOLDER_SOCIAL_LINKS.youtube.url,
+    ],
   };
 
   return (

@@ -249,12 +249,14 @@ export const PLACEHOLDER_SOCIAL_LINKS = {
   },
   youtube: {
     name: "YouTube",
-    url: "https://www.youtube.com/embed/hibDdoH5kbQ?si=1fp_acyv9bs01pLm",
-    handle: "Aapka Astro",
+    url: "https://www.youtube.com/@aapkaastro7900",
+    embedUrl: "https://www.youtube.com/embed/hibDdoH5kbQ?si=1fp_acyv9bs01pLm",
+    handle: "@aapkaastro7900",
   },
   facebook: {
     name: "Facebook",
     url: "https://www.facebook.com/aapkaastro",
-    handle: "aapkaastro",
+    handle: "@aapkaastro",
   },
 };
+

@@ -51,7 +51,7 @@ export default function ReelsPage() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-xl bg-[#E8A33D] px-6 py-3 text-xs sm:text-sm font-bold text-[#3B2A1E] hover:bg-[#F6CF86] transition-all shadow-md"
             >
-              <span>Follow on Instagram (@aapkaastro)</span>
+              <span>Follow on Instagram ({PLACEHOLDER_SOCIAL_LINKS.instagram.handle})</span>
               <ExternalLink className="h-4 w-4" />
             </a>
           </div>

@@ -253,11 +253,39 @@ export default function AboutPage() {
           <div className="relative aspect-video w-full overflow-hidden rounded-3xl border-4 border-[#E8D8C3] bg-black shadow-xl">
             <iframe
               className="h-full w-full"
-              src="https://www.youtube.com/embed/hibDdoH5kbQ?si=1fp_acyv9bs01pLm"
+              src={PLACEHOLDER_SOCIAL_LINKS.youtube.embedUrl || "https://www.youtube.com/embed/hibDdoH5kbQ?si=1fp_acyv9bs01pLm"}
               title="Aapka Astro Acharya Niraj Kumar Discourse"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
             />
+          </div>
+
+          {/* Social Channels Connection Bar */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <a
+              href={PLACEHOLDER_SOCIAL_LINKS.youtube.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#7B2D26] px-5 py-2.5 text-xs sm:text-sm font-bold text-[#FBF3E7] hover:bg-[#96372E] transition-all shadow-sm"
+            >
+              <span>Watch on YouTube ({PLACEHOLDER_SOCIAL_LINKS.youtube.handle})</span>
+            </a>
+            <a
+              href={PLACEHOLDER_SOCIAL_LINKS.facebook.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl border border-[#7B2D26] bg-[#FFFDF9] px-5 py-2.5 text-xs sm:text-sm font-bold text-[#7B2D26] hover:bg-[#FBF3E7] transition-all shadow-sm"
+            >
+              <span>Connect on Facebook ({PLACEHOLDER_SOCIAL_LINKS.facebook.handle})</span>
+            </a>
+            <a
+              href={PLACEHOLDER_SOCIAL_LINKS.instagram.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl border border-[#7B2D26] bg-[#FFFDF9] px-5 py-2.5 text-xs sm:text-sm font-bold text-[#7B2D26] hover:bg-[#FBF3E7] transition-all shadow-sm"
+            >
+              <span>Follow on Instagram ({PLACEHOLDER_SOCIAL_LINKS.instagram.handle})</span>
+            </a>
           </div>
         </div>
       </section>
