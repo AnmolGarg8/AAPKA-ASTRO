@@ -14,7 +14,7 @@ import {
 import { PLACEHOLDER_ASTROLOGER, ADMIN_CONFIGURABLE_PRICING } from "@/config/placeholderContent";
 
 const WalletPage: React.FC = () => {
-  const [balance, setBalance] = useState(250);
+  const [balance, setBalance] = useState(0);
   const [selectedPack, setSelectedPack] = useState<number>(499);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
@@ -61,6 +61,15 @@ const WalletPage: React.FC = () => {
   useEffect(() => {
     sync();
     window.addEventListener("astro_state_changed", sync);
+    fetch("/api/auth/sync")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.user?.walletBalance !== undefined) {
+          setBalance(data.user.walletBalance);
+          AstrologerStateStore.setWalletBalance(data.user.walletBalance);
+        }
+      })
+      .catch(() => {});
     return () => window.removeEventListener("astro_state_changed", sync);
   }, []);
 

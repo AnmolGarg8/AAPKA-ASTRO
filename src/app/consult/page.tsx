@@ -47,7 +47,7 @@ export default function ConsultPage() {
   const [status, setStatus] = useState<AstrologerStatus>("AVAILABLE");
   const [queue, setQueue] = useState<QueueItem[]>([]);
   const [activeSession, setActiveSession] = useState<ActiveSession | null>(null);
-  const [walletBalance, setWalletBalance] = useState(250);
+  const [walletBalance, setWalletBalance] = useState(0);
 
   // Client Consultation Form State
   const [userName, setUserName] = useState("");
@@ -113,6 +113,15 @@ export default function ConsultPage() {
     if (user?.fullName && !userName) {
       setUserName(user.fullName);
     }
+    fetch("/api/auth/sync")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.user?.walletBalance !== undefined) {
+          setWalletBalance(data.user.walletBalance);
+          AstrologerStateStore.setWalletBalance(data.user.walletBalance);
+        }
+      })
+      .catch(() => {});
   }, [user, userName]);
 
   // Initialize Billing Engine when active session is established

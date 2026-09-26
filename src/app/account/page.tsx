@@ -26,7 +26,7 @@ import {
 
 export default function ClientAccountDashboard() {
   const { user, isLoaded } = useUser();
-  const [wallet, setWallet] = useState(250);
+  const [wallet, setWallet] = useState(0);
   const profile = ClientAccountStore.getProfile();
   const savedKundlis = ClientAccountStore.getSavedKundlis();
   const consultations = ClientAccountStore.getConsultationHistory();
@@ -50,8 +50,9 @@ export default function ClientAccountDashboard() {
       fetch("/api/auth/sync")
         .then((r) => r.json())
         .then((data) => {
-          if (data?.user?.walletBalance !== undefined && data.user.walletBalance > 0) {
+          if (data?.user?.walletBalance !== undefined) {
             setWallet(data.user.walletBalance);
+            AstrologerStateStore.setWalletBalance(data.user.walletBalance);
           }
         })
         .catch(() => {});

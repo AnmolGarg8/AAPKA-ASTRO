@@ -297,7 +297,7 @@ export class AstrologerStateStore {
 
   // User Wallet
   static getWalletBalance(): number {
-    return this.getStorage<number>(STORAGE_KEYS.WALLET, 250); // Default promo ₹250
+    return this.getStorage<number>(STORAGE_KEYS.WALLET, 0); // Default real new-user balance ₹0
   }
 
   static addWalletBalance(amount: number): number {
