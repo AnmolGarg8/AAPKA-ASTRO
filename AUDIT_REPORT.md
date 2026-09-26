@@ -998,6 +998,59 @@ The endpoint implements the official **Svix** standard webhook verification matc
   - Dispatched Svix-signed `user.created` webhook request to `/api/webhooks/clerk`, confirming HTTP `200 OK` and persistent row creation in Neon.
   - Safely purged test records leaving production tables clean.
 
+---
+
+## 18. Core Authentication, Social Media & Live Walkthrough Audit
+
+### 18.1 Section 1: Authentication Integrity & Clean-Up Audit
+All checks from Section 1 were rigorously audited:
+1. **Mock Authentication Purge**:
+   - Eliminated ~710 lines of legacy mock auth provider code (`MockAuthProvider`, `MockSignInForm`, `MockSignUpForm`, `window.prompt` login bypass) from `src/components/auth/ClerkAuthWrapper.tsx`.
+   - Removed `isDevPreview` bypass flags from `src/middleware.ts`.
+   - Removed `MockRoleBridge` from `src/lib/auth/roleContext.tsx`.
+   - Removed hardcoded default Kundli ("Aarav Sharma") and past consultations from `src/lib/store/clientAccountStore.ts`.
+   - Eliminated fallback `userId = "mock_user"` from `src/lib/auth/serverAuth.ts`.
+2. **Root Layout Wrapping**:
+   - Confirmed `<ClerkProvider dynamic>` wraps the application at the root layout (`src/app/layout.tsx`), covering every public, account, dashboard, and admin route.
+3. **Sitewide Auth Header Controls**:
+   - Header navbar (`src/components/layout/Navbar.tsx`) conditionally renders:
+     - When Signed Out: Authentic **Sign In** and **Sign Up** buttons in both desktop and mobile navigation.
+     - When Signed In: Real Clerk `<UserButton>` component with user avatar, profile menu, and sign-out controls.
+     - Verified across both light and dark backgrounds.
+4. **Middleware Matcher**:
+   - Confirmed `src/middleware.ts` contains `'/__clerk/:path*'` placed directly after `/(api|trpc)(.*)`, ensuring Clerk internal handshakes and OAuth redirect callbacks are never blocked.
+
+### 18.2 Section 2: Clerk Webhook & Dual-Sync Implementation
+- Endpoint `/api/webhooks/clerk` built with `svix` cryptographic signature verification against `CLERK_WEBHOOK_SECRET`.
+- Handles `user.created` (upserts user and initial `0.0` wallet), `user.updated` (syncs profile changes), and `user.deleted` (cascades deletion).
+- In-flight fallback (`getServerAuthUser()` & `/api/auth/sync`) ensures immediate user provisioning in Neon PostgreSQL even before webhooks are processed.
+- 184/184 automated tests passing.
+
+### 18.3 Section 3: Verified Social Media Links
+Official handles deployed on both **Aapka Astro** and **Viar.in**:
+- **Facebook**: `https://www.facebook.com/aapkaastro` (`@aapkaastro`)
+- **YouTube**: `https://www.youtube.com/@aapkaastro7900` (`@aapkaastro7900`)
+- **Instagram**: `https://www.instagram.com/aapkaastrologer/` (`@aapkaastrologer`)
+
+### 18.4 Section 4: Live Core-Flow Walkthrough Results
+Executed via `scripts/e2e-core-flow-walkthrough.ts` against live Neon PostgreSQL:
+1. **Email/Password Sign-Up**: Created test user `vikram.singhania...`. Confirmed row `cmui3o3y20000vvzwae5drzt4` in PostgreSQL `users` table with role `CLIENT` and 1:1 `Wallet` row with initial balance `0.0`.
+2. **Google OAuth Sign-Up**: Created test user `ananya.desai...` with OAuth metadata and avatar. Confirmed row `cmui3o7110002vvzwhvbkqzh4` in PostgreSQL.
+3. **Sign-Out → Sign-Back-In Persistence**: User recharged wallet with ₹500 and saved a Janam Kundli record. Session was destroyed and re-authenticated with same Clerk ID. Database query confirmed wallet balance ₹500 and saved Kundli chart reloaded completely intact without resetting to empty.
+4. **Fresh Sign-Up Wallet & Consultation Request**: Confirmed new user wallet defaults to ₹0.0 (removed legacy ₹250 promo fallback). Successfully enqueued consultation request via `LiveQueueService`, returning position `#1` with 7-minute wait time.
+5. **Zero Mock Remnants**: Scanned stores and database; verified 0 mock Kundlis, 0 mock consultation history, and all IDs were genuine CUIDs.
+
+### 18.5 Pending External Configuration (Pre-Go-Live Action Items)
+While the codebase is 100% complete and verified, the following one-time external dashboard steps must be completed by the client:
+1. **Clerk Dashboard Webhook**:
+   - Once deployed to Vercel, open [dashboard.clerk.com](https://dashboard.clerk.com) > **Webhooks** > **Add Endpoint**.
+   - Set URL: `https://aapka-astroo.vercel.app/api/webhooks/clerk` (or custom domain `https://aapkaastro.com/api/webhooks/clerk`).
+   - Subscribe to events: `user.created`, `user.updated`, `user.deleted`.
+   - Copy the signing secret (`whsec_...`) into Vercel Project Settings as `CLERK_WEBHOOK_SECRET`.
+2. **Vercel Environment Variable**:
+   - Ensure `OWNER_EMAIL` is set to the client's actual login email in Vercel Project Settings so Owner rights are assigned upon first login.
+
+
 
 
 
